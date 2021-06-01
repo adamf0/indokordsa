@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <data>
+        <variable
+            name="action"
+            type="com.app.indokordsa.view.adapter.ListJobQuestionnaireAdapter" />
+        <variable
+            name="model"
+            type="com.app.indokordsa.view.model.KuesionerResultDetail2" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="2dp"
+        android:layout_marginBottom="2dp"
+        android:layout_marginLeft="2dp"
+        android:layout_marginRight="8dp"
+        android:background="@drawable/active_dot"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="2dp">
+
+        <TextView
+            android:id="@+id/textView17"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:text="@{model.no}"
+            android:fontFamily="@font/helvetica_neue_condensed_bold"
+            android:textColor="#fff"
+            android:textSize="14sp"
+            android:gravity="center"
+            android:onClick="@{()->action.toNumber(model)}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

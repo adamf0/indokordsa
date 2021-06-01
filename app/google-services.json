@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1072616593875",
+    "project_id": "indokordsa-c10d0",
+    "storage_bucket": "indokordsa-c10d0.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1072616593875:android:38fa1cd30bc5d577b37726",
+        "android_client_info": {
+          "package_name": "com.app.indokordsa"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1072616593875-fmn130l9ofo9bg1e9fdi51923jtn8tbs.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAzVebMELn39GaLo2T-hZgMXRHg_IQ1jdo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1072616593875-fmn130l9ofo9bg1e9fdi51923jtn8tbs.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
