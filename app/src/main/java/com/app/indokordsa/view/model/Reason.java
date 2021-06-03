@@ -7,22 +7,21 @@ import android.os.Parcelable;
 
 import androidx.databinding.BaseObservable;
 import androidx.databinding.Bindable;
+import androidx.databinding.library.baseAdapters.BR;
 
-import com.app.indokordsa.BR;
-
-public class TodoStatus extends BaseObservable implements Parcelable {
+public class Reason extends BaseObservable implements Parcelable {
     private int id;
     private String nama;
 
-    TodoStatus(){
+    Reason(){
 
     }
-    public TodoStatus(int id, String nama){
+    public Reason(int id, String nama){
         setId(id);
         setNama(nama);
     }
 
-    protected TodoStatus(Parcel in) {
+    protected Reason(Parcel in) {
         id = in.readInt();
         nama = in.readString();
     }
@@ -38,15 +37,15 @@ public class TodoStatus extends BaseObservable implements Parcelable {
         return 0;
     }
 
-    public static final Creator<TodoStatus> CREATOR = new Creator<TodoStatus>() {
+    public static final Creator<Reason> CREATOR = new Creator<Reason>() {
         @Override
-        public TodoStatus createFromParcel(Parcel in) {
-            return new TodoStatus(in);
+        public Reason createFromParcel(Parcel in) {
+            return new Reason(in);
         }
 
         @Override
-        public TodoStatus[] newArray(int size) {
-            return new TodoStatus[size];
+        public Reason[] newArray(int size) {
+            return new Reason[size];
         }
     };
 

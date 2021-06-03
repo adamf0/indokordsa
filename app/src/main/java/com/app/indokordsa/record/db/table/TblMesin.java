@@ -1,7 +1,7 @@
 package com.app.indokordsa.record.db.table;
 
 public class TblMesin {
-    public static String tbl_mesin 	    = "tb_mesin";
+    public static String tbl_mesin 	            = "tb_mesin";
     public static String key_id_mesin          = "id_mesin";
     public static String key_kode_nfc          = "kode_nfc";
     public static String key_nama              = "nama";

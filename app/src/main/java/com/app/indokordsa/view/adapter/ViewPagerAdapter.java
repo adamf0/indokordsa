@@ -72,23 +72,23 @@ public class ViewPagerAdapter extends PagerAdapter {
 
     @SuppressLint("SimpleDateFormat")
     void loadDay(ItemRowSliderBinding binding){
-        Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.DATE, -1);
-        SimpleDateFormat sdf0 = new SimpleDateFormat("yyyy-MM-dd");
-        String StartDate = sdf0.format(cal.getTime());
-
-        Calendar c = Calendar.getInstance();
-        c.setTime(new Date());
-        Date end = c.getTime();
-
-        if(db.countKuesionerResultByIdUser(data.get(SessionManager.KEY_ID_USER),StartDate,new SimpleDateFormat("yyyy-MM-dd").format(end))>0){
-            binding.lbTitleNotificationDayItemRowSlider.setVisibility(View.VISIBLE);
-            binding.lbNotificationDayItemRowSlider.setVisibility(View.VISIBLE);
-        }
-        else{
-            binding.lbTitleNotificationDayItemRowSlider.setVisibility(View.GONE);
-            binding.lbNotificationDayItemRowSlider.setVisibility(View.GONE);
-        }
+//        Calendar cal = Calendar.getInstance();
+//        cal.add(Calendar.DATE, -1);
+//        SimpleDateFormat sdf0 = new SimpleDateFormat("yyyy-MM-dd");
+//        String StartDate = sdf0.format(cal.getTime());
+//
+//        Calendar c = Calendar.getInstance();
+//        c.setTime(new Date());
+//        Date end = c.getTime();
+//
+//        if(db.countKuesionerResultByIdUser(data.get(SessionManager.KEY_ID_USER),StartDate,new SimpleDateFormat("yyyy-MM-dd").format(end))>0){
+//            binding.lbTitleNotificationDayItemRowSlider.setVisibility(View.VISIBLE);
+//            binding.lbNotificationDayItemRowSlider.setVisibility(View.VISIBLE);
+//        }
+//        else{
+//            binding.lbTitleNotificationDayItemRowSlider.setVisibility(View.GONE);
+//            binding.lbNotificationDayItemRowSlider.setVisibility(View.GONE);
+//        }
     }
 
     public int getCount() {

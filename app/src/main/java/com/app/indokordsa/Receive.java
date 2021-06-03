@@ -39,11 +39,11 @@ public class Receive extends BroadcastReceiver {
 
     private void basicConsume(final Handler handler){
         try {
-            //                factory = new ConnectionFactory();
-//                factory.setHost("192.168.219.35"); //wsl
-//                factory.setPort(5672);
-//                factory.setUsername("test");
-//                factory.setPassword("test");
+            factory = new ConnectionFactory();
+            factory.setHost("192.168.219.35"); //wsl
+            factory.setPort(5672);
+            factory.setUsername("test");
+            factory.setPassword("test");
 //            factory =  new ConnectionFactory();
 //            factory.setHost("barnacle.rmq.cloudamqp.com");
 //            factory.setPort(5672);

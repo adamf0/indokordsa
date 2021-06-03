@@ -17,9 +17,10 @@
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
         android:elevation="8dp"
+        android:onClick="@{()->action.selectItem(model,(model.jawaban==`2`)? true:false)}"
         app:cardCornerRadius="8dp"
-        tools:ignore="UnusedAttribute"
-        android:onClick="@{()->action.selectItem(model,model.totalPertanyaan==model.totalSelesaiPertanyaan)}">
+        tools:ignore="UnusedAttribute">
+        <!--        model.list_pertanyaan.size()==model.totalPertanyaanSelesai-->
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -45,7 +46,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="4dp"
                 android:layout_marginRight="4dp"
-                android:text="@{model.tanggalFormat}"
+                android:text="@{model.created_atFormat}"
                 android:textColor="#000"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toStartOf="@+id/imageView5"
@@ -86,7 +87,7 @@
                 android:id="@+id/txt_nama_questionnaire_item_row_list_questionnaire"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="@={model.area.nama}"
+                android:text="@{model.areaKuesioner}"
                 android:textColor="#000"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="@+id/textView12"
@@ -117,7 +118,7 @@
                 android:id="@+id/txt_total_tugas_item_row_list_questionnaire"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="@{model.totalPertanyaan + `(`+ model.totalSelesaiPertanyaan +`/` + model.totalPertanyaan + `)` }"
+                android:text="@{model.progressTask}"
                 android:textColor="#000"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="@+id/textView11"
@@ -149,7 +150,7 @@
                 android:id="@+id/txt_status_item_row_list_questionnaire"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="@{model.totalPertanyaan==model.totalSelesaiPertanyaan? `Finish`:`Unfinish`}"
+                android:text="@{model.realStatus}"
                 app:layout_constraintEnd_toEndOf="@+id/textView16"
                 app:layout_constraintStart_toStartOf="@+id/textView16"
                 app:layout_constraintTop_toBottomOf="@+id/textView16" />
@@ -177,21 +178,58 @@
                 android:id="@+id/txt_sync_item_row_list_questionnaire"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="N/a"
+                android:text="@{model.realSync}"
                 app:layout_constraintEnd_toEndOf="@+id/textView"
                 app:layout_constraintStart_toStartOf="@+id/textView"
                 app:layout_constraintTop_toBottomOf="@+id/textView" />
 
             <LinearLayout
+                android:id="@+id/linearLayout14"
                 android:layout_width="0dp"
                 android:layout_height="1dp"
                 android:layout_marginBottom="8dp"
                 android:background="#000"
                 android:orientation="vertical"
-                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintBottom_toTopOf="@+id/layout_alasan_item_row_list_questionnaire"
                 app:layout_constraintEnd_toEndOf="@+id/textView"
                 app:layout_constraintStart_toStartOf="@+id/textView"
                 app:layout_constraintTop_toBottomOf="@+id/txt_sync_item_row_list_questionnaire" />
+
+            <LinearLayout
+                android:id="@+id/layout_alasan_item_row_list_questionnaire"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:orientation="vertical"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="@+id/textView"
+                app:layout_constraintStart_toStartOf="@+id/textView">
+
+                <TextView
+                    android:id="@+id/textView38"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Reason" />
+
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@={model.alasan}" />
+
+                <Button
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:background="@drawable/button_blue"
+                    android:fontFamily="@font/helvetica_neue_condensed_bold"
+                    android:text="Save"
+                    android:onClick="@{()->action.updateItem(model)}"
+                    android:textColor="#fff"
+                    android:textSize="14sp"
+                    android:visibility="visible"
+                    app:backgroundTint="@null" />
+            </LinearLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>

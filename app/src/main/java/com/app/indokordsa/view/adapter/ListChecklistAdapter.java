@@ -37,12 +37,12 @@ public class ListChecklistAdapter extends RecyclerView.Adapter<ListChecklistAdap
         this.list_checkList = list_checkList;
     }
 
-    public void selectItem(CheckList checkList, boolean isFinishTask) {
+    public void selectItem(CheckList checkList, String id_checklist, String kode_nfc, boolean isFinishTask) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-01");
         String now = sdf.format(new Date());
         if(checkList.getTanggal().equals(now)){
            if(!isFinishTask){
-               listchecklistlistener.onSelect(checkList);
+               listchecklistlistener.onSelect(checkList,id_checklist,kode_nfc);
            }
         }
 //        if(!isFinishTask)
@@ -71,12 +71,15 @@ public class ListChecklistAdapter extends RecyclerView.Adapter<ListChecklistAdap
 
         if(!model.getTanggal().equals(now)){
             if(!model.getTotalTugasSelesai().equals(model.getTotalTugas())){
-                if(model.getAlasan().equals("0")){
+                if(model.getAlasan().equals("0") || model.getAlasan().equals("")){
                     binding.layoutAlasanItemRowListChecklist.setVisibility(View.VISIBLE);
                 }
                 else{
                     binding.layoutAlasanItemRowListChecklist.setVisibility(View.GONE);
                 }
+            }
+            else{
+                binding.layoutAlasanItemRowListChecklist.setVisibility(View.GONE);
             }
         }
         else{

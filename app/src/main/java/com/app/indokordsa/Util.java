@@ -10,21 +10,13 @@ import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.nfc.Tag;
-import android.nfc.tech.MifareClassic;
-import android.nfc.tech.MifareUltralight;
 import android.provider.MediaStore;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 
 import com.app.indokordsa.view.model.Job;
-import com.app.indokordsa.view.model.KuesionerResultDetail1;
-import com.app.indokordsa.view.model.KuesionerResultDetail2;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.app.indokordsa.view.model.JawabanKuesioner;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -32,6 +24,7 @@ import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.TimeZone;
@@ -135,8 +128,35 @@ public class Util {
     public static String reFormatDate(String date){
         try {
             SimpleDateFormat oldformat = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
-            @SuppressLint("SimpleDateFormat")
             SimpleDateFormat newformat = new SimpleDateFormat("MMM yyyy");
+            TimeZone tz = TimeZone.getTimeZone("Asia/Jakarta");
+            System.out.println(tz.getDisplayName(false, TimeZone.SHORT, Locale.ENGLISH)); // WIB
+
+            newformat.setTimeZone(tz);
+            return newformat.format(oldformat.parse(date));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return date;
+    }
+    public static Date string2Date(String date){
+        Date tmp = null;
+        try {
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm", Locale.ENGLISH);
+            TimeZone tz = TimeZone.getTimeZone("Asia/Jakarta");
+
+            format.setTimeZone(tz);
+            tmp = format.parse(date);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return tmp;
+    }
+    public static String reFormatDatev1(String date){
+        try {
+            SimpleDateFormat oldformat = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
+            @SuppressLint("SimpleDateFormat")
+            SimpleDateFormat newformat = new SimpleDateFormat("dd MMMM yyyy");
             TimeZone tz = TimeZone.getTimeZone("Asia/Jakarta");
             System.out.println(tz.getDisplayName(false, TimeZone.SHORT, Locale.ENGLISH)); // WIB
 
@@ -147,11 +167,11 @@ public class Util {
         }
         return date;
     }
-    public static String reFormatDatev1(String date){
+    public static String reFormatDatev3(String date){
         try {
-            SimpleDateFormat oldformat = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
+            SimpleDateFormat oldformat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
             @SuppressLint("SimpleDateFormat")
-            SimpleDateFormat newformat = new SimpleDateFormat("dd MMMM yyyy");
+            SimpleDateFormat newformat = new SimpleDateFormat("yyyy-MM-dd");
             TimeZone tz = TimeZone.getTimeZone("Asia/Jakarta");
             System.out.println(tz.getDisplayName(false, TimeZone.SHORT, Locale.ENGLISH)); // WIB
 
@@ -262,39 +282,30 @@ public class Util {
         }
         return gamma;
     }
-    public static ArrayList<KuesionerResultDetail1> passing_result_question(ArrayList<KuesionerResultDetail1> list_pertanyaan, String result){
-        try {
-            if(!TextUtils.isEmpty(result) && (Object) result instanceof JSONArray){
-                JSONArray data = new JSONArray(result);
-                for(int i=0;i<data.length();i++){
-                    JSONObject obj1                 = data.getJSONObject(i);
-                    String id_kuesioner_detail_1    = obj1.getString("id");
-                    JSONArray sub                   = obj1.getJSONArray("sub");
-                    for(int j=0;j<sub.length();j++){
-                        JSONObject obj2             = sub.getJSONObject(j);
-                        String id_kuesioner_detail_2= obj2.getString("id");
-                        String val                  = obj2.getString("val");
-                        String start                = obj2.getString("start");
-                        String end                  = obj2.getString("end");
-                        String duration             = obj2.getString("duration");
-
-                        for (KuesionerResultDetail1 pertanyaan: list_pertanyaan){
-                            for (KuesionerResultDetail2 detail : pertanyaan.getDetail()){
-                                if(id_kuesioner_detail_1.equals(pertanyaan.getId()) && id_kuesioner_detail_2.equals(detail.getId())){
-                                    detail.setVal(val);
-                                    detail.setStart(start);
-                                    detail.setEnd(end);
-                                    detail.setDuration(duration);
-                                }
-                            }
-                        }
-                    }
+    public static ArrayList<JawabanKuesioner> intersectionv2(ArrayList<JawabanKuesioner> server, ArrayList<JawabanKuesioner> local) {
+        ArrayList<JawabanKuesioner> gamma = new ArrayList<>();
+        for(int k=0;k<local.size();k++){
+            JawabanKuesioner source_local = local.get(k);
+            for(int l=0;l<server.size();l++){
+                JawabanKuesioner source_server = server.get(l);
+                if(
+                        source_server.getTopik().getId().equals(source_local.getTopik().getId()) &&
+                        source_server.getPertanyaan().getId().equals(source_local.getPertanyaan().getId())
+                ){
+                    gamma.add(new JawabanKuesioner(
+                            source_local.getId(),
+                            source_local.getTopik(),
+                            source_local.getPertanyaan(),
+                            source_local.getVal(),
+                            source_local.getStart(),
+                            source_local.getEnd()
+                    ));
                 }
             }
-        } catch (JSONException e) {
-            e.printStackTrace();
         }
-
-        return list_pertanyaan;
+        return gamma;
+    }
+    public static String SC(String table, String colum){
+        return String.format("%s.%s",table,colum);
     }
 }

@@ -2,11 +2,14 @@ package com.app.indokordsa.view.ui;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProvider;
@@ -19,14 +22,16 @@ import com.app.indokordsa.interfaces.ListQuestionnairelistener;
 import com.app.indokordsa.record.db.DB;
 import com.app.indokordsa.view.adapter.ListQuestionnaireAdapter;
 import com.app.indokordsa.view.model.Area;
+import com.app.indokordsa.view.model.JawabanKuesioner;
 import com.app.indokordsa.view.model.Kuesioner;
 import com.app.indokordsa.view.model.KuesionerResult;
-import com.app.indokordsa.view.model.KuesionerResultDetail1;
-import com.app.indokordsa.view.model.KuesionerResultDetail2;
+import com.app.indokordsa.view.model.Pertanyaan;
 import com.app.indokordsa.view.model.Shift;
+import com.app.indokordsa.view.model.Topik;
 import com.app.indokordsa.viewmodel.ListQuestionnaireViewModel;
 import com.app.indokordsa.viewmodel.ListQuestionnaireViewModelFactory;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.common.collect.Sets;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -37,9 +42,14 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
+import static com.app.indokordsa.Util.intersectionv2;
 import static com.app.indokordsa.Util.isNetworkAvailable;
 
+@SuppressLint("SimpleDateFormat")
 public class ListQuestionnaireActivity extends AppCompatActivity implements ListQuestionnairelistener {
     ListQuestionnaireViewModel vmodel;
     ActivityListQuestionnaireBinding binding;
@@ -48,6 +58,8 @@ public class ListQuestionnaireActivity extends AppCompatActivity implements List
     SessionManager session;
     HashMap<String, String> data_session;
     DB db;
+    String StartDate;
+    String EndDate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,11 +73,15 @@ public class ListQuestionnaireActivity extends AppCompatActivity implements List
         vmodel          = new ViewModelProvider(this,new ListQuestionnaireViewModelFactory(this,session)).get(ListQuestionnaireViewModel.class);
         data_session    = session.getSession();
 
-        binding.rvListQuestionnaire.setLayoutManager(new LinearLayoutManager(this));
-        listQuestionnaireAdapter = new ListQuestionnaireAdapter(this, this);
-        listQuestionnaireAdapter.setList(list_data);
-        listQuestionnaireAdapter.notifyDataSetChanged();
-        binding.rvListQuestionnaire.setAdapter(listQuestionnaireAdapter);
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DATE, -1);
+        SimpleDateFormat sdf0 = new SimpleDateFormat("yyyy-MM-dd");
+        StartDate = sdf0.format(cal.getTime());
+
+        Calendar c = Calendar.getInstance();
+        c.setTime(new Date());
+        Date end = c.getTime();
+        EndDate = new SimpleDateFormat("yyyy-MM-dd").format(end);
 
         loadData();
     }
@@ -74,7 +90,6 @@ public class ListQuestionnaireActivity extends AppCompatActivity implements List
         startActivity(new Intent(this,MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP));
     }
 
-    @SuppressLint("SimpleDateFormat")
     public void loadData(){
         binding.scrollListQuestionnaire.setVisibility(View.GONE);
         binding.loader.layoutLoading.setVisibility(View.VISIBLE);
@@ -83,21 +98,16 @@ public class ListQuestionnaireActivity extends AppCompatActivity implements List
             vmodel.loadData();
         }
         else{
-            Calendar cal = Calendar.getInstance();
-            cal.add(Calendar.DATE, -1);
-            SimpleDateFormat sdf0 = new SimpleDateFormat("yyyy-MM-dd");
-            String StartDate = sdf0.format(cal.getTime());
-
-            Calendar c = Calendar.getInstance();
-            c.setTime(new Date());
-            Date end = c.getTime();
-
-            if(db.countKuesionerResultByIdUser(data_session.get(SessionManager.KEY_ID_USER),StartDate,new SimpleDateFormat("yyyy-MM-dd").format(end))>0){
+            if(db.countKuesionerResultByIdUser(data_session.get(SessionManager.KEY_ID_USER),StartDate,EndDate)>0){
                 new Handler().postDelayed(() -> {
                     binding.scrollListQuestionnaire.setVisibility(View.VISIBLE);
                     binding.loader.layoutLoading.setVisibility(View.GONE);
 
-                    list_data = db.getListKuesionerResult(data_session.get(SessionManager.KEY_ID_USER),StartDate,new SimpleDateFormat("yyyy-MM-dd").format(end));
+                    list_data = db.getListKuesioner(data_session.get(SessionManager.KEY_ID_USER),StartDate,EndDate);
+//                    for (KuesionerResult kr:list_data){
+//                        kr.setList_pertanyaan(db.getListPertanyaan(kr.getId_kuesioner_result()));
+//                    }
+                    binding.rvListQuestionnaire.setLayoutManager(new LinearLayoutManager(this));
                     listQuestionnaireAdapter = new ListQuestionnaireAdapter(this, this);
                     listQuestionnaireAdapter.setList(list_data);
                     listQuestionnaireAdapter.notifyDataSetChanged();
@@ -119,12 +129,32 @@ public class ListQuestionnaireActivity extends AppCompatActivity implements List
     }
 
     @Override
-    public void onSelect(KuesionerResult kuesionerResult) {
+    public void onSelect(KuesionerResult item) {
         startActivity(
                 new Intent(this,QuestionnaireActivity.class)
-                        .putExtra("id_kuesioner_result",kuesionerResult.getId())
+                        .putExtra("id_kuesioner_result",item.getId_kuesioner_result())
                         .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         );
+    }
+
+    @Override
+    public void onUpdate(KuesionerResult item) {
+        if(!TextUtils.isEmpty(item.getAlasan()) && item.getAlasan().length()>0){
+            binding.scrollListQuestionnaire.setVisibility(View.GONE);
+            binding.loader.layoutLoading.setVisibility(View.VISIBLE);
+
+            if(isNetworkAvailable(this)) {
+                vmodel.update_alasan_questionnaire(item.getId_kuesioner_result(), item.getAlasan(),item);
+            }
+            else {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+                String updated_at = sdf.format(new Date());
+                AddUpdateKuesionerResult(item.getId_kuesioner_result(),item.getId_user(),item.getShift().getId(), item.getKuesioner().getId(),item.getJawaban(), String.valueOf(item.getStatus()), item.getAlasan(), "0", item.getCreated_at(), updated_at, item.getDeleted_at());
+            }
+        }
+        else{
+            Snackbar.make(binding.layoutListQuestionnaire,"reason cannot empty",Snackbar.LENGTH_LONG).show();
+        }
     }
 
     @Override
@@ -137,6 +167,161 @@ public class ListQuestionnaireActivity extends AppCompatActivity implements List
         closeDialog(message);
     }
 
+    void AddUpdateShift(JSONObject shift){
+        try {
+            if(db.countShiftById(shift.getString("id"))<1){
+                if(db.save_shift(shift.getString("id"), shift.getString("name")) != -1) {
+                    logging(String.format("berhasil simpan id_shift=%s", shift.getString("id")));
+                }
+                else{
+                    logging(String.format("gagal simpan id_shift=%s", shift.getString("id")));
+                }
+            }
+            else{
+                if(db.update_shift(shift.getString("id"), shift.getString("name")) >= 0){
+                    logging(String.format("berhasil update id_shift=%s", shift.getString("id")));
+                }
+                else{
+                    logging(String.format("gagal update id_shift=%s", shift.getString("id")));
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+    void AddUpdateArea(JSONObject area){
+        try {
+            if(db.countAreaById(area.getString("id"))<1){
+                if(db.save_area(area.getString("id"), area.getString("name")) != -1){
+                    logging(String.format("berhasil simpan id_area=%s", area.getString("id")));
+                }
+                else{
+                    logging(String.format("gagal simpan id_area=%s", area.getString("id")));
+                }
+            }
+            else{
+                if(db.update_area(area.getString("id"), area.getString("name"))>=0){
+                    logging(String.format("berhasil update id_area=%s", area.getString("id")));
+                }
+                else{
+                    logging(String.format("gagal update id_area=%s", area.getString("id")));
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+    void AddUpdateKuesioner(JSONObject kuesioner, Area tmp_area){
+        try {
+            if(db.countKuesionerById(kuesioner.getString("id"))<1){
+                if(db.save_kuesioner(kuesioner.getString("id"), (tmp_area!=null? tmp_area.getId():"0"),kuesioner.getString("pertanyaan")) != -1){
+                    logging(String.format("berhasil simpan id_kuesioner=%s", kuesioner.getString("id")));
+                }
+                else{
+                    logging(String.format("gagal simpan id_kuesioner=%s", kuesioner.getString("id")));
+                }
+            }
+            else{
+                if(db.update_kuesioner(kuesioner.getString("id"), (tmp_area!=null? tmp_area.getId():"0"),kuesioner.getString("pertanyaan"))>=0){
+                    logging(String.format("berhasil update id_kuesioner=%s", kuesioner.getString("id")));
+                }
+                else{
+                    logging(String.format("gagal update id_kuesioner=%s", kuesioner.getString("id")));
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+    void AddUpdateTopik(JSONObject topik, String id){
+        try {
+            if(db.countTopikById(topik.getString("id"))<1){
+                if(db.save_topik_kuesioner(topik.getString("id"), id,topik.getString("name")) !=-1){
+                    logging(String.format("berhasil simpan id_topik_kuesioner=%s", topik.getString("id")));
+                }
+                else{
+                    logging(String.format("gagal simpan id_topik_kuesioner=%s", topik.getString("id")));
+                }
+            }
+            else{
+                if(db.update_topik_kuesioner(topik.getString("id"), id,topik.getString("name"))>=0){
+                    logging(String.format("berhasil simpan id_topik_kuesioner=%s", topik.getString("id")));
+                }
+                else{
+                    logging(String.format("gagal simpan id_topik_kuesioner=%s", topik.getString("id")));
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+    void AddUpdatePertanyaan(JSONObject pertanyaan, JSONObject topik){
+        try {
+            if(db.countPertanyaanById(pertanyaan.getString("id"))<1){
+                if(db.save_pertanyaan(pertanyaan.getString("id"), topik.getString("id"),pertanyaan.getString("name")) != -1){
+                    logging(String.format("berhasil simpan id_pertanyaan_kuesioner=%s", pertanyaan.getString("id")));
+                }
+                else{
+                    logging(String.format("gagal simpan id_pertanyaan_kuesioner=%s", pertanyaan.getString("id")));
+                }
+            }
+            else{
+                if(db.update_pertanyaan(pertanyaan.getString("id"), topik.getString("id"),pertanyaan.getString("name"))>0){
+                    logging(String.format("berhasil update id_pertanyaan_kuesioner=%s", pertanyaan.getString("id")));
+                }
+                else{
+                    logging(String.format("gagal update id_pertanyaan_kuesioner=%s", pertanyaan.getString("id")));
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+    void AddUpdateKuesionerResult(String id,String id_user,String id_shift, String id_kuesioner, String jawaban, String status, String alasan, String sync, String created_at, String updated_at, String deleted_at){
+        if(db.countKuesionerResultByIdUser(id_user,StartDate,EndDate)<1){
+            if(db.save_kuesioner_result(
+                    id,
+                    id_user,
+                    id_shift,
+                    id_kuesioner,
+                    jawaban,
+                    String.valueOf(status),
+                    alasan,
+                    sync,
+                    created_at,
+                    updated_at,
+                    deleted_at
+            ) != -1){
+                logging(String.format("berhasil simpan id_kuesioner_result=%s", id));
+            }
+            else{
+                logging(String.format("gagal simpan id_kuesioner_result=%s", id));
+            }
+        }
+        else{
+            KuesionerResult tmp = db.getKuesionerResult(id,id_user);
+            if(db.update_kuesioner_result(
+                    id,
+                    id_user,
+                    id_shift,
+                    id_kuesioner,
+                    jawaban,
+                    String.valueOf(status),
+                    alasan,
+                    String.valueOf(tmp.getSync_()),
+                    created_at,
+                    updated_at,
+                    deleted_at
+            )>=0){
+                logging(String.format("berhasil update id_kuesioner_result=%s", id));
+            }
+            else{
+                logging(String.format("gagal update id_kuesioner_result=%s", id));
+            }
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     public void onSuccessGet(String response) {
         new Handler().postDelayed(() -> {
@@ -146,247 +331,193 @@ public class ListQuestionnaireActivity extends AppCompatActivity implements List
             try {
                 JSONArray arr  = new JSONArray(response);
 
-                int no_kuesioer = 1;
                 for(int i=0;i<arr.length();i++){
                     JSONObject data             = arr.getJSONObject(i);
                     Log.i("app-log ["+i+"]",data.toString());
 
                     String id                   = data.getString("id");
+                    String id_user              = data.getString("id_user");
                     JSONObject shift            = data.getJSONObject("shift");
-                    JSONObject area             = data.getJSONObject("area");
-                    JSONObject pertanyaan       = data.getJSONObject("pertanyaan");
-                    String jawaban              = data.getString("jawaban");
+                    Shift tmp_shift             = new Shift(
+                            shift.getString("id"),
+                            shift.getString("name")
+                    );
+                    AddUpdateShift(shift);
 
-                    if(db.countShiftById(shift.getString("id"))<1) {
-                        if(db.save_shift(
-                                shift.getString("id"),
-                                shift.getString("nama")
-                        )!= -1){
-                            logging(String.format("berhasil simpan id_shift=%s",shift.getString("id")));
-                        }
-                        else{
-                            logging(String.format("gagal simpan id_shift=%s",shift.getString("id")));
-                        }
-                    }
-                    else{
-                        if(db.update_shift(
-                                shift.getString("id"),
-                                shift.getString("nama")
-                        )>= 0){
-                            logging(String.format("berhasil update id_shift=%s",shift.getString("id")));
-                        }
-                        else{
-                            logging(String.format("gagal update id_shift=%s",shift.getString("id")));
-                        }
-                    }
-
-                    if(db.countAreaById(area.getString("id"))<1) {
-                        if(db.save_area(
+                    JSONObject kuesioner        = data.getJSONObject("kuesioner");
+                    Area tmp_area               = null;
+                    if(!kuesioner.isNull("area")){
+                        JSONObject area = kuesioner.getJSONObject("area");
+                        tmp_area = new Area(
                                 area.getString("id"),
-                                area.getString("nama")
-                        )!= -1){
-                            logging(String.format("berhasil simpan id_kategori=%s",area.getString("id")));
-                        }
-                        else{
-                            logging(String.format("gagal simpan id_kategori=%s",area.getString("id")));
-                        }
+                                area.getString("name")
+                        );
+                        AddUpdateArea(area);
                     }
-                    else{
-                        if(db.update_area(
-                                area.getString("id"),
-                                area.getString("nama")
-                        )>= 0){
-                            logging(String.format("berhasil update id_area=%s",area.getString("id")));
-                        }
-                        else{
-                            logging(String.format("gagal update id_area=%s",area.getString("id")));
-                        }
-                    }
+                    Kuesioner tmp_kuesioner     = new Kuesioner(
+                            kuesioner.getString("id"),
+                            tmp_area,
+                            kuesioner.getString("pertanyaan")
+                    );
+                    AddUpdateKuesioner(kuesioner,tmp_area);
 
-                    if(db.countKuesionerById(pertanyaan.getString("id"))<1) {
-                        if(db.save_kuesioner(
-                                pertanyaan.getString("id"),
-                                pertanyaan.getString("nama")
-                        )!= -1){
-                            logging(String.format("berhasil simpan id_kuesioner=%s",pertanyaan.getString("id")));
-                        }
-                        else{
-                            logging(String.format("gagal simpan id_kuesioner=%s",pertanyaan.getString("id")));
-                        }
-                    }
-                    else{
-                        if(db.update_kuesioner(
-                                pertanyaan.getString("id"),
-                                pertanyaan.getString("nama")
-                        )>= 0){
-                            logging(String.format("berhasil update id_kuesioner=%s",pertanyaan.getString("id")));
-                        }
-                        else{
-                            logging(String.format("gagal update id_kuesioner=%s",pertanyaan.getString("id")));
-                        }
-                    }
+                    String jawaban                                      = data.getString("jawaban");
+                    ArrayList<JawabanKuesioner> list_pertanyaan         = new ArrayList<>();
+                    ArrayList<JawabanKuesioner> list_pertanyaan_server  = new ArrayList<>();
+                    Set<String> list_pertanyaan_server_s                = new HashSet<>();
 
                     JSONArray data_pertanyaan                           = data.getJSONArray("data_pertanyaan");
-                    ArrayList<KuesionerResultDetail1> list_pertanyaan   = new ArrayList<>();
-
-                    int no_topik=1;
-                    for (int j=0;j<data_pertanyaan.length();j++){
-                        JSONObject obj                  = data_pertanyaan.getJSONObject(j);
-                        Log.i("app-log [topik]["+j+"]",obj.toString());
-
-                        String id_kuesioner_detail_1    = obj.getString("id");
-                        String tentang                  = obj.getString("tentang");
-                        JSONArray subpertanyaan         = obj.getJSONArray("subpertanyaan");
-
-                        ArrayList<KuesionerResultDetail2> detail = new ArrayList<>();
-                        int no_pertanyaan = 1;
-                        for (int k=0;k<subpertanyaan.length();k++){
-                            JSONObject obj_                 =subpertanyaan.getJSONObject(k);
-                            Log.i("app-log [subpertanyaan]["+k+"]",obj_.toString());
-
-                            String id_kuesioner_detail_2    = obj_.getString("id");
-                            String pertanyaan_detail        = obj_.getString("pertanyaan");
-                            String val                      = obj_.getString("val");
-                            String start                    = obj_.getString("start");
-                            String end                      = obj_.getString("end");
-                            String duration                 = obj_.getString("duration");
-
-                            detail.add(new KuesionerResultDetail2(
-                                    String.valueOf(no_pertanyaan),
-                                    id_kuesioner_detail_2,
-                                    pertanyaan_detail,
-                                    val,
-                                    start,
-                                    end,
-                                    duration
-                            ));
-                            no_pertanyaan++;
-
-                            if(db.countKuesionerDetail2ById(id_kuesioner_detail_2)<1) {
-                                if(db.save_kuesioner_detail2(
-                                        id_kuesioner_detail_2,
-                                        id_kuesioner_detail_1,
-                                        pertanyaan_detail
-                                )!= -1){
-                                    logging(String.format("berhasil simpan id_kuesioner_detail2=%s",id_kuesioner_detail_2));
-                                }
-                                else{
-                                    logging(String.format("gagal simpan id_kuesioner_detail2=%s",id_kuesioner_detail_2));
-                                }
-                            }
-                            else{
-                                if(db.update_kuesioner_detail2(
-                                        id_kuesioner_detail_2,
-                                        id_kuesioner_detail_1,
-                                        pertanyaan_detail
-                                )>= 0){
-                                    logging(String.format("berhasil update id_kuesioner_detail2=%s",id_kuesioner_detail_2));
-                                }
-                                else{
-                                    logging(String.format("gagal update id_kuesioner_detail2=%s",id_kuesioner_detail_2));
-                                }
-                            }
-                        }
-
-                        list_pertanyaan.add(
-                                new KuesionerResultDetail1(
-                                        String.valueOf(no_topik),
-                                        id_kuesioner_detail_1,
-                                        tentang,
-                                        detail
-                                )
+                    for(int j=0;j<data_pertanyaan.length();j++){
+                        JSONObject obj = data_pertanyaan.getJSONObject(j);
+                        JSONObject topik = obj.getJSONObject("topik");
+                        Topik tmp_topik = new Topik(
+                            topik.getString("id"),
+                            topik.getString("name")
                         );
-                        no_topik++;
+                        AddUpdateTopik(topik, id);
 
-                        if(db.countKuesionerDetail1ById(id_kuesioner_detail_1)<1) {
-                            if(db.save_kuesioner_detail1(
-                                    id_kuesioner_detail_1,
-                                    pertanyaan.getString("id"),
-                                    tentang
-                            )!= -1){
-                                logging(String.format("berhasil simpan id_kuesioner_detail1=%s",id_kuesioner_detail_1));
-                            }
-                            else{
-                                logging(String.format("gagal simpan id_kuesioner_detail1=%s",id_kuesioner_detail_1));
-                            }
-                        }
-                        else{
-                            if(db.update_kuesioner_detail1(
-                                    id_kuesioner_detail_1,
-                                    pertanyaan.getString("id"),
-                                    tentang
-                            )>= 0){
-                                logging(String.format("berhasil update id_kuesioner_detail1=%s",id_kuesioner_detail_1));
-                            }
-                            else{
-                                logging(String.format("gagal update id_kuesioner_detail1=%s",id_kuesioner_detail_1));
-                            }
-                        }
-                    }
-                    String result               = data.getString("result");
-                    String status               = data.getString("status");
-                    String tanggal              = data.getString("created_at");
-
-                    list_data.add(
-                            new KuesionerResult(
-                                    String.valueOf(no_kuesioer),
-                                    id,
-                                    new Shift(shift.getString("id"),shift.getString("nama")),
-                                    new Area(area.getString("id"),area.getString("nama")),
-                                    new Kuesioner(pertanyaan.getString("id"),pertanyaan.getString("nama")),
-                                    jawaban,
-                                    list_pertanyaan,
-                                    result,
-                                    status,
-                                    tanggal
-                            )
-                    );
-                    no_kuesioer++;
-
-                    if(db.countKuesionerResultById(id)<1) {
-                        if(db.save_kuesioner_result(
-                                id,
-                                data_session.get(SessionManager.KEY_ID_USER),
-                                shift.getString("id"),
-                                area.getString("id"),
+                        JSONObject pertanyaan = obj.getJSONObject("pertanyaan");
+                        Pertanyaan tmp_pertanyaan = new Pertanyaan(
                                 pertanyaan.getString("id"),
-                                jawaban,
-                                result,
-                                status,
-                                tanggal
-                        )!= -1){
-                            logging(String.format("berhasil simpan id_kuesioner_result=%s",id));
-                        }
-                        else{
-                            logging(String.format("gagal simpan id_kuesioner_result=%s",id));
-                        }
+                                pertanyaan.getString("name")
+                        );
+                        AddUpdatePertanyaan(pertanyaan,topik);
+
+                        String val = obj.getString("val");
+                        String start = obj.getString("start");
+                        String end = obj.getString("end");
+//                        String duration = obj.getString("duration");
+
+                        list_pertanyaan_server.add(new JawabanKuesioner(
+                                tmp_topik,
+                                tmp_pertanyaan,
+                                val,
+                                start,
+                                end
+                        ));
+                        list_pertanyaan_server_s.add(String.format("%s-%s",tmp_topik.getId(),tmp_pertanyaan.getId()));
+
                     }
-                    else{
-                        if(db.update_kuesioner_result(
+                    ArrayList<JawabanKuesioner> list_pertanyaan_lokal   = db.getListPertanyaan(id);
+                    Set<String> list_pertanyaan_lokal_s                 = new HashSet<>();
+                    for (JawabanKuesioner tmp_jk:list_pertanyaan_lokal){
+                        list_pertanyaan_lokal_s.add(String.format("%s-%s",tmp_jk.getTopik().getId(),tmp_jk.getPertanyaan().getId()));
+                    }
+
+                    List<String> inter = new ArrayList<>();
+                    ArrayList<JawabanKuesioner> intersection = new ArrayList<>(intersectionv2(list_pertanyaan_server, list_pertanyaan_lokal));
+                    for (JawabanKuesioner jk : intersection) {
+                        db.update_kuesioner_hasil(
+                                jk.getId(),
                                 id,
-                                data_session.get(SessionManager.KEY_ID_USER),
-                                shift.getString("id"),
-                                area.getString("id"),
-                                pertanyaan.getString("id"),
-                                jawaban,
-                                result,
-                                status,
-                                tanggal
-                        )>= 0){
-                            logging(String.format("berhasil update id_kuesioner_result=%s",id));
-                        }
-                        else{
-                            logging(String.format("gagal update id_kuesioner_result=%s",id));
+                                jk.getTopik().getId(),
+                                jk.getPertanyaan().getId(),
+                                jk.getVal(),
+                                jk.getStart(),
+                                jk.getEnd()
+                        );
+                        list_pertanyaan.add(jk);
+
+                        JSONObject x = new JSONObject();
+                        x.put("id_kuesioner_hasil", jk.getId());
+                        x.put("id_topik", jk.getTopik().getId());
+                        x.put("id_pertanyaan", jk.getPertanyaan().getId());
+                        x.put("val", jk.getVal());
+                        x.put("start", jk.getStart());
+                        x.put("end", jk.getEnd());
+                        inter.add(String.valueOf(x));
+
+                        logging(String.format("berhasil update kuesioner_hasil id_kuesioner_hasil=%s", jk.getId()));
+                    }
+                    logging("[I]" + new JSONArray(inter));
+
+                    Set<String> diff_a = Sets.difference(list_pertanyaan_server_s, list_pertanyaan_lokal_s);
+                    logging("[A]" + new JSONArray(diff_a.toArray()));
+                    for (String idtp : diff_a) {
+                        String id_topik = idtp.split("-")[0];
+                        String id_pertanyaan = idtp.split("-")[1];
+                        for (JawabanKuesioner jk : list_pertanyaan_server) {
+                            if (jk.getTopik().getId().equals(id_topik) && jk.getPertanyaan().getId().equals(id_pertanyaan)) {
+                                db.save_kuesioner_hasil( //masalah
+                                        id,
+                                        jk.getTopik().getId(),
+                                        jk.getPertanyaan().getId(),
+                                        jk.getVal(),
+                                        jk.getStart(),
+                                        jk.getEnd(),
+                                        jk.getDurationFormatMinute()
+                                );
+                                list_pertanyaan.add(jk);
+                                logging(String.format("berhasil simpan kuesioner_hasil id_kuesioner_hasil=%s", jk.getId()));
+                            }
                         }
                     }
+
+                    Set<String> diff_b = Sets.difference(list_pertanyaan_lokal_s, list_pertanyaan_server_s);
+                    logging("[B]" + new JSONArray(diff_b.toArray()));
+
+                    for (String idtp : diff_b) {
+                        String id_topik = idtp.split("-")[0];
+                        String id_pertanyaan = idtp.split("-")[1];
+                        if (db.countJawabanKuesioner(id,id_topik, id_pertanyaan) >= 1) {
+//                            JawabanKuesioner tmp_jk = db.getJawabanKuesioner(id,id_topik, id_pertanyaan);
+                            db.delete_KuesionerHasilById(id_pertanyaan);
+                            logging(String.format("berhasil hapus kuesioner_hasil id_pertanyaan_kuesioner=%s", id_pertanyaan));
+                        }
+                    }
+
+                    int status                  = data.getInt("status");
+                    int sync                    = data.getInt("sync");
+                    String alasan               = data.getString("alasan");
+                    String created_at           = data.getString("created_at");
+                    String updated_at           = data.getString("updated_at");
+                    String deleted_at           = data.getString("deleted_at");
+                    AddUpdateKuesionerResult(id,id_user,tmp_shift.getId(), tmp_kuesioner.getId(), jawaban, String.valueOf(status),alasan, String.valueOf(sync), created_at, updated_at, deleted_at);
+
+                    list_data.add(new KuesionerResult(
+                            id,
+                            id_user,
+                            tmp_shift,
+                            tmp_kuesioner,
+                            jawaban,
+                            status,
+                            alasan,
+                            sync,
+                            list_pertanyaan,
+                            created_at,
+                            updated_at,
+                            deleted_at
+                    ));
+                    logging("[list_pertanyaan] "+ list_pertanyaan.size());
                 }
+
+                binding.rvListQuestionnaire.setLayoutManager(new LinearLayoutManager(this));
+                listQuestionnaireAdapter = new ListQuestionnaireAdapter(this, this);
+                listQuestionnaireAdapter.setList(list_data);
+                listQuestionnaireAdapter.notifyDataSetChanged();
+                binding.rvListQuestionnaire.setAdapter(listQuestionnaireAdapter);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
         }, 1000);
     }
 
+    @Override
+    public void onFailPost(String message) {
+        closeDialog(message);
+    }
+
+    @Override
+    public void onSuccessPost(String response, KuesionerResult item) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        String updated_at = sdf.format(new Date());
+        AddUpdateKuesionerResult(item.getId_kuesioner_result(),item.getId_user(),item.getShift().getId(), item.getKuesioner().getId(), item.getJawaban(), String.valueOf(item.getStatus()), item.getAlasan(), "0", item.getCreated_at(), updated_at, item.getDeleted_at());
+
+        closeDialog(response);
+    }
+
+    @SuppressLint("LongLogTag")
     void logging(String message){
-        Log.i("app-log [Questionnaire]",message);
+        Log.i("app-log [ListQuestionnaire]",message);
     }
 }

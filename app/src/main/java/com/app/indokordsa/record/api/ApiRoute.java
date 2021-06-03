@@ -61,6 +61,13 @@ public interface ApiRoute {
             @Field("id_penugasan") String id_penugasan,
             @Field("alasan") String alasan
     );
+    @POST
+    @FormUrlEncoded
+    Call<String>update_alasan_questionnaire(
+            @Url String url,
+            @Field("id_kuesioner_result") String id_kuesioner_result,
+            @Field("alasan") String alasan
+    );
 
     @POST
     @FormUrlEncoded
@@ -103,6 +110,7 @@ public interface ApiRoute {
     Call<String>save_questionneir(
             @Url String url,
             @Field("id_kuesioner_result") String id_kuesioner_result,
+            @Field("id_user") String id_user,
             @Field("jawaban") String jawaban,
             @Field("result") String result
     );

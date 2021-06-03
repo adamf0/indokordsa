@@ -1,5 +1,3 @@
-
-
 package com.app.indokordsa.view.model;
 
 import android.os.Parcel;
@@ -10,26 +8,26 @@ import androidx.databinding.Bindable;
 
 import com.app.indokordsa.BR;
 
-public class TodoStatus extends BaseObservable implements Parcelable {
-    private int id;
+public class Value extends BaseObservable implements Parcelable {
+    private String id;
     private String nama;
 
-    TodoStatus(){
+    Value(){
 
     }
-    public TodoStatus(int id, String nama){
+    public Value(String id, String nama){
         setId(id);
         setNama(nama);
     }
 
-    protected TodoStatus(Parcel in) {
-        id = in.readInt();
+    protected Value(Parcel in) {
+        id = in.readString();
         nama = in.readString();
     }
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(id);
+        dest.writeString(id);
         dest.writeString(nama);
     }
 
@@ -38,24 +36,24 @@ public class TodoStatus extends BaseObservable implements Parcelable {
         return 0;
     }
 
-    public static final Creator<TodoStatus> CREATOR = new Creator<TodoStatus>() {
+    public static final Creator<Value> CREATOR = new Creator<Value>() {
         @Override
-        public TodoStatus createFromParcel(Parcel in) {
-            return new TodoStatus(in);
+        public Value createFromParcel(Parcel in) {
+            return new Value(in);
         }
 
         @Override
-        public TodoStatus[] newArray(int size) {
-            return new TodoStatus[size];
+        public Value[] newArray(int size) {
+            return new Value[size];
         }
     };
 
     @Bindable
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
         this.notifyPropertyChanged(BR.id);
     }
@@ -68,15 +66,5 @@ public class TodoStatus extends BaseObservable implements Parcelable {
     public void setNama(String nama) {
         this.nama = nama;
         this.notifyPropertyChanged(BR.nama);
-    }
-
-    @Bindable
-    public boolean isValid() {
-        return id>=0;
-    }
-
-    @Override
-    public String toString() {
-        return nama;
     }
 }

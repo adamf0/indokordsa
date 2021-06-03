@@ -12,29 +12,32 @@ import com.app.indokordsa.record.db.table.TblArea;
 import com.app.indokordsa.record.db.table.TblCekMesin;
 import com.app.indokordsa.record.db.table.TblKategoriMesin;
 import com.app.indokordsa.record.db.table.TblKuesioner;
-import com.app.indokordsa.record.db.table.TblKuesionerDetail1;
-import com.app.indokordsa.record.db.table.TblKuesionerDetail2;
+import com.app.indokordsa.record.db.table.TblJawabanKuesioner;
 import com.app.indokordsa.record.db.table.TblKuesionerResult;
 import com.app.indokordsa.record.db.table.TblMesin;
 import com.app.indokordsa.record.db.table.TblPenugasan;
+import com.app.indokordsa.record.db.table.TblPertanyaanKuesioner;
 import com.app.indokordsa.record.db.table.TblShift;
+import com.app.indokordsa.record.db.table.TblTopikKuesioner;
 import com.app.indokordsa.record.db.table.TblTugas;
 import com.app.indokordsa.record.db.table.TblUsers;
 import com.app.indokordsa.view.model.Area;
 import com.app.indokordsa.view.model.CheckList;
+import com.app.indokordsa.view.model.JawabanKuesioner;
 import com.app.indokordsa.view.model.Job;
 import com.app.indokordsa.view.model.Kuesioner;
 import com.app.indokordsa.view.model.KuesionerResult;
-import com.app.indokordsa.view.model.KuesionerResultDetail1;
-import com.app.indokordsa.view.model.KuesionerResultDetail2;
 import com.app.indokordsa.view.model.Machine;
 import com.app.indokordsa.view.model.MachineCategory;
 import com.app.indokordsa.view.model.MachineCheck;
 import com.app.indokordsa.view.model.Operator;
+import com.app.indokordsa.view.model.Pertanyaan;
 import com.app.indokordsa.view.model.Shift;
 import com.app.indokordsa.view.model.Supervisor;
+import com.app.indokordsa.view.model.Topik;
 
 import java.util.ArrayList;
+import static com.app.indokordsa.Util.SC;
 
 public class DB extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 1;
@@ -54,9 +57,11 @@ public class DB extends SQLiteOpenHelper {
         db.execSQL(TblShift.create_table);
         db.execSQL(TblArea.create_table);
         db.execSQL(TblKuesioner.create_table);
+        db.execSQL(TblTopikKuesioner.create_table);
+        db.execSQL(TblPertanyaanKuesioner.create_table);
+        db.execSQL(TblJawabanKuesioner.create_table);
         db.execSQL(TblKuesionerResult.create_table);
-        db.execSQL(TblKuesionerDetail1.create_table);
-        db.execSQL(TblKuesionerDetail2.create_table);
+
     }
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL(String.format("DROP TABLE IF EXISTS %s", TblCekMesin.tbl_cek_mesin));
@@ -68,9 +73,10 @@ public class DB extends SQLiteOpenHelper {
         db.execSQL(String.format("DROP TABLE IF EXISTS %s", TblShift.tbl_shift));
         db.execSQL(String.format("DROP TABLE IF EXISTS %s", TblArea.tbl_area));
         db.execSQL(String.format("DROP TABLE IF EXISTS %s", TblKuesioner.tbl_kuesioner));
+        db.execSQL(String.format("DROP TABLE IF EXISTS %s", TblTopikKuesioner.tbl_topik_kuesioner));
+        db.execSQL(String.format("DROP TABLE IF EXISTS %s", TblPertanyaanKuesioner.tbl_pertanyaan_kuesioner));
+        db.execSQL(String.format("DROP TABLE IF EXISTS %s", TblJawabanKuesioner.tbl_jawaban_kuesioner));
         db.execSQL(String.format("DROP TABLE IF EXISTS %s", TblKuesionerResult.tbl_kuesioner_result));
-        db.execSQL(String.format("DROP TABLE IF EXISTS %s", TblKuesionerDetail1.tbl_kuesioner_detail_1));
-        db.execSQL(String.format("DROP TABLE IF EXISTS %s", TblKuesionerDetail2.tbl_kuesioner_detail_2));
         onCreate(db);
     }
 
@@ -157,46 +163,61 @@ public class DB extends SQLiteOpenHelper {
         values.put(TblArea.key_nama, nama);
         return db.insert(TblArea.tbl_area, null, values);
     }
-    public Long save_kuesioner(String id,String nama) {
+    public Long save_kuesioner(String id,String id_area, String pertanyaan) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
-        values.put(TblKuesioner.key_id, id);
-        values.put(TblKuesioner.key_nama, nama);
+        values.put(TblKuesioner.key_id_kuesioner, id);
+        values.put(TblKuesioner.key_id_area, id_area);
+        values.put(TblKuesioner.key_pertanyaan, pertanyaan);
         return db.insert(TblKuesioner.tbl_kuesioner, null, values);
     }
-    public Long save_kuesioner_result(String id_kuesioner_result, String id_user, String id_shift, String id_area, String id_kuesioner, String jawaban, String result, String status, String tanggal) {
+    public Long save_topik_kuesioner(String id,String id_kuesioner, String tentang) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(TblTopikKuesioner.key_id_topik_kuesioner, id);
+        values.put(TblTopikKuesioner.key_id_kuesioner, id_kuesioner);
+        values.put(TblTopikKuesioner.key_tentang, tentang);
+        return db.insert(TblTopikKuesioner.tbl_topik_kuesioner, null, values);
+    }
+    public Long save_pertanyaan(String id,String id_topik_kuesioner, String pertanyaan) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(TblPertanyaanKuesioner.key_id_pertanyaan_kuesioner, id);
+        values.put(TblPertanyaanKuesioner.key_id_topik_kuesioner, id_topik_kuesioner);
+        values.put(TblPertanyaanKuesioner.key_pertanyaan, pertanyaan);
+        return db.insert(TblPertanyaanKuesioner.tbl_pertanyaan_kuesioner, null, values);
+    }
+    public Long save_kuesioner_hasil(String id_kuesioner_result,String id_topik_kuesioner, String id_pertanyaan_kuesioner, String val, String start, String end, String duration) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(TblJawabanKuesioner.key_id_kuesioner_result, id_kuesioner_result);
+        values.put(TblJawabanKuesioner.key_id_topik_kuesioner, id_topik_kuesioner);
+        values.put(TblJawabanKuesioner.key_id_pertanyaan_kuesioner, id_pertanyaan_kuesioner);
+        values.put(TblJawabanKuesioner.key_val, val);
+        values.put(TblJawabanKuesioner.key_start, start);
+        values.put(TblJawabanKuesioner.key_end, end);
+        return db.insert(TblJawabanKuesioner.tbl_jawaban_kuesioner, null, values);
+    }
+    public Long save_kuesioner_result(String id_kuesioner_result,String id_user,String id_shift,String id_kuesioner,String jawaban,String status,String alasan,String sync,String created_at,String updated_at,String deleted_at) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
         values.put(TblKuesionerResult.key_id_kuesioner_result, id_kuesioner_result);
         values.put(TblKuesionerResult.key_id_user, id_user);
         values.put(TblKuesionerResult.key_id_shift, id_shift);
-        values.put(TblKuesionerResult.key_id_area, id_area);
         values.put(TblKuesionerResult.key_id_kuesioner, id_kuesioner);
         values.put(TblKuesionerResult.key_jawaban, jawaban);
-        values.put(TblKuesionerResult.key_result, result);
         values.put(TblKuesionerResult.key_status, status);
-        values.put(TblKuesionerResult.key_tanggal, tanggal);
+        values.put(TblKuesionerResult.key_alasan, alasan);
+        values.put(TblKuesionerResult.key_sync, sync);
+        values.put(TblKuesionerResult.key_created_at, created_at);
+        values.put(TblKuesionerResult.key_updated_at, updated_at);
+        values.put(TblKuesionerResult.key_deleted_at, deleted_at);
         return db.insert(TblKuesionerResult.tbl_kuesioner_result, null, values);
-    }
-    public Long save_kuesioner_detail1(String id_kuesioner_detail_1,String id_kuesioner, String nama) {
-        SQLiteDatabase db = this.getWritableDatabase();
-
-        ContentValues values = new ContentValues();
-        values.put(TblKuesionerDetail1.key_id_kuesioner_detail_1, id_kuesioner_detail_1);
-        values.put(TblKuesionerDetail1.key_id_kuesioner, id_kuesioner);
-        values.put(TblKuesionerDetail1.key_nama, nama);
-        return db.insert(TblKuesionerDetail1.tbl_kuesioner_detail_1, null, values);
-    }
-    public Long save_kuesioner_detail2(String id_kuesioner_detail_2,String id_kuesioner_detail_1, String nama) {
-        SQLiteDatabase db = this.getWritableDatabase();
-
-        ContentValues values = new ContentValues();
-        values.put(TblKuesionerDetail2.key_id_kuesioner_detail_2, id_kuesioner_detail_2);
-        values.put(TblKuesionerDetail2.key_id_kuesioner_detail_1, id_kuesioner_detail_1);
-        values.put(TblKuesionerDetail2.key_nama, nama);
-        return db.insert(TblKuesionerDetail2.tbl_kuesioner_detail_2, null, values);
     }
 
     public int update_cek_mesin(String id_cek_mesin,String id_mesin) {
@@ -272,70 +293,95 @@ public class DB extends SQLiteOpenHelper {
         values.put(TblArea.key_nama, nama);
         return db.update(TblArea.tbl_area,values,TblArea.key_id_area+"= ?",new String[]{id});
     }
-    public int update_kuesioner(String id,String nama) {
+    public int update_kuesioner(String id,String id_area, String pertanyaan) {
         SQLiteDatabase db = this.getWritableDatabase();
+
         ContentValues values = new ContentValues();
-        values.put(TblKuesioner.key_nama, nama);
-        return db.update(TblKuesioner.tbl_kuesioner,values,TblKuesioner.key_id+"= ?",new String[]{id});
+        values.put(TblKuesioner.key_id_area, id_area);
+        values.put(TblKuesioner.key_pertanyaan, pertanyaan);
+        return db.update(TblKuesioner.tbl_kuesioner,values,TblKuesioner.key_id_kuesioner+"= ?",new String[]{id});
     }
-    public int update_kuesioner_result(String id_kuesioner_result, String id_user, String id_shift, String id_area, String id_kuesioner, String jawaban, String result, String status, String tanggal) {
+    public int update_topik_kuesioner(String id,String id_kuesioner, String tentang) {
         SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(TblTopikKuesioner.key_id_kuesioner, id_kuesioner);
+        values.put(TblTopikKuesioner.key_tentang, tentang);
+        return db.update(TblTopikKuesioner.tbl_topik_kuesioner,values,TblTopikKuesioner.key_id_topik_kuesioner+"= ?",new String[]{id});
+    }
+    public int update_pertanyaan(String id,String id_topik_kuesioner, String pertanyaan) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(TblPertanyaanKuesioner.key_id_topik_kuesioner, id_topik_kuesioner);
+        values.put(TblPertanyaanKuesioner.key_pertanyaan, pertanyaan);
+        return db.update(TblPertanyaanKuesioner.tbl_pertanyaan_kuesioner,values,TblPertanyaanKuesioner.key_id_pertanyaan_kuesioner+"= ?",new String[]{id});
+    }
+    public int update_kuesioner_hasil(String id_kuesioner_result,String id_topik_kuesioner, String id_pertanyaan_kuesioner, String val, String start, String end) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(TblJawabanKuesioner.key_val, val);
+        values.put(TblJawabanKuesioner.key_start, start);
+        values.put(TblJawabanKuesioner.key_end, end);
+        return db.update(
+                TblJawabanKuesioner.tbl_jawaban_kuesioner,
+                values,
+                TblJawabanKuesioner.key_id_kuesioner_result+"= ? AND "+ TblJawabanKuesioner.key_id_topik_kuesioner+"= ? AND "+ TblJawabanKuesioner.key_id_pertanyaan_kuesioner+"= ?",
+                new String[]{id_kuesioner_result,id_topik_kuesioner,id_pertanyaan_kuesioner}
+                );
+    }
+    public int update_kuesioner_hasil(String id,String id_kuesioner_result,String id_topik_kuesioner, String id_pertanyaan_kuesioner, String val, String start, String end) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(TblJawabanKuesioner.key_id_kuesioner_result, id_kuesioner_result);
+        values.put(TblJawabanKuesioner.key_id_topik_kuesioner, id_topik_kuesioner);
+        values.put(TblJawabanKuesioner.key_id_pertanyaan_kuesioner, id_pertanyaan_kuesioner);
+        values.put(TblJawabanKuesioner.key_val, val);
+        values.put(TblJawabanKuesioner.key_start, start);
+        values.put(TblJawabanKuesioner.key_end, end);
+        return db.update(TblJawabanKuesioner.tbl_jawaban_kuesioner,values, TblJawabanKuesioner.key_id_jawaban_kuesioner+"= ?",new String[]{id});
+    }
+    public int update_kuesioner_result(String id_kuesioner_result,String id_user,String id_shift,String id_kuesioner,String jawaban,String status,String alasan,String sync,String created_at,String updated_at,String deleted_at) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
         ContentValues values = new ContentValues();
         values.put(TblKuesionerResult.key_id_user, id_user);
         values.put(TblKuesionerResult.key_id_shift, id_shift);
-        values.put(TblKuesionerResult.key_id_area, id_area);
         values.put(TblKuesionerResult.key_id_kuesioner, id_kuesioner);
         values.put(TblKuesionerResult.key_jawaban, jawaban);
-        values.put(TblKuesionerResult.key_result, result);
         values.put(TblKuesionerResult.key_status, status);
-        values.put(TblKuesionerResult.key_tanggal, tanggal);
-        return db.update(TblKuesionerResult.tbl_kuesioner_result,values,TblKuesionerResult.key_id_kuesioner_result+"= ?",new String[]{id_kuesioner_result});
-    }
-    public int update_kuesioner_result(String id_kuesioner_result, String jawaban, String result) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(TblKuesionerResult.key_jawaban, jawaban);
-        values.put(TblKuesionerResult.key_result, result);
-        return db.update(TblKuesionerResult.tbl_kuesioner_result,values,TblKuesionerResult.key_id_kuesioner_result+"= ?",new String[]{id_kuesioner_result});
-    }
-    public int update_kuesioner_detail1(String id_kuesioner_detail_1,String id_kuesioner, String nama) {
-        SQLiteDatabase db = this.getWritableDatabase();
-
-        ContentValues values = new ContentValues();
-        values.put(TblKuesionerDetail1.key_id_kuesioner, id_kuesioner);
-        values.put(TblKuesionerDetail1.key_nama, nama);
-        return db.update(TblKuesionerDetail1.tbl_kuesioner_detail_1,values,TblKuesionerDetail1.key_id_kuesioner_detail_1+"= ?",new String[]{id_kuesioner_detail_1});
-    }
-    public int update_kuesioner_detail2(String id_kuesioner_detail_2,String id_kuesioner_detail_1, String nama) {
-        SQLiteDatabase db = this.getWritableDatabase();
-
-        ContentValues values = new ContentValues();
-        values.put(TblKuesionerDetail2.key_id_kuesioner_detail_1, id_kuesioner_detail_1);
-        values.put(TblKuesionerDetail2.key_nama, nama);
-        return db.update(TblKuesionerDetail2.tbl_kuesioner_detail_2,values,TblKuesionerDetail2.key_id_kuesioner_detail_2+"= ?",new String[]{id_kuesioner_detail_2});
+        values.put(TblKuesionerResult.key_alasan, alasan);
+        values.put(TblKuesionerResult.key_sync, sync);
+        values.put(TblKuesionerResult.key_created_at, created_at);
+        values.put(TblKuesionerResult.key_updated_at, updated_at);
+        values.put(TblKuesionerResult.key_deleted_at, deleted_at);
+        return db.update(TblKuesionerResult.tbl_kuesioner_result,values, TblKuesionerResult.key_id_kuesioner_result+"= ?",new String[]{id_kuesioner_result});
     }
 
     public ArrayList<CheckList> getListCheckList(String start,String end) {
         ArrayList<CheckList> list_data = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
 
-        String sql = String.format("Select id_penugasan AS id," +
+        String sql = String.format("Select "+
+                "id_penugasan AS id," +
                 "id_supervisor," +
                 "id_operator," +
-                "tb_penugasan.id_cek_mesin," +
-                "tb_mesin.id_mesin," +
-                "tb_mesin.kode_nfc," +
-                "tb_mesin.nama," +
-                "tb_kategori_mesin.id_kategori_mesin," +
-                "tb_kategori_mesin.nama as nama_kategori," +
+                SC(TblPenugasan.tbl_penugasan,TblPenugasan.key_id_cek_mesin)+"," +
+                SC(TblMesin.tbl_mesin,TblMesin.key_id_mesin)+"," +
+                SC(TblMesin.tbl_mesin,TblMesin.key_kode_nfc)+"," +
+                SC(TblMesin.tbl_mesin,TblMesin.key_nama)+"," +
+                SC(TblKategoriMesin.tbl_kategori_mesin,TblKategoriMesin.key_id_kategori_mesin)+"," +
+                SC(TblKategoriMesin.tbl_kategori_mesin,TblKategoriMesin.key_nama)+" as nama_kategori," +
                 "(tahun || '-' || bulan || '-01') as tanggal," +
 //                "tb_penugasan.tugas," +
                 "status," +
                 "alasan," +
                 "sync," +
-                "tb_penugasan.created_at as penugasan_created_at," +
-                "tb_penugasan.updated_at as penugasan_updated_at," +
-                "tb_penugasan.deleted_at as penugasan_deleted_at " +
+                SC(TblPenugasan.tbl_penugasan,TblPenugasan.key_created_at)+" as penugasan_created_at," +
+                SC(TblPenugasan.tbl_penugasan,TblPenugasan.key_updated_at)+" as penugasan_updated_at," +
+                SC(TblPenugasan.tbl_penugasan,TblPenugasan.key_deleted_at)+" as penugasan_deleted_at " +
                 "FROM tb_penugasan " +
                 "JOIN tb_cek_mesin ON tb_penugasan.id_cek_mesin = tb_cek_mesin.id_cek_mesin " +
                 "JOIN tb_mesin ON tb_cek_mesin.id_mesin = tb_mesin.id_mesin " +
@@ -407,29 +453,29 @@ public class DB extends SQLiteOpenHelper {
         ArrayList<CheckList> list_data = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
 
-        String sql = String.format("Select id_penugasan AS id," +
+        String sql = String.format("Select "+
+                "id_penugasan AS id," +
                 "id_supervisor," +
                 "id_operator," +
-                "tb_penugasan.id_cek_mesin," +
-                "tb_mesin.id_mesin," +
-                "tb_mesin.kode_nfc," +
-                "tb_mesin.nama," +
-                "tb_kategori_mesin.id_kategori_mesin," +
-                "tb_kategori_mesin.nama as nama_kategori," +
+                SC(TblPenugasan.tbl_penugasan,TblPenugasan.key_id_cek_mesin)+"," +
+                SC(TblMesin.tbl_mesin,TblMesin.key_id_mesin)+"," +
+                SC(TblMesin.tbl_mesin,TblMesin.key_kode_nfc)+"," +
+                SC(TblMesin.tbl_mesin,TblMesin.key_nama)+"," +
+                SC(TblKategoriMesin.tbl_kategori_mesin,TblKategoriMesin.key_id_kategori_mesin)+"," +
+                SC(TblKategoriMesin.tbl_kategori_mesin,TblKategoriMesin.key_nama)+" as nama_kategori," +
                 "(tahun || '-' || bulan || '-01') as tanggal," +
 //                "tb_penugasan.tugas," +
                 "status," +
                 "alasan," +
                 "sync," +
-                "tb_penugasan.created_at as penugasan_created_at," +
-                "tb_penugasan.updated_at as penugasan_updated_at," +
-                "tb_penugasan.deleted_at as penugasan_deleted_at " +
+                SC(TblPenugasan.tbl_penugasan,TblPenugasan.key_created_at)+" as penugasan_created_at," +
+                SC(TblPenugasan.tbl_penugasan,TblPenugasan.key_updated_at)+" as penugasan_updated_at," +
+                SC(TblPenugasan.tbl_penugasan,TblPenugasan.key_deleted_at)+" as penugasan_deleted_at " +
                 "FROM tb_penugasan " +
                 "JOIN tb_cek_mesin ON tb_penugasan.id_cek_mesin = tb_cek_mesin.id_cek_mesin " +
                 "JOIN tb_mesin ON tb_cek_mesin.id_mesin = tb_mesin.id_mesin " +
                 "JOIN tb_kategori_mesin ON tb_mesin.id_kategori_mesin = tb_kategori_mesin.id_kategori_mesin " +
-                "WHERE id_operator = " +
-                "%s AND " +
+                "WHERE id_operator = %s AND " +
                 "tb_penugasan.created_at BETWEEN '%s' AND '%s'", id_operator,start,end);
         Log.i("app-log [query]",sql);
 
@@ -526,6 +572,194 @@ public class DB extends SQLiteOpenHelper {
         cursor.close();
         return list_job;
     }
+    public ArrayList<KuesionerResult> getListKuesioner(String id_operator, String start, String end) {
+        ArrayList<KuesionerResult> list_data = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String sql = String.format("Select "+
+                "id_kuesioner_result," +
+                "id_user," +
+                "id_shift," +
+                "id_kuesioner," +
+                "jawaban," +
+                "status," +
+                "alasan," +
+                "sync," +
+                "created_at," +
+                "updated_at," +
+                "deleted_at " +
+                "FROM tbl_kuesioner_result " +
+                "WHERE id_user = %s AND " +
+                "created_at BETWEEN '%s' AND '%s'", id_operator,start,end);
+        Log.i("app-log [query]",sql);
+
+        @SuppressLint("Recycle")
+        Cursor cursor = db.rawQuery(sql, null);
+
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                do {
+                    ArrayList<JawabanKuesioner> list_pertanyaan = getListPertanyaan(cursor.getString(cursor.getColumnIndex("id_kuesioner_result")));
+                    Cursor shift = getShift(cursor.getString(cursor.getColumnIndex("id_shift")));
+                    Shift tmp_shift = (shift!=null?
+                            new Shift(
+                                    shift.getString(shift.getColumnIndex("id_shift")),
+                                    shift.getString(shift.getColumnIndex("nama"))
+                            )
+                            :
+                            null
+                    );
+
+                    Cursor kuesioner = getKuesioner(cursor.getString(cursor.getColumnIndex("id_kuesioner")));
+                    Cursor area = (kuesioner!=null? getArea(kuesioner.getString(kuesioner.getColumnIndex("id_area"))):null);
+
+                    Kuesioner tmp_kuesioner = (kuesioner!=null?
+                            new Kuesioner(
+                                    kuesioner.getString(kuesioner.getColumnIndex("id_kuesioner")),
+                                    (area!=null?
+                                            new Area(
+                                                    area.getString(area.getColumnIndex("id_area")),
+                                                    area.getString(area.getColumnIndex("nama"))
+                                            )
+                                            :
+                                            null
+                                    ),
+                                    kuesioner.getString(kuesioner.getColumnIndex("pertanyaan"))
+                            )
+                            :
+                            null
+                    );
+
+                    list_data.add(new KuesionerResult(
+                            cursor.getString(cursor.getColumnIndex("id_kuesioner_result")),
+                            cursor.getString(cursor.getColumnIndex("id_user")),
+                            tmp_shift,
+                            tmp_kuesioner,
+                            cursor.getString(cursor.getColumnIndex("jawaban")),
+                            cursor.getInt(cursor.getColumnIndex("status")),
+                            cursor.getString(cursor.getColumnIndex("alasan")),
+                            cursor.getInt(cursor.getColumnIndex("sync")),
+                            list_pertanyaan,
+                            cursor.getString(cursor.getColumnIndex("created_at")),
+                            cursor.getString(cursor.getColumnIndex("updated_at")),
+                            cursor.getString(cursor.getColumnIndex("deleted_at"))
+                    ));
+
+                } while (cursor.moveToNext());
+            }
+        }
+        assert cursor != null;
+        cursor.close();
+        return list_data;
+    }
+    public ArrayList<JawabanKuesioner> getListPertanyaan(String id_kuesioner_result) {
+        ArrayList<JawabanKuesioner> list_pertanyaan = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String sql = String.format("Select " +
+                "id_jawaban_kuesioner AS id," +
+                "id_kuesioner_result," +
+                "IFNULL(tbl_topik_kuesioner.id_topik_kuesioner, '') as id_topik_kuesioner," +
+                "IFNULL(tbl_topik_kuesioner.tentang,'') as tentang," +
+                "IFNULL(tbl_pertanyaan_kuesioner.id_pertanyaan_kuesioner,'') as id_pertanyaan_kuesioner," +
+                "IFNULL(tbl_pertanyaan_kuesioner.pertanyaan,'') as pertanyaan," +
+                "val," +
+                "start_," +
+                "end_ " +
+                "FROM tbl_jawaban_kuesioner " +
+                "LEFT JOIN tbl_topik_kuesioner ON tbl_jawaban_kuesioner.id_topik_kuesioner = tbl_topik_kuesioner.id_topik_kuesioner " +
+                "LEFT JOIN tbl_pertanyaan_kuesioner ON tbl_jawaban_kuesioner.id_pertanyaan_kuesioner = tbl_pertanyaan_kuesioner.id_pertanyaan_kuesioner " +
+                "WHERE id_kuesioner_result = %s order by tbl_pertanyaan_kuesioner.id_pertanyaan_kuesioner ASC", id_kuesioner_result);
+        Log.i("app-log [query]",sql);
+
+        @SuppressLint("Recycle")
+        Cursor cursor = db.rawQuery(sql, null);
+
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                do {
+                    list_pertanyaan.add(new JawabanKuesioner(
+                            new Topik(
+                                    cursor.getString(cursor.getColumnIndex("id_topik_kuesioner")),
+                                    cursor.getString(cursor.getColumnIndex("tentang"))
+                            ),
+                            new Pertanyaan(
+                                    cursor.getString(cursor.getColumnIndex("id_pertanyaan_kuesioner")),
+                                    cursor.getString(cursor.getColumnIndex("pertanyaan"))
+                            ),
+                            cursor.getString(cursor.getColumnIndex("val")),
+                            cursor.getString(cursor.getColumnIndex("start_")),
+                            cursor.getString(cursor.getColumnIndex("end_"))
+                    ));
+                } while (cursor.moveToNext());
+            }
+        }
+
+//        assert cursor != null;
+//        cursor.close();
+        return list_pertanyaan;
+    }
+
+    public Cursor getArea(String id) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        @SuppressLint("Recycle")
+        Cursor cursor = db.query(
+                TblArea.tbl_area,
+                new String[]{TblArea.key_id_area,TblArea.key_nama},
+                TblArea.key_id_area + "=?",
+                new String[]{id},
+                null,
+                null,
+                null,
+                null
+        );
+        if (cursor != null) {
+            cursor.moveToFirst();
+            return cursor;
+        }
+        return null;
+    }
+    public Cursor getKuesioner(String id) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        @SuppressLint("Recycle")
+        Cursor cursor = db.query(
+                TblKuesioner.tbl_kuesioner,
+                new String[]{TblKuesioner.key_id_kuesioner,TblKuesioner.key_id_area,TblKuesioner.key_pertanyaan},
+                TblKuesioner.key_id_kuesioner + "=?",
+                new String[]{id},
+                null,
+                null,
+                null,
+                null
+        );
+        if (cursor != null) {
+            cursor.moveToFirst();
+            return cursor;
+        }
+        return null;
+    }
+    public Cursor getShift(String id) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        @SuppressLint("Recycle")
+        Cursor cursor = db.query(
+                TblShift.tbl_shift,
+                new String[]{TblShift.key_id_shift,TblShift.key_nama},
+                TblShift.key_id_shift + "=?",
+                new String[]{id},
+                null,
+                null,
+                null,
+                null
+        );
+        if (cursor != null) {
+            cursor.moveToFirst();
+            return cursor;
+        }
+        return null;
+    }
     public Cursor getUsers(String id) {
         SQLiteDatabase db = this.getReadableDatabase();
 
@@ -537,152 +771,68 @@ public class DB extends SQLiteOpenHelper {
         }
         return null;
     }
-
-    public ArrayList<KuesionerResult> getListKuesionerResult(String id_user, String start, String end) {
-        ArrayList<KuesionerResult> list_data = new ArrayList<>();
+    public Cursor getTopik(String id) {
         SQLiteDatabase db = this.getReadableDatabase();
 
-        String sql = String.format("Select tb_kuesioner_result.id_kuesioner_result as id," +
-                "tb_kuesioner_result.id_user," +
-                "tb_shift.id_shift," +
-                "tb_shift.nama as nama_shift," +
-                "tb_area.id_area," +
-                "tb_area.nama as nama_area," +
-                "tb_kuesioner.id_kuesioner," +
-                "tb_kuesioner.nama as nama_kuesioner," +
-                "tb_kuesioner_result.jawaban," +
-                "tb_kuesioner_result.result," +
-                "tb_kuesioner_result.status," +
-                "tb_kuesioner_result.tanggal " +
-                "FROM tb_kuesioner_result " +
-                "JOIN tb_shift ON tb_kuesioner_result.id_shift = tb_shift.id_shift " +
-                "JOIN tb_area ON tb_kuesioner_result.id_area = tb_area.id_area " +
-                "JOIN tb_kuesioner ON tb_kuesioner_result.id_kuesioner = tb_kuesioner.id_kuesioner " +
-                "WHERE id_user = %s AND " +
-                "tb_kuesioner_result.tanggal BETWEEN '%s' AND '%s'", id_user,start,end);
-        Log.i("app-log [query]",sql);
-
         @SuppressLint("Recycle")
-        Cursor cursor = db.rawQuery(sql, null);
-
+        Cursor cursor = db.query(
+                TblTopikKuesioner.tbl_topik_kuesioner,
+                new String[]{TblTopikKuesioner.key_id_topik_kuesioner,TblTopikKuesioner.key_tentang},
+                TblTopikKuesioner.key_id_topik_kuesioner + "=?",
+                new String[]{id},
+                null,
+                null,
+                null,
+                null
+        );
         if (cursor != null) {
-            int no = 1;
-            if (cursor.moveToFirst()) {
-                do {
-
-                    list_data.add(new KuesionerResult(
-                            String.valueOf(no),
-                            cursor.getString(cursor.getColumnIndex("id")),
-                            new Shift(
-                                    cursor.getString(cursor.getColumnIndex("id_shift")),
-                                    cursor.getString(cursor.getColumnIndex("nama_shift"))
-                            ),
-                            new Area(
-                                    cursor.getString(cursor.getColumnIndex("id_area")),
-                                    cursor.getString(cursor.getColumnIndex("nama_area"))
-                            ),
-                            new Kuesioner(
-                                    cursor.getString(cursor.getColumnIndex("id_kuesioner")),
-                                    cursor.getString(cursor.getColumnIndex("nama_kuesioner"))
-                            ),
-                            cursor.getString(cursor.getColumnIndex("jawaban")),
-                            getListKuesionerDetail1(cursor.getString(cursor.getColumnIndex("id"))),
-                            cursor.getString(cursor.getColumnIndex("result")),
-                            cursor.getString(cursor.getColumnIndex("status")),
-                            cursor.getString(cursor.getColumnIndex("tanggal"))
-                    ));
-                    no++;
-                } while (cursor.moveToNext());
-            }
-            cursor.close();
+            cursor.moveToFirst();
+            return cursor;
         }
-        assert cursor != null;
-        cursor.close();
-        return list_data;
+        return null;
     }
-    public ArrayList<KuesionerResultDetail1> getListKuesionerDetail1(String id_kuesioner) {
-        ArrayList<KuesionerResultDetail1> list_data = new ArrayList<>();
+    public Cursor getPertanyaan(String id) {
         SQLiteDatabase db = this.getReadableDatabase();
 
-        String sql = String.format("Select * FROM " + TblKuesionerDetail1.tbl_kuesioner_detail_1 +
-                " WHERE " + TblKuesionerDetail1.key_id_kuesioner + " = %s", id_kuesioner);
-        Log.i("app-log [query]",sql);
-
         @SuppressLint("Recycle")
-        Cursor cursor = db.rawQuery(sql, null);
-
+        Cursor cursor = db.query(
+                TblPertanyaanKuesioner.tbl_pertanyaan_kuesioner,
+                new String[]{TblPertanyaanKuesioner.key_id_pertanyaan_kuesioner,TblPertanyaanKuesioner.key_pertanyaan},
+                TblPertanyaanKuesioner.key_id_pertanyaan_kuesioner + "=?",
+                new String[]{id},
+                null,
+                null,
+                null,
+                null
+        );
         if (cursor != null) {
-            if (cursor.moveToFirst()) {
-                int no=1;
-                do {
-                    list_data.add(new KuesionerResultDetail1(
-                            String.valueOf(no),
-                            cursor.getString(cursor.getColumnIndex("id_kuesioner_detail_1")),
-                            cursor.getString(cursor.getColumnIndex("nama")),
-                            getListKuesionerDetail2(cursor.getString(cursor.getColumnIndex("id_kuesioner_detail_1")))
-                    ));
-                    no++;
-                } while (cursor.moveToNext());
-            }
-            cursor.close();
+            cursor.moveToFirst();
+            return cursor;
         }
-        assert cursor != null;
-        cursor.close();
-        return list_data;
-    }
-    public ArrayList<KuesionerResultDetail2> getListKuesionerDetail2(String id_kuesioner_detail_1) {
-        ArrayList<KuesionerResultDetail2> list_data = new ArrayList<>();
-        SQLiteDatabase db = this.getReadableDatabase();
-
-        String sql = String.format("Select * FROM " + TblKuesionerDetail2.tbl_kuesioner_detail_2 +
-                " WHERE " + TblKuesionerDetail2.key_id_kuesioner_detail_1 + " = %s", id_kuesioner_detail_1);
-        Log.i("app-log [query]",sql);
-
-        @SuppressLint("Recycle")
-        Cursor cursor = db.rawQuery(sql, null);
-
-        if (cursor != null) {
-            if (cursor.moveToFirst()) {
-                int no=1;
-                do {
-                    list_data.add(new KuesionerResultDetail2(
-                            String.valueOf(no),
-                            cursor.getString(cursor.getColumnIndex("id_kuesioner_detail_2")),
-                            cursor.getString(cursor.getColumnIndex("nama")),
-                            "",
-                            "",
-                            "",
-                            ""
-                    ));
-                    no++;
-                } while (cursor.moveToNext());
-            }
-            cursor.close();
-        }
-        assert cursor != null;
-        cursor.close();
-        return list_data;
+        return null;
     }
 
     public int countListCheckList(String id_operator, String start,String end) {
         int num_row;
         SQLiteDatabase db = this.getReadableDatabase();
-        String sql = String.format("Select id_penugasan AS id," +
+        String sql = String.format("Select "+
+                "id_penugasan AS id," +
                 "id_supervisor," +
                 "id_operator," +
-                "tb_penugasan.id_cek_mesin," +
-                "tb_mesin.id_mesin," +
-                "tb_mesin.kode_nfc," +
-                "tb_mesin.nama," +
-                "tb_kategori_mesin.id_kategori_mesin," +
-                "tb_kategori_mesin.nama as nama_kategori," +
+                SC(TblPenugasan.tbl_penugasan,TblPenugasan.key_id_cek_mesin)+"," +
+                SC(TblMesin.tbl_mesin,TblMesin.key_id_mesin)+"," +
+                SC(TblMesin.tbl_mesin,TblMesin.key_kode_nfc)+"," +
+                SC(TblMesin.tbl_mesin,TblMesin.key_nama)+"," +
+                SC(TblKategoriMesin.tbl_kategori_mesin,TblKategoriMesin.key_id_kategori_mesin)+"," +
+                SC(TblKategoriMesin.tbl_kategori_mesin,TblKategoriMesin.key_nama)+" as nama_kategori," +
                 "(tahun || '-' || bulan || '-01') as tanggal," +
 //                "tb_penugasan.tugas," +
                 "status," +
                 "alasan," +
-                "tb_penugasan.created_at as penugasan_created_at," +
-                "tb_penugasan.updated_at as penugasan_updated_at," +
-                "tb_penugasan.deleted_at as penugasan_deleted_at " +
+                "sync," +
+                SC(TblPenugasan.tbl_penugasan,TblPenugasan.key_created_at)+" as penugasan_created_at," +
+                SC(TblPenugasan.tbl_penugasan,TblPenugasan.key_updated_at)+" as penugasan_updated_at," +
+                SC(TblPenugasan.tbl_penugasan,TblPenugasan.key_deleted_at)+" as penugasan_deleted_at " +
                 "FROM tb_penugasan " +
                 "JOIN tb_cek_mesin ON tb_penugasan.id_cek_mesin = tb_cek_mesin.id_cek_mesin " +
                 "JOIN tb_mesin ON tb_cek_mesin.id_mesin = tb_mesin.id_mesin " +
@@ -700,22 +850,24 @@ public class DB extends SQLiteOpenHelper {
     public int countListCheckListById(String id_operator, String id_penugasan) {
         int num_row;
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(String.format("Select id_penugasan AS id," +
+        Cursor cursor = db.rawQuery(String.format("Select "+
+                "id_penugasan AS id," +
                 "id_supervisor," +
                 "id_operator," +
-                "tb_penugasan.id_cek_mesin," +
-                "tb_mesin.id_mesin," +
-                "tb_mesin.kode_nfc," +
-                "tb_mesin.nama," +
-                "tb_kategori_mesin.id_kategori_mesin," +
-                "tb_kategori_mesin.nama as nama_kategori," +
+                SC(TblPenugasan.tbl_penugasan,TblPenugasan.key_id_cek_mesin)+"," +
+                SC(TblMesin.tbl_mesin,TblMesin.key_id_mesin)+"," +
+                SC(TblMesin.tbl_mesin,TblMesin.key_kode_nfc)+"," +
+                SC(TblMesin.tbl_mesin,TblMesin.key_nama)+"," +
+                SC(TblKategoriMesin.tbl_kategori_mesin,TblKategoriMesin.key_id_kategori_mesin)+"," +
+                SC(TblKategoriMesin.tbl_kategori_mesin,TblKategoriMesin.key_nama)+" as nama_kategori," +
                 "(tahun || '-' || bulan || '-01') as tanggal," +
 //                "tb_penugasan.tugas," +
                 "status," +
                 "alasan," +
-                "tb_penugasan.created_at as penugasan_created_at," +
-                "tb_penugasan.updated_at as penugasan_updated_at," +
-                "tb_penugasan.deleted_at as penugasan_deleted_at " +
+                "sync," +
+                SC(TblPenugasan.tbl_penugasan,TblPenugasan.key_created_at)+" as penugasan_created_at," +
+                SC(TblPenugasan.tbl_penugasan,TblPenugasan.key_updated_at)+" as penugasan_updated_at," +
+                SC(TblPenugasan.tbl_penugasan,TblPenugasan.key_deleted_at)+" as penugasan_deleted_at " +
                 "FROM tb_penugasan " +
                 "JOIN tb_cek_mesin ON tb_penugasan.id_cek_mesin = tb_cek_mesin.id_cek_mesin " +
                 "JOIN tb_mesin ON tb_cek_mesin.id_mesin = tb_mesin.id_mesin " +
@@ -811,75 +963,151 @@ public class DB extends SQLiteOpenHelper {
         int num_row;
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(String.format("Select * FROM " + TblKuesioner.tbl_kuesioner +
-                " WHERE "+ TblKuesioner.key_id +" = %s", id), null);
+                " WHERE "+ TblKuesioner.key_id_kuesioner +" = %s", id), null);
 
         num_row=cursor.getCount();
         cursor.close();
         return num_row;
     }
-    public int countKuesionerResultById(String id) {
+    public int countTopikById(String id) {
         int num_row;
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(String.format("Select * FROM " + TblKuesionerResult.tbl_kuesioner_result +
-                " WHERE "+ TblKuesionerResult.key_id_kuesioner_result +" = %s", id), null);
+        Cursor cursor = db.rawQuery(String.format("Select * FROM " + TblTopikKuesioner.tbl_topik_kuesioner +
+                " WHERE "+ TblTopikKuesioner.key_id_topik_kuesioner +" = %s", id), null);
 
         num_row=cursor.getCount();
         cursor.close();
         return num_row;
     }
-    public int countKuesionerResultByIdUser(String id_user, String start, String end) {
+    public int countPertanyaanById(String id) {
         int num_row;
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(String.format("Select * FROM " + TblKuesionerResult.tbl_kuesioner_result +
-                " WHERE "+ TblKuesionerResult.key_id_user +" = %s AND "+
-                TblKuesionerResult.key_tanggal+" BETWEEN '%s' AND '%s'", id_user, start, end), null);
+        Cursor cursor = db.rawQuery(String.format("Select * FROM " + TblPertanyaanKuesioner.tbl_pertanyaan_kuesioner +
+                " WHERE "+ TblPertanyaanKuesioner.key_id_pertanyaan_kuesioner +" = %s", id), null);
 
         num_row=cursor.getCount();
         cursor.close();
         return num_row;
     }
-    public int countKuesionerDetail1ById(String id) {
-        int num_row;
+    public int countKuesionerResultByIdUser(String id_operator, String start, String end) {
+        int num_row = 0;
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(String.format("Select * FROM " + TblKuesionerDetail1.tbl_kuesioner_detail_1 +
-                " WHERE "+ TblKuesionerDetail1.key_id_kuesioner_detail_1 +" = %s", id), null);
 
+        String sql = String.format("Select "+
+                "id_kuesioner_result," +
+                "id_user," +
+                "id_shift," +
+                "id_kuesioner," +
+                "jawaban," +
+                "status," +
+                "alasan," +
+                "sync," +
+                "created_at," +
+                "updated_at," +
+                "deleted_at " +
+                "FROM tbl_kuesioner_result " +
+                "WHERE id_user = %s AND " +
+                "created_at BETWEEN '%s' AND '%s'", id_operator,start,end);
+        Log.i("app-log [query]",sql);
+
+        Cursor cursor = db.rawQuery(sql, null);
         num_row=cursor.getCount();
         cursor.close();
         return num_row;
     }
-    public int countKuesionerDetail2ById(String id) {
-        int num_row;
+    public int countJawabanKuesioner(String id_kuesioner_result,String id_topik, String id_pertanyaan) {
+        int num_row = 0;
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(String.format("Select * FROM " + TblKuesionerDetail2.tbl_kuesioner_detail_2 +
-                " WHERE "+ TblKuesionerDetail2.key_id_kuesioner_detail_2 +" = %s", id), null);
 
+        String sql = String.format("Select "+
+                "id_jawaban_kuesioner AS id," +
+                "id_kuesioner_result," +
+                "id_topik_kuesioner," +
+                "id_pertanyaan_kuesioner," +
+                "val," +
+                "start_," +
+                "end_ " +
+                "FROM tbl_jawaban_kuesioner " +
+                "WHERE id_kuesioner_result = %s and id_topik_kuesioner = %s and id_pertanyaan_kuesioner = %s", id_kuesioner_result, id_topik, id_pertanyaan);
+        Log.i("app-log [query]",sql);
+
+        @SuppressLint("Recycle")
+        Cursor cursor = db.rawQuery(sql, null);
         num_row=cursor.getCount();
         cursor.close();
         return num_row;
     }
 
+    public JawabanKuesioner getJawabanKuesioner(String id_kuesioner_result,String id_topik, String id_pertanyaan) {
+        JawabanKuesioner data = null;
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String sql = String.format("Select " +
+                        "id_jawaban_kuesioner AS id," +
+                        "id_kuesioner_result," +
+                        "IFNULL(tbl_topik_kuesioner.id_topik_kuesioner, '') as id_topik_kuesioner," +
+                        "IFNULL(tbl_topik_kuesioner.tentang,'') as tentang," +
+                        "IFNULL(tbl_pertanyaan_kuesioner.id_pertanyaan_kuesioner,'') as id_pertanyaan_kuesioner," +
+                        "IFNULL(tbl_pertanyaan_kuesioner.pertanyaan,'') as pertanyaan," +
+                        "val," +
+                        "start_," +
+                        "end_ " +
+                        "FROM tbl_jawaban_kuesioner " +
+                        "LEFT JOIN tbl_topik_kuesioner ON tbl_jawaban_kuesioner.id_topik_kuesioner = tbl_topik_kuesioner.id_topik_kuesioner " +
+                        "LEFT JOIN tbl_pertanyaan_kuesioner ON tbl_jawaban_kuesioner.id_pertanyaan_kuesioner = tbl_pertanyaan_kuesioner.id_pertanyaan_kuesioner " +
+                        "WHERE id_kuesioner_result = %s and id_topik_kuesioner = %s and id_pertanyaan_kuesioner = %s order by tbl_pertanyaan_kuesioner.id_pertanyaan_kuesioner ASC", id_kuesioner_result, id_topik, id_pertanyaan);
+        Log.i("app-log [query]",sql);
+
+        @SuppressLint("Recycle")
+        Cursor cursor = db.rawQuery(sql, null);
+
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                do {
+                    data = new JawabanKuesioner(
+                            new Topik(
+                                    cursor.getString(cursor.getColumnIndex("id_topik_kuesioner")),
+                                    cursor.getString(cursor.getColumnIndex("tentang"))
+                            ),
+                            new Pertanyaan(
+                                    cursor.getString(cursor.getColumnIndex("id_pertanyaan_kuesioner")),
+                                    cursor.getString(cursor.getColumnIndex("pertanyaan"))
+                            ),
+                            cursor.getString(cursor.getColumnIndex("val")),
+                            cursor.getString(cursor.getColumnIndex("start_")),
+                            cursor.getString(cursor.getColumnIndex("end_"))
+                    );
+
+                } while (cursor.moveToNext());
+            }
+            cursor.close();
+        }
+        assert cursor != null;
+        cursor.close();
+        return data;
+    }
     public CheckList getCheckList(String id, String id_operator) {
         CheckList data = null;
         SQLiteDatabase db = this.getReadableDatabase();
 
-        String sql = String.format("Select id_penugasan AS id," +
+        String sql = String.format("Select "+
+                "id_penugasan AS id," +
                 "id_supervisor," +
                 "id_operator," +
-                "tb_penugasan.id_cek_mesin," +
-                "tb_mesin.id_mesin," +
-                "tb_mesin.kode_nfc," +
-                "tb_mesin.nama," +
-                "tb_kategori_mesin.id_kategori_mesin," +
-                "tb_kategori_mesin.nama as nama_kategori," +
+                SC(TblPenugasan.tbl_penugasan,TblPenugasan.key_id_cek_mesin)+"," +
+                SC(TblMesin.tbl_mesin,TblMesin.key_id_mesin)+"," +
+                SC(TblMesin.tbl_mesin,TblMesin.key_kode_nfc)+"," +
+                SC(TblMesin.tbl_mesin,TblMesin.key_nama)+"," +
+                SC(TblKategoriMesin.tbl_kategori_mesin,TblKategoriMesin.key_id_kategori_mesin)+"," +
+                SC(TblKategoriMesin.tbl_kategori_mesin,TblKategoriMesin.key_nama)+" as nama_kategori," +
                 "(tahun || '-' || bulan || '-01') as tanggal," +
 //                "tb_penugasan.tugas," +
                 "status," +
                 "alasan," +
                 "sync," +
-                "tb_penugasan.created_at as penugasan_created_at," +
-                "tb_penugasan.updated_at as penugasan_updated_at," +
-                "tb_penugasan.deleted_at as penugasan_deleted_at " +
+                SC(TblPenugasan.tbl_penugasan,TblPenugasan.key_created_at)+" as penugasan_created_at," +
+                SC(TblPenugasan.tbl_penugasan,TblPenugasan.key_updated_at)+" as penugasan_updated_at," +
+                SC(TblPenugasan.tbl_penugasan,TblPenugasan.key_deleted_at)+" as penugasan_deleted_at " +
                 "FROM tb_penugasan " +
                 "JOIN tb_cek_mesin ON tb_penugasan.id_cek_mesin = tb_cek_mesin.id_cek_mesin " +
                 "JOIN tb_mesin ON tb_cek_mesin.id_mesin = tb_mesin.id_mesin " +
@@ -948,28 +1176,24 @@ public class DB extends SQLiteOpenHelper {
         cursor.close();
         return data;
     }
-    @SuppressLint("SimpleDateFormat")
-    public KuesionerResult getKuesionerResult(String id_kuesioner_result) {
-        KuesionerResult kuesionerResult = null;
+    public KuesionerResult getKuesionerResult(String id, String id_operator) {
+        KuesionerResult data = null;
         SQLiteDatabase db = this.getReadableDatabase();
 
-        String sql = String.format("Select tb_kuesioner_result.id_kuesioner_result as id," +
-                "tb_kuesioner_result.id_user," +
-                "tb_shift.id_shift," +
-                "tb_shift.nama as nama_shift," +
-                "tb_area.id_area," +
-                "tb_area.nama as nama_area," +
-                "tb_kuesioner.id_kuesioner," +
-                "tb_kuesioner.nama as nama_kuesioner," +
-                "tb_kuesioner_result.jawaban," +
-                "tb_kuesioner_result.result," +
-                "tb_kuesioner_result.status," +
-                "tb_kuesioner_result.tanggal " +
-                "FROM tb_kuesioner_result " +
-                "JOIN tb_shift ON tb_kuesioner_result.id_shift = tb_shift.id_shift " +
-                "JOIN tb_area ON tb_kuesioner_result.id_area = tb_area.id_area " +
-                "JOIN tb_kuesioner ON tb_kuesioner_result.id_kuesioner = tb_kuesioner.id_kuesioner " +
-                "WHERE tb_kuesioner_result.id_kuesioner_result = %s", id_kuesioner_result);
+        String sql = String.format("Select "+
+                "id_kuesioner_result," +
+                "id_user," +
+                "id_shift," +
+                "id_kuesioner," +
+                "jawaban," +
+                "status," +
+                "alasan," +
+                "sync," +
+                "created_at," +
+                "updated_at," +
+                "deleted_at " +
+                "FROM tbl_kuesioner_result " +
+                "WHERE id_kuesioner_result = %s AND id_user = %s", id, id_operator);
         Log.i("app-log [query]",sql);
 
         @SuppressLint("Recycle")
@@ -977,46 +1201,87 @@ public class DB extends SQLiteOpenHelper {
 
         if (cursor != null) {
             if (cursor.moveToFirst()) {
-                int no = 1;
                 do {
-                    kuesionerResult = new KuesionerResult(
-                            String.valueOf(no),
-                            cursor.getString(cursor.getColumnIndex("id")),
+                    ArrayList<JawabanKuesioner> list_pertanyaan = this.getListPertanyaan(cursor.getString(cursor.getColumnIndex("id_kuesioner_result")));
+                    Cursor shift = getShift(cursor.getString(cursor.getColumnIndex("id_shift")));
+                    Shift tmp_shift = (shift!=null?
                             new Shift(
-                                    cursor.getString(cursor.getColumnIndex("id_shift")),
-                                    cursor.getString(cursor.getColumnIndex("nama_shift"))
-                            ),
-                            new Area(
-                                    cursor.getString(cursor.getColumnIndex("id_area")),
-                                    cursor.getString(cursor.getColumnIndex("nama_area"))
-                            ),
-                            new Kuesioner(
-                                    cursor.getString(cursor.getColumnIndex("id_kuesioner")),
-                                    cursor.getString(cursor.getColumnIndex("nama_kuesioner"))
-                            ),
-                            cursor.getString(cursor.getColumnIndex("jawaban")),
-                            getListKuesionerDetail1(cursor.getString(cursor.getColumnIndex("id_kuesioner"))),
-                            cursor.getString(cursor.getColumnIndex("result")),
-                            cursor.getString(cursor.getColumnIndex("status")),
-                            cursor.getString(cursor.getColumnIndex("tanggal"))
+                                    shift.getString(shift.getColumnIndex("id_shift")),
+                                    shift.getString(shift.getColumnIndex("nama"))
+                            )
+                            :
+                            null
                     );
-                    no++;
+
+                    Cursor kuesioner = getKuesioner(cursor.getString(cursor.getColumnIndex("id_kuesioner")));
+                    Cursor area = (kuesioner!=null? getArea(kuesioner.getString(kuesioner.getColumnIndex("id_area"))):null);
+
+                    Kuesioner tmp_kuesioner = (kuesioner!=null?
+                            new Kuesioner(
+                                    kuesioner.getString(kuesioner.getColumnIndex("id_kuesioner")),
+                                    (area!=null?
+                                            new Area(
+                                                    area.getString(area.getColumnIndex("id_area")),
+                                                    area.getString(area.getColumnIndex("nama"))
+                                            )
+                                            :
+                                            null
+                                    ),
+                                    kuesioner.getString(kuesioner.getColumnIndex("pertanyaan"))
+                            )
+                            :
+                            null
+                    );
+
+                    data = new KuesionerResult(
+                            cursor.getString(cursor.getColumnIndex("id_kuesioner_result")),
+                            cursor.getString(cursor.getColumnIndex("id_user")),
+                            tmp_shift,
+                            tmp_kuesioner,
+                            cursor.getString(cursor.getColumnIndex("jawaban")),
+                            cursor.getInt(cursor.getColumnIndex("status")),
+                            cursor.getString(cursor.getColumnIndex("alasan")),
+                            cursor.getInt(cursor.getColumnIndex("sync")),
+                            list_pertanyaan,
+                            cursor.getString(cursor.getColumnIndex("created_at")),
+                            cursor.getString(cursor.getColumnIndex("updated_at")),
+                            cursor.getString(cursor.getColumnIndex("deleted_at"))
+                    );
+
                 } while (cursor.moveToNext());
             }
-            cursor.close();
         }
         assert cursor != null;
         cursor.close();
-        return kuesionerResult;
+        return data;
     }
 
     public int delete_tugasByIdPenugasanNo(String id_penugasan, String no) {
         SQLiteDatabase db = this.getWritableDatabase();
         return db.delete(TblTugas.tbl_tugas,TblTugas.key_id_penugasan+"= ? and "+TblTugas.key_no+"= ?",new String[]{id_penugasan,no});
     }
-    public int delete_kuesionerResultById(String id_kuesioner_result) {
+    public int delete_ShiftById(String id_shift) {
         SQLiteDatabase db = this.getWritableDatabase();
-        return db.delete(TblKuesionerResult.tbl_kuesioner_result,TblKuesionerResult.key_id_kuesioner_result+"= ?",new String[]{id_kuesioner_result});
+        return db.delete(TblShift.tbl_shift,TblShift.key_id_shift+"= ?",new String[]{id_shift});
     }
-
+//    public int delete_AreaById(String id_area) {
+//        SQLiteDatabase db = this.getWritableDatabase();
+//        return db.delete(TblArea.tbl_area,TblArea.key_id_area+"= ?",new String[]{id_area});
+//    }
+    public int delete_KuesionerById(String id_kuesioner) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        return db.delete(TblKuesioner.tbl_kuesioner,TblKuesioner.key_id_kuesioner+"= ?",new String[]{id_kuesioner});
+    }
+    public int delete_TopikById(String id_topik) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        return db.delete(TblTopikKuesioner.tbl_topik_kuesioner,TblTopikKuesioner.key_id_topik_kuesioner+"= ?",new String[]{id_topik});
+    }
+    public int delete_KuesionerHasilById(String id_pertanyaan_kuesioner) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        return db.delete(TblJawabanKuesioner.tbl_jawaban_kuesioner,TblJawabanKuesioner.key_id_pertanyaan_kuesioner+"= ?",new String[]{id_pertanyaan_kuesioner});
+    }
+//    public int delete_PertanyaanById(String id_pertanyaan) {
+//        SQLiteDatabase db = this.getWritableDatabase();
+//        return db.delete(TblPertanyaanKuesioner.tbl_pertanyaan_kuesioner,TblPertanyaanKuesioner.key_id_pertanyaan_kuesioner+"= ?",new String[]{id_pertanyaan});
+//    }
 }

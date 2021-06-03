@@ -21,7 +21,6 @@ import java.util.Calendar;
 
 public class SplashActivity extends AppCompatActivity implements Splashlistener {
     SplashViewModel model;
-//    ConnectionFactory factory = new ConnectionFactory();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

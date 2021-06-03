@@ -2,6 +2,7 @@ package com.app.indokordsa.view.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.TextUtils;
 
 import androidx.databinding.BaseObservable;
 import androidx.databinding.Bindable;
@@ -9,67 +10,85 @@ import androidx.databinding.Bindable;
 import com.app.indokordsa.BR;
 import com.app.indokordsa.Util;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.ArrayList;
 
-import static com.app.indokordsa.Util.passing_result_question;
-
 public class KuesionerResult extends BaseObservable implements Parcelable {
-    private String no;
-    private String id;
+    private String id_kuesioner_result;
+    private String id_user;
     private Shift shift;
-    private Area area;
     private Kuesioner kuesioner;
     private String jawaban;
-    private String result;
-    private String status;
-    private ArrayList<KuesionerResultDetail1> list_pertanyaan = new ArrayList<>();
-    private String tanggal;
+    private int status;
+    private String alasan;
+    private boolean sync;
+    private int sync_;
+    private ArrayList<JawabanKuesioner> list_pertanyaan = new ArrayList<>();
+    private String created_at;
+    private String updated_at;
+    private String deleted_at;
 
     KuesionerResult(){
 
     }
-    public KuesionerResult(String no, String id, Shift shift, Area area, Kuesioner kuesioner, String jawaban, ArrayList<KuesionerResultDetail1> list_pertanyaan, String result, String status, String tanggal){
-        setNo(no);
-        setId(id);
+    public KuesionerResult(
+            String id_kuesioner_result,
+            String id_user,
+            Shift shift,
+            Kuesioner kuesioner,
+            String jawaban,
+            int status,
+            String alasan,
+            int sync,
+            ArrayList<JawabanKuesioner> list_pertanyaan,
+            String created_at,
+            String updated_at,
+            String deleted_at
+    ){
+        setId_kuesioner_result(id_kuesioner_result);
+        setId_user(id_user);
         setShift(shift);
-        setArea(area);
         setKuesioner(kuesioner);
         setJawaban(jawaban);
-        setResult(result);
         setStatus(status);
-        setList_pertanyaan(list_pertanyaan);
-        setTanggal(tanggal);
+        setAlasan(alasan);
+        setSync(sync == 0);
+        setSync_(sync);
+        setCreated_at(created_at);
+        setUpdated_at(updated_at);
+        setDeleted_at(deleted_at);
     }
 
     protected KuesionerResult(Parcel in) {
-        no = in.readString();
-        id = in.readString();
+        id_kuesioner_result = in.readString();
+        id_user = in.readString();
         shift = in.readParcelable(Shift.class.getClassLoader());
-        area = in.readParcelable(Area.class.getClassLoader());
         kuesioner = in.readParcelable(Kuesioner.class.getClassLoader());
         jawaban = in.readString();
-        result = in.readString();
-        status = in.readString();
-        list_pertanyaan = in.createTypedArrayList(KuesionerResultDetail1.CREATOR);
-        tanggal = in.readString();
+        status = in.readInt();
+        alasan = in.readString();
+        sync = in.readByte() != 0;
+        sync_ = in.readInt();
+        list_pertanyaan = in.createTypedArrayList(JawabanKuesioner.CREATOR);
+        created_at = in.readString();
+        updated_at = in.readString();
+        deleted_at = in.readString();
     }
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(no);
-        dest.writeString(id);
+        dest.writeString(id_kuesioner_result);
+        dest.writeString(id_user);
         dest.writeParcelable(shift, flags);
-        dest.writeParcelable(area, flags);
         dest.writeParcelable(kuesioner, flags);
         dest.writeString(jawaban);
-        dest.writeString(result);
-        dest.writeString(status);
+        dest.writeInt(status);
+        dest.writeString(alasan);
+        dest.writeByte((byte) (sync ? 1 : 0));
+        dest.writeInt(sync_);
         dest.writeTypedList(list_pertanyaan);
-        dest.writeString(tanggal);
+        dest.writeString(created_at);
+        dest.writeString(updated_at);
+        dest.writeString(deleted_at);
     }
 
     @Override
@@ -90,13 +109,23 @@ public class KuesionerResult extends BaseObservable implements Parcelable {
     };
 
     @Bindable
-    public String getId() {
-        return id;
+    public String getId_kuesioner_result() {
+        return id_kuesioner_result;
     }
 
-    public void setId(String id) {
-        this.id = id;
-        notifyPropertyChanged(BR.id);
+    public void setId_kuesioner_result(String id_kuesioner_result) {
+        this.id_kuesioner_result = id_kuesioner_result;
+        this.notifyPropertyChanged(BR.id_kuesioner_result);
+    }
+
+    @Bindable
+    public String getId_user() {
+        return id_user;
+    }
+
+    public void setId_user(String id_user) {
+        this.id_user = id_user;
+        this.notifyPropertyChanged(BR.id_user);
     }
 
     @Bindable
@@ -106,27 +135,151 @@ public class KuesionerResult extends BaseObservable implements Parcelable {
 
     public void setShift(Shift shift) {
         this.shift = shift;
-        notifyPropertyChanged(BR.shift);
-    }
-
-    @Bindable
-    public Area getArea() {
-        return area;
-    }
-
-    public void setArea(Area area) {
-        this.area = area;
-        notifyPropertyChanged(BR.area);
+        this.notifyPropertyChanged(BR.shift);
     }
 
     @Bindable
     public Kuesioner getKuesioner() {
         return kuesioner;
     }
+    @Bindable
+    public String getAreaKuesioner() {
+        if(getKuesioner()!=null && getKuesioner().getArea()!=null){
+            return getKuesioner().getArea().getNama();
+        }
+        return "";
+    }
 
     public void setKuesioner(Kuesioner kuesioner) {
         this.kuesioner = kuesioner;
-        notifyPropertyChanged(BR.kuesioner);
+        this.notifyPropertyChanged(BR.kuesioner);
+    }
+
+    @Bindable
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+        this.notifyPropertyChanged(BR.status);
+    }
+
+    @Bindable
+    public String getAlasan() {
+        return alasan;
+    }
+
+    public void setAlasan(String alasan) {
+        this.alasan = alasan;
+        this.notifyPropertyChanged(BR.alasan);
+    }
+
+    @Bindable
+    public boolean getSync() {
+        return sync;
+    }
+
+    @Bindable
+    public String getRealSync() {
+        return getSync()? "Finish":"Unfinish";
+    }
+
+    public void setSync(boolean sync) {
+        this.sync = sync;
+        this.notifyPropertyChanged(BR.sync);
+    }
+
+    @Bindable
+    public int getSync_() {
+        return sync_;
+    }
+
+    public void setSync_(int sync_) {
+        this.sync_ = sync_;
+        this.notifyPropertyChanged(BR.sync_);
+    }
+
+    @Bindable
+    public ArrayList<JawabanKuesioner> getList_pertanyaan() {
+        return list_pertanyaan;
+    }
+
+    @Bindable
+    public int getTotalPertanyaanSelesai() {
+        if(getJawaban().equals("1")){
+            return getList_pertanyaan().size();
+        }
+        else if(getJawaban().equals("2")){
+            int tmp = 0;
+            for (JawabanKuesioner item:getList_pertanyaan()){
+                if(item.isDone()){
+                    tmp++;
+                }
+            }
+            return tmp;
+        }
+        return 0;
+    }
+
+    @Bindable
+    public String getProgressTask() {
+        return String.format("%s (%s/%s)",getList_pertanyaan().size(),getTotalPertanyaanSelesai(),getList_pertanyaan().size());
+    }
+
+    @Bindable
+    public String getRealStatus() {
+        return (getList_pertanyaan().size()==getTotalPertanyaanSelesai()? "Finish":"Unfinish");
+    }
+
+    public void setList_pertanyaan(ArrayList<JawabanKuesioner> list_pertanyaan) {
+        this.list_pertanyaan = list_pertanyaan;
+        this.notifyPropertyChanged(BR.list_pertanyaan);
+    }
+
+    @Bindable
+    public String getCreated_at() {
+        return created_at;
+    }
+
+    public void setCreated_at(String created_at) {
+        this.created_at = created_at;
+        this.notifyPropertyChanged(BR.created_at);
+    }
+
+    @Bindable
+    public String getCreated_atFormat() {
+        return (TextUtils.isEmpty(getCreated_at())? "": Util.reFormatDatev1(getCreated_at()));
+    }
+
+    @Bindable
+    public String getUpdated_at() {
+        return updated_at;
+    }
+
+    @Bindable
+    public String getUpdated_atFormat() {
+        return (TextUtils.isEmpty(getUpdated_at())? "": Util.reFormatDatev1(getUpdated_at()));
+    }
+
+    public void setUpdated_at(String updated_at) {
+        this.updated_at = updated_at;
+        this.notifyPropertyChanged(BR.updated_at);
+    }
+
+    @Bindable
+    public String getDeleted_at() {
+        return deleted_at;
+    }
+
+    @Bindable
+    public String getDeleted_atFormat() {
+        return (TextUtils.isEmpty(getDeleted_at())? "": Util.reFormatDatev1(getDeleted_at()));
+    }
+
+    public void setDeleted_at(String deleted_at) {
+        this.deleted_at = deleted_at;
+        this.notifyPropertyChanged(BR.deleted_at);
     }
 
     @Bindable
@@ -136,132 +289,6 @@ public class KuesionerResult extends BaseObservable implements Parcelable {
 
     public void setJawaban(String jawaban) {
         this.jawaban = jawaban;
-        notifyPropertyChanged(BR.jawaban);
-    }
-
-    @Bindable
-    public String getResult() {
-        return this.result.replace("\\","");
-//        return this.result;
-    }
-
-    public void setResult(String result) {
-        this.result = result.replace("\\","");
-//        this.result = result;
-        notifyPropertyChanged(BR.result);
-    }
-
-    @Bindable
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-        notifyPropertyChanged(BR.status);
-    }
-
-    @Bindable
-    public ArrayList<KuesionerResultDetail1> getList_pertanyaan() {
-        return list_pertanyaan;
-    }
-
-    @Bindable
-    public ArrayList<KuesionerResultDetail1> getListPertanyaanWithPassData() {
-        return passing_result_question(this.list_pertanyaan, this.result);
-    }
-
-    public void setList_pertanyaan(ArrayList<KuesionerResultDetail1> list_pertanyaan) {
-        this.list_pertanyaan = list_pertanyaan;
-        notifyPropertyChanged(BR.list_pertanyaan);
-    }
-
-    @Bindable
-    public int getTotalPertanyaan(){
-        return list_pertanyaan.size();
-    }
-
-    @Bindable
-    public int getTotalSelesaiPertanyaan(){
-        int tmp = 0;
-        if(getJawaban().equals("1")){
-            tmp = list_pertanyaan.size();
-        }
-        else {
-            for (KuesionerResultDetail1 item : list_pertanyaan) { //topik
-                int _tmp1 = 0;
-                int _tmp_end = item.getDetail().size();
-                for (KuesionerResultDetail2 sub_item : item.getDetail()) { //pertanyaan
-                    if (sub_item.isDone()) {
-                        _tmp1++;
-                    }
-                }
-                if (_tmp1 == _tmp_end) {
-                    tmp++;
-                }
-            }
-        }
-        return tmp;
-    }
-
-    @Bindable
-    public String getTanggal() {
-        return tanggal;
-    }
-
-    @Bindable
-    public String getTanggalFormat() {
-        return Util.reFormatDatev1(tanggal);
-    }
-
-    public void setTanggal(String tanggal) {
-        this.tanggal = tanggal;
-        notifyPropertyChanged(BR.tanggal);
-    }
-
-    @Bindable
-    public String getNo() {
-        return no;
-    }
-
-    public void setNo(String no) {
-        this.no = no;
-        notifyPropertyChanged(BR.no);
-    }
-
-    public JSONObject getResultDone(){
-        JSONObject tmp = new JSONObject();
-        try {
-            tmp.put("id",getId());
-            tmp.put("jawaban",getJawaban());
-
-            JSONArray list_topic = new JSONArray();
-            for (int i=0;i<getList_pertanyaan().size();i++){
-                KuesionerResultDetail1 item = getList_pertanyaan().get(i);
-
-                JSONObject topic = new JSONObject();
-                topic.put("id",item.getId());
-
-                JSONArray question_topic = new JSONArray();
-                for(int j=0;j<item.getDetail().size();j++){
-                    KuesionerResultDetail2 item_ = item.getDetail().get(j);
-
-                    JSONObject question = new JSONObject();
-                    question.put("id",item_.getId());
-                    question.put("val",item_.getVal());
-                    question.put("start",item_.getStart());
-                    question.put("end",item_.getEnd());
-                    question.put("duration",item_.getDuration());
-                    question_topic.put(question);
-                }
-                topic.put("sub",question_topic);
-                list_topic.put(topic);
-            }
-            tmp.put("detail",list_topic);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        return tmp;
+        this.notifyPropertyChanged(BR.jawaban);
     }
 }

@@ -5,5 +5,6 @@
             <certificates src="system" />
         </trust-anchors>
         <domain includeSubdomains="true">indokordsa.media-phonix.co.id</domain>
+<!--        <domain includeSubdomains="true">192.168.43.210</domain>-->
     </domain-config>
 </network-security-config>

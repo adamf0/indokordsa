@@ -26,50 +26,7 @@ public class CheckListViewModel extends ViewModel {
         this.listener = listener;
         this.session = session;
     }
-//    public void cek_nfc(String id_checklist,String nfc){
-//        HashMap<String, String> data = session.getSession();
-//
-//        ApiRoute getResponse = AppConfig.getRetrofit(0).create(ApiRoute.class);
-//        Call<String> call = getResponse.cek_nfc("api/check_nfc",id_checklist,nfc);
-//
-//        Log.i("app-log [CheckList]", "request to " + call.request().url().toString());
-//        call.enqueue(new Callback<String>() {
-//            @Override
-//            public void onResponse(@NotNull Call<String> call, @NotNull retrofit2.Response<String> response) {
-//                String res_ = response.body();
-//
-//                if (response.isSuccessful()) {
-//                    Log.i("app-log [CheckList]", res_);
-//                    try {
-//                        assert res_ != null;
-//                        JSONObject res = new JSONObject(res_);
-//
-//                        String status = res.getString("status");
-//                        String message = res.getString("message");
-//                        if (status.equals("1")) {
-//                            listener.onSuccessCheck(res.getString("data"));
-//                        } else {
-//                            listener.onFailCheck(message);
-//                        }
-//                    } catch (JSONException e) {
-//                        e.printStackTrace();
-//                    }
-//                } else {
-//                    listener.onFail("Fail connect to server");
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(@NotNull Call<String> call, @NotNull Throwable t) {
-//                Log.i("app-log [CheckList]", t.toString());
-//                if (call.isCanceled()) {
-//                    listener.onFail("Request was aborted");
-//                } else {
-//                    listener.onFail(t.getMessage());
-//                }
-//            }
-//        });
-//    }
+
     public void loadData(String id_checklist){
         HashMap<String, String> data = session.getSession();
 

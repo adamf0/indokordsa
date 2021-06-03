@@ -2,29 +2,34 @@ package com.app.indokordsa.view.adapter;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.app.indokordsa.databinding.ItemRowListChecklistBinding;
 import com.app.indokordsa.databinding.ItemRowQuestionnaireBinding;
-import com.app.indokordsa.interfaces.ListChecklistlistener;
 import com.app.indokordsa.interfaces.ListQuestionnairelistener;
-import com.app.indokordsa.view.model.CheckList;
 import com.app.indokordsa.view.model.KuesionerResult;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+
+import static com.app.indokordsa.Util.reFormatDatev1;
+import static com.app.indokordsa.Util.reFormatDatev3;
 
 public class ListQuestionnaireAdapter extends RecyclerView.Adapter<ListQuestionnaireAdapter.ListQuestionnaireViewHolder> {
     public ArrayList<KuesionerResult> list_data;
     private ItemRowQuestionnaireBinding binding;
-    public ListQuestionnairelistener listtener;
+    public ListQuestionnairelistener ListQuestionnairelistener;
     Context context;
 
-    public ListQuestionnaireAdapter(Context context, ListQuestionnairelistener listener) {
-        this.listtener = listener;
+    public ListQuestionnaireAdapter(Context context, ListQuestionnairelistener ListQuestionnairelistener) {
+        this.ListQuestionnairelistener = ListQuestionnairelistener;
         this.context = context;
     }
 
@@ -36,9 +41,20 @@ public class ListQuestionnaireAdapter extends RecyclerView.Adapter<ListQuestionn
         this.list_data = list_data;
     }
 
-    public void selectItem(KuesionerResult kuesionerResult, boolean isFinishTask) {
-        if(!isFinishTask)
-            listtener.onSelect(kuesionerResult);
+    public void selectItem(KuesionerResult item, boolean isFinishTask) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String now = sdf.format(new Date());
+
+        if(reFormatDatev3(item.getCreated_at()).equals(now)){
+//           if(!isFinishTask){
+               ListQuestionnairelistener.onSelect(item);
+//           }
+        }
+//        if(!isFinishTask)
+//            ListQuestionnairelistener.onSelect(checkList);
+    }
+    public void updateItem(KuesionerResult item) {
+        ListQuestionnairelistener.onUpdate(item);
     }
 
     @NonNull
@@ -48,12 +64,35 @@ public class ListQuestionnaireAdapter extends RecyclerView.Adapter<ListQuestionn
         return (new ListQuestionnaireAdapter.ListQuestionnaireViewHolder(binding));
     }
 
-    @SuppressLint("UseCompatLoadingForDrawables")
+    @SuppressLint({"UseCompatLoadingForDrawables", "SimpleDateFormat", "RecyclerView", "LongLogTag"})
     @Override
-    public void onBindViewHolder(@NonNull ListQuestionnaireAdapter.ListQuestionnaireViewHolder holder, @SuppressLint("RecyclerView") final int position) {
+    public void onBindViewHolder(@NonNull ListQuestionnaireAdapter.ListQuestionnaireViewHolder holder, final int position) {
         KuesionerResult model = list_data.get(position);
         binding.setModel(model);
         binding.setAction(this);
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String now = sdf.format(new Date());
+
+        if(!model.getCreated_at().equals(now)){
+            if(model.getList_pertanyaan().size()!=model.getTotalPertanyaanSelesai()){
+                if(model.getAlasan().equals("0")){
+                    binding.layoutAlasanItemRowListQuestionnaire.setVisibility(View.VISIBLE);
+                }
+                else{
+                    binding.layoutAlasanItemRowListQuestionnaire.setVisibility(View.GONE);
+                }
+            }
+            else{
+                binding.layoutAlasanItemRowListQuestionnaire.setVisibility(View.GONE);
+            }
+        }
+        else{
+            binding.layoutAlasanItemRowListQuestionnaire.setVisibility(View.GONE);
+        }
+
+        Log.i("app-log [ListQuestionnaireAdapter]",String.valueOf(model.getList_pertanyaan().size()));
+        Log.i("app-log [ListQuestionnaireAdapter]",String.valueOf(model.getTotalPertanyaanSelesai()));
     }
 
     @Override

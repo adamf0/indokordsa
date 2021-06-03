@@ -29,9 +29,9 @@ public class QuestionnaireViewModel extends ViewModel {
         this.session = session;
     }
     @SuppressLint("LongLogTag")
-    public void updateKuesioner(String id, String jawaban, String result){
+    public void updateKuesioner(String id_kuesioner_result, String id_user, String jawaban, String result, int type){
         ApiRoute getResponse = AppConfig.getRetrofit(0).create(ApiRoute.class);
-        Call<String> call = getResponse.save_questionneir("api/save_questionneir", id, jawaban, result);
+        Call<String> call = getResponse.save_questionneir("api/save_questionneir", id_kuesioner_result, id_user, jawaban, result);
 
         Log.i("app-log [Questionneir]", "request to " + call.request().url().toString());
         call.enqueue(new Callback<String>() {
@@ -48,7 +48,7 @@ public class QuestionnaireViewModel extends ViewModel {
                         String status = res.getString("status");
                         String message = res.getString("message");
                         if (status.equals("1")) {
-                            listener.onSuccessPost(message);
+                            listener.onSuccessPost(message,type);
                         } else {
                             listener.onFailPost(message);
                         }

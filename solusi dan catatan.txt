@@ -1,0 +1,16 @@
+https://stackoverflow.com/questions/45940861/android-8-cleartext-http-traffic-not-permitted
+https://stackoverflow.com/questions/5369682/how-to-get-current-time-and-date-in-android
+
+catatan:
+ 1. ListQuestionnaireActivity.class [line 486] + DB [line 602] => data list pertanyaan ada tapi getListPertanyaan().size selalu 0; saat di panggil manual jalan;
+ 2. QuestionnaireActivity.class [line 360] => saat load data pertanyaan 1 spinner tidak set data ke input tapi data yg lain masuk;
+ 3. ChecklistActivity.class belum modifikasi paging ke next prev
+ 4. Sender.class belum tambah queue questionnaire ke server
+ 5. Receive.php serve belum terima queue questionnaire ke server karna faktor 4
+ 6. item_row_questionnaire.xml [line 20] [line 121] + ListQuestionnaireAdapter.class [line 49] ga jalan karna faktor 1
+ 7. scan nfc sudah di tambahkan tetapi belum dicoba ke hp yg support => menunggu respon tester
+
+kesimpulan:
+ChecklistActivity baru 80% => tidak ada kendala, masih proses
+ListQuestionnaireActivity 70% => kendala error pada kode android saat get list pertanyaan jika kuesioner jawab "ya"
+QuestionnaireActivity 80% => kendala set spinner/dropdown untuk index pertanyaan 0

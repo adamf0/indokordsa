@@ -2,12 +2,14 @@ package com.app.indokordsa.view.ui;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProvider;
@@ -24,6 +26,7 @@ import com.app.indokordsa.view.model.Job;
 import com.app.indokordsa.viewmodel.CheckListViewModel;
 import com.app.indokordsa.viewmodel.CheckListViewModelFactory;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.common.collect.Sets;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -35,13 +38,17 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.Set;
+
 import cn.pedant.SweetAlert.SweetAlertDialog;
+
 import static com.app.indokordsa.Util.intersection;
 import static com.app.indokordsa.Util.isNetworkAvailable;
 
+@SuppressLint("SimpleDateFormat")
 public class CheckListActivity extends AppCompatActivity implements Checklistlistener {
     CheckListViewModel vmodel;
     ActivityCheckListBinding binding;
@@ -50,7 +57,6 @@ public class CheckListActivity extends AppCompatActivity implements Checklistlis
     SessionManager session;
     HashMap<String, String> data_session;
     String id_checklist=null;
-//    String nfc=null;
     DB db;
     Job job;
     String no_terakhir=null;
@@ -78,19 +84,10 @@ public class CheckListActivity extends AppCompatActivity implements Checklistlis
         Bundle b = getIntent().getExtras();
         if(b!=null){
             id_checklist = b.getString("id_checklist",null);
-//            nfc = b.getString("nfc",null);
             loadData(id_checklist);
-//            cek_nfc(id_checklist,nfc);
         }
     }
 
-//    @SuppressLint("SimpleDateFormat")
-//    public void cek_nfc(String id_checklist,String nfc){
-//        Log.i("app-log [nfc]",nfc);
-//        binding.LayoutInputChecklist.setVisibility(View.GONE);
-//        binding.loader.layoutLoading.setVisibility(View.VISIBLE);
-//        vmodel.cek_nfc(id_checklist,nfc);
-//    }
     public void loadData(String id_checklist){
         binding.LayoutInputChecklist.setVisibility(View.GONE);
         binding.loader.layoutLoading.setVisibility(View.VISIBLE);
@@ -209,7 +206,7 @@ public class CheckListActivity extends AppCompatActivity implements Checklistlis
         closeDialog(message);
     }
 
-    @SuppressLint({"SimpleDateFormat","NewApi"})
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     public void onSuccessGet(String response) {
         new Handler().postDelayed(() -> {
@@ -232,7 +229,7 @@ public class CheckListActivity extends AppCompatActivity implements Checklistlis
                 binding.txtNamaMesinCheckList.setText(cek_mesin.getJSONObject("mesin").getString("nama"));
 
                 ArrayList<Job> server_list_job  = new ArrayList<>();
-                ArrayList<String> list_job_s    = new ArrayList<>();
+                Set<String> list_job_s          = new HashSet<>();
                 for(int j=0;j<tugas.length();j++){
                     JSONObject obj_             = tugas.getJSONObject(j);
                     server_list_job.add(
@@ -473,7 +470,7 @@ public class CheckListActivity extends AppCompatActivity implements Checklistlis
                         )>= 0) {
                             logging(String.format("berhasil update id_penugasan=%s", obj.getString("id")));
 
-                            ArrayList<String> local_list_job_s  = new ArrayList<>();
+                            Set<String> local_list_job_s        = new HashSet<>();
                             ArrayList<Job> local_list_job       = db.getCheckList(obj.getString("id"),data_session.get(SessionManager.KEY_ID_USER)).getTugas();
                             for (Job job:local_list_job) { //B
                                 local_list_job_s.add(job.getNo());
@@ -508,10 +505,11 @@ public class CheckListActivity extends AppCompatActivity implements Checklistlis
                             }
                             logging("[I]"+new JSONArray(inter));
 
-                            List<String> diff_a = list_job_s.stream()
-                                    .filter(aObject -> ! ((List<String>) local_list_job_s).contains(aObject))
-                                    .collect(Collectors.toList());
-                            logging("[A]"+new JSONArray(diff_a));
+//                            List<String> diff_a = list_job_s.stream()
+//                                    .filter(aObject -> ! ((List<String>) local_list_job_s).contains(aObject))
+//                                    .collect(Collectors.toList());
+                            Set<String> diff_a = Sets.difference(list_job_s, local_list_job_s);
+                            logging("[A]"+new JSONArray(diff_a.toArray()));
 
                             for (String no:diff_a){
                                 for (Job job:server_list_job){
@@ -533,10 +531,11 @@ public class CheckListActivity extends AppCompatActivity implements Checklistlis
                                 }
                             }
 
-                            List<String> diff_b = local_list_job_s.stream()
-                                    .filter(bObject -> ! ((List<String>) list_job_s).contains(bObject))
-                                    .collect(Collectors.toList());
-                            logging("[B]"+new JSONArray(diff_b));
+//                            List<String> diff_b = local_list_job_s.stream()
+//                                    .filter(bObject -> ! ((List<String>) list_job_s).contains(bObject))
+//                                    .collect(Collectors.toList());
+                            Set<String> diff_b = Sets.difference(local_list_job_s, list_job_s);
+                            logging("[B]"+new JSONArray(diff_b.toArray()));
 
                             for (String no:diff_b){
                                 if(db.countTugasByIdPenugasanNo(obj.getString("id"),no)>=1){
@@ -585,19 +584,6 @@ public class CheckListActivity extends AppCompatActivity implements Checklistlis
             startActivity(new Intent(this,ListCheckListActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
         }
     }
-
-//    @Override
-//    public void onSuccessCheck(String message) {
-//        Toast.makeText(this, (message.equals("1")? "nfc valid":"nfc not valid"), Toast.LENGTH_SHORT).show();
-//        binding.LayoutInputChecklist.setVisibility(View.VISIBLE);
-//        binding.loader.layoutLoading.setVisibility(View.GONE);
-//        loadData(id_checklist);
-//    }
-//
-//    @Override
-//    public void onFailCheck(String message) {
-//        closeDialog("nfc not valid");
-//    }
 
     @Override
     public void onSuccessPost(String message,boolean isEndTask) {

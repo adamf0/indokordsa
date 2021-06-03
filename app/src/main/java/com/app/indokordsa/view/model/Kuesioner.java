@@ -5,29 +5,34 @@ import android.os.Parcelable;
 
 import androidx.databinding.BaseObservable;
 import androidx.databinding.Bindable;
-import androidx.databinding.library.baseAdapters.BR;
+
+import com.app.indokordsa.BR;
 
 public class Kuesioner extends BaseObservable implements Parcelable {
     private String id;
-    private String nama;
+    private Area area;
+    private String pertanyaan;
 
     Kuesioner(){
 
     }
-    public Kuesioner(String id, String nama){
+    public Kuesioner(String id, Area area, String pertanyaan){
         setId(id);
-        setNama(nama);
+        setPertanyaan(pertanyaan);
+        setArea(area);
     }
 
     protected Kuesioner(Parcel in) {
         id = in.readString();
-        nama = in.readString();
+        pertanyaan = in.readString();
+        area = in.readParcelable(Area.class.getClassLoader());
     }
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(id);
-        dest.writeString(nama);
+        dest.writeString(pertanyaan);
+        dest.writeParcelable(area, flags);
     }
 
     @Override
@@ -58,12 +63,22 @@ public class Kuesioner extends BaseObservable implements Parcelable {
     }
 
     @Bindable
-    public String getNama() {
-        return nama;
+    public String getPertanyaan() {
+        return pertanyaan;
     }
 
-    public void setNama(String nama) {
-        this.nama = nama;
-        this.notifyPropertyChanged(BR.nama);
+    public void setPertanyaan(String pertanyaan) {
+        this.pertanyaan = pertanyaan;
+        this.notifyPropertyChanged(BR.pertanyaan);
+    }
+
+    @Bindable
+    public Area getArea() {
+        return area;
+    }
+
+    public void setArea(Area area) {
+        this.area = area;
+        this.notifyPropertyChanged(BR.area);
     }
 }

@@ -2,11 +2,16 @@ package com.app.indokordsa.view.ui;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.nfc.NdefMessage;
+import android.nfc.NfcAdapter;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Parcelable;
 import android.util.Log;
 import android.view.View;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProvider;
@@ -28,24 +33,28 @@ import com.app.indokordsa.view.model.Supervisor;
 import com.app.indokordsa.viewmodel.ListCheckListViewModel;
 import com.app.indokordsa.viewmodel.ListCheckListViewModelFactory;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.common.collect.Sets;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.Set;
 
 import static com.app.indokordsa.Util.intersection;
 import static com.app.indokordsa.Util.isNetworkAvailable;
 
+@SuppressLint("SimpleDateFormat")
 public class ListCheckListActivity extends AppCompatActivity implements ListChecklistlistener {
     ListCheckListViewModel vmodel;
     ActivityListChecklistBinding binding;
@@ -53,9 +62,10 @@ public class ListCheckListActivity extends AppCompatActivity implements ListChec
     ArrayList<CheckList> list_checkList = new ArrayList<>();
     SessionManager session;
     CheckList checkList;
+    String id_checklist=null;
+    String kode_nfc=null;
     CheckList tmp;
-//    NfcAdapter nfcAdapter;
-//    PendingIntent pendingIntent;
+    NfcAdapter nfcAdapter;
     DB db;
 
     @Override
@@ -78,12 +88,84 @@ public class ListCheckListActivity extends AppCompatActivity implements ListChec
         loadData();
         checkList = initModel();
 
-//        nfcAdapter = NfcAdapter.getDefaultAdapter(this);
-//        if (nfcAdapter == null) {
-//            Snackbar.make(binding.scrollListChecklist,"Not Support NFC", Snackbar.LENGTH_LONG).show();
-//        }
-//
-//        pendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, this.getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
+        //init nfc
+        nfcAdapter = NfcAdapter.getDefaultAdapter(this);
+        if (nfcAdapter == null){
+            Snackbar.make(binding.scrollListChecklist,"this device does not support NFC",Snackbar.LENGTH_LONG).show();
+        }
+        //read nfc
+        readFromIntent(getIntent());
+    }
+
+    //read nfc from intent
+    private void readFromIntent(Intent intent){
+        String action = intent.getAction();
+        if (NfcAdapter.ACTION_TAG_DISCOVERED.equals(action)
+                || NfcAdapter.ACTION_TECH_DISCOVERED.equals(action)
+                || NfcAdapter.ACTION_NDEF_DISCOVERED.equals(action)) {
+            Parcelable[] rawMsgs = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
+            NdefMessage[] msgs = null;
+            if (rawMsgs != null) {
+                msgs = new NdefMessage[rawMsgs.length];
+                for (int i = 0; i < rawMsgs.length; i++){
+                    msgs[i] = (NdefMessage) rawMsgs[i];
+                }
+            }
+            buildTagViews(msgs);
+        }
+    }
+
+    //build data nfc from intent to text
+    @SuppressLint("DefaultLocale")
+    private void buildTagViews(NdefMessage[] msgs){
+        if (msgs == null || msgs.length == 0) return;
+        byte[] payload = msgs[0].getRecords()[0].getPayload();
+        String textEncoding = ((payload[0] & 128) == 0) ? "UTF-8" : "UTF-16";
+        int languageCodeLength = payload[0] & 0063;
+
+        try {
+            String text = new String(payload, languageCodeLength + 1, payload.length - languageCodeLength - 1, textEncoding);
+
+            binding.scrollListChecklist.setVisibility(View.VISIBLE);
+            binding.loader.layoutLoading.setVisibility(View.GONE);
+            binding.layoutScanNFCPage.setVisibility(View.GONE);
+
+//            if(this.checkList==null){
+//                Snackbar.make(binding.scrollListChecklist,"CheckList is null",Snackbar.LENGTH_LONG).show();
+//            }
+//            else if(this.checkList.getCek_mesin()==null){
+//                Snackbar.make(binding.scrollListChecklist,"Cekmesin is null",Snackbar.LENGTH_LONG).show();
+//            }
+//            else if(this.checkList.getCek_mesin().getMesin()==null){
+//                Snackbar.make(binding.scrollListChecklist,"Machine cannot selected",Snackbar.LENGTH_LONG).show();
+//            }
+            if(this.id_checklist==null){
+                Snackbar.make(binding.scrollListChecklist,"id_checklist is null",Snackbar.LENGTH_LONG).show();
+            }
+            else if(this.kode_nfc==null){
+                Snackbar.make(binding.scrollListChecklist,"kode_nfc is null",Snackbar.LENGTH_LONG).show();
+            }
+            else if(text.equals(this.kode_nfc)){
+                Intent intent = new Intent(this,CheckListActivity.class);
+//                intent.putExtra("id_checklist",checkList.getId());
+                intent.putExtra("id_checklist",this.id_checklist);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+            }
+            else{
+                Snackbar.make(binding.scrollListChecklist,String.format("NFC not valid. nfc % expected %s",text,this.kode_nfc),Snackbar.LENGTH_LONG).show();
+            }
+        }catch (UnsupportedEncodingException e){
+            Log.e("UnsupportedEncoding", e.toString());
+        }
+    }
+
+    @Override
+    public void onNewIntent(Intent intent){
+        super.onNewIntent(intent);
+        setIntent(intent);
+        //read nfc
+        readFromIntent(intent);
     }
 
     CheckList initModel(){
@@ -96,6 +178,8 @@ public class ListCheckListActivity extends AppCompatActivity implements ListChec
         binding.layoutScanNFCPage.setVisibility(View.GONE);
 
         checkList = initModel();
+        id_checklist=null;
+        kode_nfc=null;
 //        Intent intent = new Intent(this,CheckListActivity.class);
 //        intent.putExtra("id_checklist",checkList.getId());
 //        intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -197,7 +281,6 @@ public class ListCheckListActivity extends AppCompatActivity implements ListChec
 //        checkList = initModel();
 //    }
 
-    @SuppressLint("SimpleDateFormat")
     public void loadData(){
         binding.scrollListChecklist.setVisibility(View.GONE);
         binding.loader.layoutLoading.setVisibility(View.VISIBLE);
@@ -257,20 +340,44 @@ public class ListCheckListActivity extends AppCompatActivity implements ListChec
     }
 
     @Override
-    public void onSelect(CheckList checkList) {
-//        binding.scrollListChecklist.setVisibility(View.GONE);
-//        binding.loader.layoutLoading.setVisibility(View.GONE);
-//        binding.layoutScanNFCPage.setVisibility(View.VISIBLE);
-        this.checkList = checkList;
-
-        binding.scrollListChecklist.setVisibility(View.VISIBLE);
+    public void onSelect(CheckList checkList, String id_checklist, String kode_nfc) {
+        binding.scrollListChecklist.setVisibility(View.GONE);
         binding.loader.layoutLoading.setVisibility(View.GONE);
-        binding.layoutScanNFCPage.setVisibility(View.GONE);
+        binding.layoutScanNFCPage.setVisibility(View.VISIBLE);
+        this.id_checklist=id_checklist;
+        this.kode_nfc=kode_nfc;
+        this.checkList = new CheckList(
+                checkList.getId(),
+                checkList.getTanggal(),
+                checkList.getSupervisor(),
+                checkList.getOperator(),
+                new MachineCheck(
+                        checkList.getCek_mesin().getId(),
+                        new Machine(
+                                checkList.getCek_mesin().getMesin().getId(),
+                                checkList.getCek_mesin().getMesin().getKode_nfc(),
+                                checkList.getCek_mesin().getMesin().getNama(),
+                                new MachineCategory(
+                                        checkList.getCek_mesin().getMesin().getKategori().getId(),
+                                        checkList.getCek_mesin().getMesin().getKategori().getNama()
+                                )
+                        )
+                ),
+                checkList.getTugas(),
+                checkList.getTotalTugas().equals(checkList.getTotalTugasSelesai()),
+                checkList.getAlasan(),
+                0
+        );
+        readFromIntent(getIntent());
 
-        Intent intent = new Intent(this,CheckListActivity.class);
-        intent.putExtra("id_checklist",checkList.getId());
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent);
+//        binding.scrollListChecklist.setVisibility(View.VISIBLE);
+//        binding.loader.layoutLoading.setVisibility(View.GONE);
+//        binding.layoutScanNFCPage.setVisibility(View.GONE);
+//
+//        Intent intent = new Intent(this,CheckListActivity.class);
+//        intent.putExtra("id_checklist",checkList.getId());
+//        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//        startActivity(intent);
     }
 
     @Override
@@ -283,7 +390,6 @@ public class ListCheckListActivity extends AppCompatActivity implements ListChec
         closeDialog(message);
     }
 
-    @SuppressLint("SimpleDateFormat")
     @Override
     public void onUpdate(CheckList checkList) {
         binding.scrollListChecklist.setVisibility(View.GONE);
@@ -305,7 +411,7 @@ public class ListCheckListActivity extends AppCompatActivity implements ListChec
         closeDialog(message);
     }
 
-    @SuppressLint({"SimpleDateFormat", "NewApi"})
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     public void onSuccessGet(String response) {
         new Handler().postDelayed(() -> {
@@ -332,7 +438,7 @@ public class ListCheckListActivity extends AppCompatActivity implements ListChec
 
                     ArrayList<Job> server_list_job  = new ArrayList<>();
                     ArrayList<Job> list_job         = new ArrayList<>();
-                    ArrayList<String> list_job_s    = new ArrayList<>();
+                    Set<String> list_job_s          = new HashSet<>();
                     for(int j=0;j<tugas.length();j++){
                         JSONObject obj_             = tugas.getJSONObject(j);
                         server_list_job.add(
@@ -547,7 +653,7 @@ public class ListCheckListActivity extends AppCompatActivity implements ListChec
                             )>= 0) {
                                 logging(String.format("berhasil update id_penugasan=%s", obj.getString("id")));
 
-                                ArrayList<String> local_list_job_s = new ArrayList<>();
+                                Set<String> local_list_job_s = new HashSet<>();
                                 ArrayList<Job> local_list_job = db.getCheckList(obj.getString("id"), data_session.get(SessionManager.KEY_ID_USER)).getTugas();
                                 for (Job job : local_list_job) { //B
                                     local_list_job_s.add(job.getNo());
@@ -578,10 +684,11 @@ public class ListCheckListActivity extends AppCompatActivity implements ListChec
                                 }
                                 logging("[I]" + new JSONArray(inter));
 
-                                List<String> diff_a = list_job_s.stream()
-                                        .filter(aObject -> !((List<String>) local_list_job_s).contains(aObject))
-                                        .collect(Collectors.toList());
-                                logging("[A]" + new JSONArray(diff_a));
+//                                List<String> diff_a = list_job_s.stream()
+//                                        .filter(aObject -> !((List<String>) local_list_job_s).contains(aObject))
+//                                        .collect(Collectors.toList());
+                                Set<String> diff_a = Sets.difference(list_job_s, local_list_job_s);
+                                logging("[A]" + new JSONArray(diff_a.toArray()));
 
                                 for (String no : diff_a) {
                                     for (Job job : server_list_job) {
@@ -600,9 +707,10 @@ public class ListCheckListActivity extends AppCompatActivity implements ListChec
                                     }
                                 }
 
-                                List<String> diff_b = local_list_job_s.stream()
-                                        .filter(bObject -> !((List<String>) list_job_s).contains(bObject))
-                                        .collect(Collectors.toList());
+//                                List<String> diff_b = local_list_job_s.stream()
+//                                        .filter(bObject -> !((List<String>) list_job_s).contains(bObject))
+//                                        .collect(Collectors.toList());
+                                Set<String> diff_b = Sets.difference(local_list_job_s, list_job_s);
                                 logging("[B]" + new JSONArray(diff_b));
 
                                 for (String no : diff_b) {
@@ -635,7 +743,7 @@ public class ListCheckListActivity extends AppCompatActivity implements ListChec
                                     operator.getString("phone"),
                                     operator.getString("level")
                             ),
-                            new MachineCheck(
+                            new MachineCheck( // error di sini
                                     cek_mesin.getString("id"),
                                     new Machine(
                                             mesin.getString("id"),
