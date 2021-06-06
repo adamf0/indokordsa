@@ -180,7 +180,6 @@ public class ListCheckListActivity extends AppCompatActivity implements ListChec
         binding.loader.layoutLoading.setVisibility(View.GONE);
         binding.layoutScanNFCPage.setVisibility(View.GONE);
 
-
         HashMap<String, String> s = session.getSession();
         if(checkList==null){
             live_message.postValue("Checklist is null");
@@ -197,24 +196,24 @@ public class ListCheckListActivity extends AppCompatActivity implements ListChec
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
         }
-        else if(s.get(SessionManager.KEY_NFC).equals( builder.toString() )){
-            Intent intent = new Intent(this,CheckListActivity.class);
-            intent.putExtra("id_checklist",s.get(SessionManager.KEY_ID_CHECKLIST));
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startActivity(intent);
-        }
+//        else if(s.get(SessionManager.KEY_NFC).equals( builder.toString() )){
+//            Intent intent = new Intent(this,CheckListActivity.class);
+//            intent.putExtra("id_checklist",s.get(SessionManager.KEY_ID_CHECKLIST));
+//            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//            startActivity(intent);
+//        }
         else if(Pattern.compile(checkList.getCek_mesin().getMesin().getKode_nfc()).matcher(builder.toString()).find()){
             Intent intent = new Intent(this,CheckListActivity.class);
             intent.putExtra("id_checklist",checkList.getId());
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
         }
-        else if(Pattern.compile(s.get(SessionManager.KEY_NFC)).matcher( builder.toString() ).find()){
-            Intent intent = new Intent(this,CheckListActivity.class);
-            intent.putExtra("id_checklist",s.get(SessionManager.KEY_ID_CHECKLIST));
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startActivity(intent);
-        }
+//        else if(Pattern.compile(s.get(SessionManager.KEY_NFC)).matcher( builder.toString() ).find()){
+//            Intent intent = new Intent(this,CheckListActivity.class);
+//            intent.putExtra("id_checklist",s.get(SessionManager.KEY_ID_CHECKLIST));
+//            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//            startActivity(intent);
+//        }
         else{
             live_message.postValue( String.format("%s=%s",checkList.getCek_mesin().getMesin().getKode_nfc(),builder.toString()) );
         }
