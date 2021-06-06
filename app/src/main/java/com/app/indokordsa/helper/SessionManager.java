@@ -57,6 +57,12 @@ public class SessionManager {
         data.put(KEY_Name, pref.getString(KEY_Name, null));
         return data;
     }
+    public HashMap<String, String> getSessionTapNfc(){
+        HashMap<String, String> data = new HashMap<>();
+        data.put(KEY_ID_CHECKLIST, pref.getString(KEY_ID_CHECKLIST, null));
+        data.put(KEY_NFC, pref.getString(KEY_NFC, null));
+        return data;
+    }
 
 //    public void logout(){
 //        editor.clear();

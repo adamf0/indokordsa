@@ -181,7 +181,7 @@ public class ListCheckListActivity extends AppCompatActivity implements ListChec
         binding.layoutScanNFCPage.setVisibility(View.GONE);
 
         session = new SessionManager(this);
-        HashMap<String, String> s = session.getSession();
+        HashMap<String, String> s = session.getSessionTapNfc();
         if(checkList==null){
             live_message.postValue("Checklist is null");
         }
