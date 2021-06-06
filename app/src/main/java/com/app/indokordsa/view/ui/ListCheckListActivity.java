@@ -57,6 +57,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.app.indokordsa.Util.dumpTagData;
@@ -182,6 +183,7 @@ public class ListCheckListActivity extends AppCompatActivity implements ListChec
 
         session = new SessionManager(this);
         HashMap<String, String> s = session.getSessionTapNfc();
+
         if(checkList==null){
             live_message.postValue("Checklist is null");
         }
@@ -190,6 +192,9 @@ public class ListCheckListActivity extends AppCompatActivity implements ListChec
         }
         else if(checkList.getCek_mesin().getMesin()==null){
             live_message.postValue("Machine is null");
+        }
+        else if(s.get(SessionManager.KEY_NFC)==null){
+            live_message.postValue("NFC is null");
         }
         else if(checkList.getCek_mesin().getMesin().getKode_nfc().equals( builder.toString() )){
             Intent intent = new Intent(this,CheckListActivity.class);
@@ -210,6 +215,12 @@ public class ListCheckListActivity extends AppCompatActivity implements ListChec
             startActivity(intent);
         }
         else if(Pattern.compile(s.get(SessionManager.KEY_NFC)).matcher( builder.toString() ).find()){
+            Intent intent = new Intent(this,CheckListActivity.class);
+            intent.putExtra("id_checklist",s.get(SessionManager.KEY_ID_CHECKLIST));
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+        }
+        else if(Pattern.compile(String.format(".*%s.*",s.get(SessionManager.KEY_NFC))).matcher(builder.toString()).matches()){
             Intent intent = new Intent(this,CheckListActivity.class);
             intent.putExtra("id_checklist",s.get(SessionManager.KEY_ID_CHECKLIST));
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
