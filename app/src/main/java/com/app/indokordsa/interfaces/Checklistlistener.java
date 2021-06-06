@@ -13,5 +13,5 @@ public interface Checklistlistener {
     void onSuccessPostAlternative(String message,boolean isEndTask);
     void onFailPostAlternative(String message,boolean isEndTask);
 
-    void loadData(Job job);
+//    void loadData(Job job);
 }

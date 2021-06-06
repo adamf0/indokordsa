@@ -297,8 +297,10 @@ public class Util {
                             source_local.getTopik(),
                             source_local.getPertanyaan(),
                             source_local.getVal(),
+                            source_local.getOther(),
                             source_local.getStart(),
-                            source_local.getEnd()
+                            source_local.getEnd(),
+                            source_local.getRemarks()
                     ));
                 }
             }

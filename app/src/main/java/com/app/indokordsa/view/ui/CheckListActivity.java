@@ -12,15 +12,14 @@ import android.widget.Toast;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.app.indokordsa.R;
 import com.app.indokordsa.databinding.ActivityCheckListBinding;
 import com.app.indokordsa.helper.SessionManager;
 import com.app.indokordsa.interfaces.Checklistlistener;
 import com.app.indokordsa.record.db.DB;
-import com.app.indokordsa.view.adapter.ListJobAdapter;
 import com.app.indokordsa.view.model.CheckList;
 import com.app.indokordsa.view.model.Job;
 import com.app.indokordsa.viewmodel.CheckListViewModel;
@@ -52,7 +51,6 @@ import static com.app.indokordsa.Util.isNetworkAvailable;
 public class CheckListActivity extends AppCompatActivity implements Checklistlistener {
     CheckListViewModel vmodel;
     ActivityCheckListBinding binding;
-    ListJobAdapter ListJobAdapter;
     ArrayList<Job> list_job = new ArrayList<>();
     SessionManager session;
     HashMap<String, String> data_session;
@@ -60,6 +58,9 @@ public class CheckListActivity extends AppCompatActivity implements Checklistlis
     DB db;
     Job job;
     String no_terakhir=null;
+    int index = 0;
+    MutableLiveData<Integer> live_index = new MutableLiveData<>();
+    MutableLiveData<String> live_message = new MutableLiveData<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,17 +76,15 @@ public class CheckListActivity extends AppCompatActivity implements Checklistlis
         binding.setModel(job);
         vmodel  = new ViewModelProvider(this,new CheckListViewModelFactory(this,session)).get(CheckListViewModel.class);
 
-        binding.rvChecklist.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-        ListJobAdapter = new ListJobAdapter(this, this);
-        ListJobAdapter.setList(list_job);
-        ListJobAdapter.notifyDataSetChanged();
-        binding.rvChecklist.setAdapter(ListJobAdapter);
-
         Bundle b = getIntent().getExtras();
         if(b!=null){
+            //ganti by kode nfc
             id_checklist = b.getString("id_checklist",null);
             loadData(id_checklist);
         }
+
+        live_index.observe(this, index -> updateInput(list_job.get(index)));
+        live_message.observe(this, msg -> Snackbar.make(binding.LayoutCheklist,msg,Snackbar.LENGTH_LONG).show());
     }
 
     public void loadData(String id_checklist){
@@ -108,8 +107,6 @@ public class CheckListActivity extends AppCompatActivity implements Checklistlis
                 Date dateFromString = sdf1.parse(dateAsString);
                 assert dateFromString != null;
 
-//                Toast.makeText(this, dateAsString, Toast.LENGTH_SHORT).show();
-
                 Calendar c = Calendar.getInstance();
                 c.setTime(dateFromString);
                 c.set(Calendar.DAY_OF_MONTH, c.getActualMaximum(Calendar.DAY_OF_MONTH));
@@ -121,15 +118,12 @@ public class CheckListActivity extends AppCompatActivity implements Checklistlis
                         binding.loader.layoutLoading.setVisibility(View.GONE);
 
                         CheckList checkList = db.getCheckList(id_checklist,data.get(SessionManager.KEY_ID_USER));
-//                        list_job.sort((o1, o2) -> o1.getNo().compareTo(o2.getNo()));
                         list_job.addAll(checkList.getTugas());
-
-                        ListJobAdapter.setList(list_job);
-                        ListJobAdapter.notifyDataSetChanged();
-                        binding.rvChecklist.setAdapter(ListJobAdapter);
+                        if(list_job.size()>0){
+                            live_index.postValue(index);
+                        }
 
                         binding.txtNamaMesinCheckList.setText(checkList.getCek_mesin().getMesin().getNama());
-                        updateInput(list_job.get(0));
                         no_terakhir = list_job.get(checkList.getTugas().size()-1).getNo();
                     }, 1000);
                 }
@@ -144,7 +138,7 @@ public class CheckListActivity extends AppCompatActivity implements Checklistlis
 
     public void save(Job job){
         if(!job.isValidation()){
-            Snackbar.make(binding.LayoutCheklist,job.getMessage(),Snackbar.LENGTH_LONG).show();
+            live_message.postValue(job.getMessage());
         }
         else {
             new SweetAlertDialog(this, SweetAlertDialog.WARNING_TYPE)
@@ -183,11 +177,31 @@ public class CheckListActivity extends AppCompatActivity implements Checklistlis
         }
     }
 
+    public void next(){
+        index++;
+        if(index>=0 && index<list_job.size()){
+            live_index.postValue(index);
+        }
+        else{
+            live_message.postValue("end of question");
+        }
+    }
+
+    public void prev(){
+        index--;
+        if(index>=0 && index<list_job.size()){
+            live_index.postValue(index);
+        }
+        else{
+            live_message.postValue("start of question");
+        }
+    }
+
     void closeDialog(String message){
         new Handler().postDelayed(() -> {
             binding.LayoutInputChecklist.setVisibility(View.VISIBLE);
             binding.loader.layoutLoading.setVisibility(View.GONE);
-            Snackbar.make(binding.LayoutCheklist,message,Snackbar.LENGTH_LONG).show();
+            live_message.postValue(message);
         }, 1000);
     }
 
@@ -250,23 +264,6 @@ public class CheckListActivity extends AppCompatActivity implements Checklistlis
                     }
                 }
                 logging("[server]"+new JSONArray(list_job_s));
-
-//                for(int a=0;a<tugas.length();a++) {
-//                    JSONObject obj_ = tugas.getJSONObject(a);
-//                    Job tmp = new Job(
-//                            null,
-//                            obj.getString("id"),
-//                            obj_.getString("no"),
-//                            obj_.getString("cek"),
-//                            obj_.getString("kat"),
-//                            obj_.getString("val"),
-//                            obj_.getString("ket")
-//                    );
-//                    list_job.add(tmp);
-//                    if(a==0){
-//                        updateInput(tmp);
-//                    }
-//                }
 
                 if(db.countListCheckListById(data_session.get(SessionManager.KEY_ID_USER),obj.getString("id"))<1){
                     if(db.countKategoriMesinById(kategori.getString("id"))<1) {
@@ -549,6 +546,10 @@ public class CheckListActivity extends AppCompatActivity implements Checklistlis
                         }
                     }
                 }
+
+                if(list_job.size()>0){
+                    live_index.postValue(index);
+                }
             } catch (JSONException | ParseException e) {
 //            } catch (JSONException e) {
                 e.printStackTrace();
@@ -603,14 +604,7 @@ public class CheckListActivity extends AppCompatActivity implements Checklistlis
         db.update_sinkron_penugasan(checkList.getId(),"0");
     }
 
-    @SuppressLint("SetTextI18n")
-    @Override
-    public void loadData(Job job) {
-        updateInput(job);
-    }
-
     void updateInput(Job job){
-//        this.job.setId_penugasan(list_job.get(0).getId_penugasan());
         this.job.setId_penugasan(job.getId_penugasan());
         this.job.setNo(job.getNo());
         this.job.setCek(job.getCek());

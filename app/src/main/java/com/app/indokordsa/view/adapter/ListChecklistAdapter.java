@@ -37,12 +37,12 @@ public class ListChecklistAdapter extends RecyclerView.Adapter<ListChecklistAdap
         this.list_checkList = list_checkList;
     }
 
-    public void selectItem(CheckList checkList, String id_checklist, String kode_nfc, boolean isFinishTask) {
+    public void selectItem(CheckList checkList, boolean isFinishTask) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-01");
         String now = sdf.format(new Date());
         if(checkList.getTanggal().equals(now)){
            if(!isFinishTask){
-               listchecklistlistener.onSelect(checkList,id_checklist,kode_nfc);
+               listchecklistlistener.onSelect(checkList);
            }
         }
 //        if(!isFinishTask)

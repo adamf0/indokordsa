@@ -171,10 +171,10 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:background="#000"
+                            android:onClick="@{()->action.selectYN(`ya`)}"
                             android:text="Ya"
                             android:textColor="#fff"
                             app:backgroundTint="@null"
-                            android:onClick="@{()->action.selectYN(`ya`)}"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent" />
@@ -185,8 +185,8 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
                             android:background="#000"
-                            android:text="Tidak"
                             android:onClick="@{()->action.selectYN(`tidak`)}"
+                            android:text="Tidak"
                             android:textColor="#fff"
                             app:backgroundTint="@null"
                             app:layout_constraintBottom_toBottomOf="parent"
@@ -224,6 +224,58 @@
                             app:layout_constraintStart_toStartOf="@+id/textView57"
                             app:layout_constraintTop_toBottomOf="@+id/textView57" />
 
+                        <LinearLayout
+                            android:id="@+id/LayoutOtherQuestionnaire"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:orientation="vertical"
+                            android:visibility="gone"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@+id/deopdown_val_questionnaire">
+
+                            <TextView
+                                android:id="@+id/textView30"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Others" />
+
+                            <EditText
+                                android:id="@+id/edt_other_questionnaire"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:ems="10"
+                                android:inputType="textPersonName"
+                                android:onTextChanged="@{action.onOtherChanged}"
+                                android:text="@{jawaban_kuesioner.other}"
+                                android:visibility="visible" />
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/textView17"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:text="Remarks"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintHorizontal_bias="0.0"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@+id/LayoutOtherQuestionnaire" />
+
+                        <EditText
+                            android:id="@+id/edt_remarks_questionnaire"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:ems="10"
+                            android:inputType="textPersonName"
+                            android:onTextChanged="@{action.onRemarksChanged}"
+                            android:text="@{jawaban_kuesioner.remarks}"
+                            android:visibility="visible"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@+id/textView17" />
+
                         <TextView
                             android:id="@+id/textView35"
                             android:layout_width="0dp"
@@ -234,7 +286,7 @@
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintHorizontal_bias="0.0"
                             app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@+id/deopdown_val_questionnaire" />
+                            app:layout_constraintTop_toBottomOf="@+id/edt_remarks_questionnaire" />
 
                         <EditText
                             android:id="@+id/edt_start_questionnaire"
@@ -258,6 +310,7 @@
                             android:text="End"
                             android:visibility="visible"
                             app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintHorizontal_bias="0.0"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toBottomOf="@+id/edt_start_questionnaire" />
 

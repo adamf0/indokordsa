@@ -1,26 +1,34 @@
 package com.app.indokordsa.view.ui;
 
 import android.annotation.SuppressLint;
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.nfc.NdefMessage;
+import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
+import android.nfc.Tag;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.app.indokordsa.R;
 import com.app.indokordsa.databinding.ActivityListChecklistBinding;
+import com.app.indokordsa.helper.NdefMessageParser;
 import com.app.indokordsa.helper.SessionManager;
 import com.app.indokordsa.interfaces.ListChecklistlistener;
+import com.app.indokordsa.interfaces.ParsedNdefRecord;
 import com.app.indokordsa.record.db.DB;
 import com.app.indokordsa.view.adapter.ListChecklistAdapter;
 import com.app.indokordsa.view.model.CheckList;
@@ -39,7 +47,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -50,7 +57,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.regex.Pattern;
 
+import static com.app.indokordsa.Util.dumpTagData;
 import static com.app.indokordsa.Util.intersection;
 import static com.app.indokordsa.Util.isNetworkAvailable;
 
@@ -61,12 +70,13 @@ public class ListCheckListActivity extends AppCompatActivity implements ListChec
     ListChecklistAdapter listChecklistAdapter;
     ArrayList<CheckList> list_checkList = new ArrayList<>();
     SessionManager session;
-    CheckList checkList;
-    String id_checklist=null;
-    String kode_nfc=null;
+    CheckList checkList = null;
     CheckList tmp;
-    NfcAdapter nfcAdapter;
     DB db;
+    MutableLiveData<CheckList> tmp_select = new MutableLiveData<>();
+    MutableLiveData<String> live_message = new MutableLiveData<>();
+    NfcAdapter nfcAdapter;
+    PendingIntent pendingIntent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,87 +95,131 @@ public class ListCheckListActivity extends AppCompatActivity implements ListChec
         binding.rvListChecklist.setAdapter(listChecklistAdapter);
 
         db = new DB(this);
-        loadData();
         checkList = initModel();
+        tmp_select.observe(this, item -> checkList = item);
+        live_message.observe(this, msg -> Snackbar.make(binding.scrollListChecklist,msg, Snackbar.LENGTH_LONG).show());
+        loadData();
 
-        //init nfc
+
         nfcAdapter = NfcAdapter.getDefaultAdapter(this);
-        if (nfcAdapter == null){
-            Snackbar.make(binding.scrollListChecklist,"this device does not support NFC",Snackbar.LENGTH_LONG).show();
+        if (nfcAdapter == null) {
+            live_message.postValue("Not Support NFC");
         }
-        //read nfc
-        readFromIntent(getIntent());
+
+        pendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, this.getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
     }
 
-    //read nfc from intent
-    private void readFromIntent(Intent intent){
+    protected void onResume() {
+        super.onResume();
+
+        if (nfcAdapter != null) {
+            if (!nfcAdapter.isEnabled())
+                showWirelessSettings();
+
+            nfcAdapter.enableForegroundDispatch(this, pendingIntent, null, null);
+        }
+    }
+
+    private void showWirelessSettings() {
+        Toast.makeText(this, "You need to enable NFC", Toast.LENGTH_SHORT).show();
+        Intent intent = new Intent(Settings.ACTION_WIRELESS_SETTINGS);
+        startActivity(intent);
+    }
+
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        resolveIntent(intent);
+    }
+
+    private void resolveIntent(Intent intent) {
         String action = intent.getAction();
+
         if (NfcAdapter.ACTION_TAG_DISCOVERED.equals(action)
                 || NfcAdapter.ACTION_TECH_DISCOVERED.equals(action)
                 || NfcAdapter.ACTION_NDEF_DISCOVERED.equals(action)) {
             Parcelable[] rawMsgs = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
-            NdefMessage[] msgs = null;
+            NdefMessage[] msgs;
+
             if (rawMsgs != null) {
                 msgs = new NdefMessage[rawMsgs.length];
-                for (int i = 0; i < rawMsgs.length; i++){
+
+                for (int i = 0; i < rawMsgs.length; i++) {
                     msgs[i] = (NdefMessage) rawMsgs[i];
                 }
+
+            } else {
+                byte[] empty = new byte[0];
+                byte[] id = intent.getByteArrayExtra(NfcAdapter.EXTRA_ID);
+                Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+                byte[] payload = dumpTagData(tag).getBytes();
+                NdefRecord record = new NdefRecord(NdefRecord.TNF_UNKNOWN, empty, id, payload);
+                NdefMessage msg = new NdefMessage(new NdefRecord[] {record});
+                msgs = new NdefMessage[] {msg};
             }
-            buildTagViews(msgs);
+
+            displayMsgs(msgs);
         }
     }
 
-    //build data nfc from intent to text
-    @SuppressLint("DefaultLocale")
-    private void buildTagViews(NdefMessage[] msgs){
-        if (msgs == null || msgs.length == 0) return;
-        byte[] payload = msgs[0].getRecords()[0].getPayload();
-        String textEncoding = ((payload[0] & 128) == 0) ? "UTF-8" : "UTF-16";
-        int languageCodeLength = payload[0] & 0063;
+    private void displayMsgs(NdefMessage[] msgs) {
+        if (msgs == null || msgs.length == 0)
+            return;
 
-        try {
-            String text = new String(payload, languageCodeLength + 1, payload.length - languageCodeLength - 1, textEncoding);
+        StringBuilder builder = new StringBuilder();
+        List<ParsedNdefRecord> records = NdefMessageParser.parse(msgs[0]);
+        final int size = records.size();
 
-            binding.scrollListChecklist.setVisibility(View.VISIBLE);
-            binding.loader.layoutLoading.setVisibility(View.GONE);
-            binding.layoutScanNFCPage.setVisibility(View.GONE);
-
-//            if(this.checkList==null){
-//                Snackbar.make(binding.scrollListChecklist,"CheckList is null",Snackbar.LENGTH_LONG).show();
-//            }
-//            else if(this.checkList.getCek_mesin()==null){
-//                Snackbar.make(binding.scrollListChecklist,"Cekmesin is null",Snackbar.LENGTH_LONG).show();
-//            }
-//            else if(this.checkList.getCek_mesin().getMesin()==null){
-//                Snackbar.make(binding.scrollListChecklist,"Machine cannot selected",Snackbar.LENGTH_LONG).show();
-//            }
-            if(this.id_checklist==null){
-                Snackbar.make(binding.scrollListChecklist,"id_checklist is null",Snackbar.LENGTH_LONG).show();
-            }
-            else if(this.kode_nfc==null){
-                Snackbar.make(binding.scrollListChecklist,"kode_nfc is null",Snackbar.LENGTH_LONG).show();
-            }
-            else if(text.equals(this.kode_nfc)){
-                Intent intent = new Intent(this,CheckListActivity.class);
-//                intent.putExtra("id_checklist",checkList.getId());
-                intent.putExtra("id_checklist",this.id_checklist);
-                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(intent);
-            }
-            else{
-                Snackbar.make(binding.scrollListChecklist,String.format("NFC not valid. nfc % expected %s",text,this.kode_nfc),Snackbar.LENGTH_LONG).show();
-            }
-        }catch (UnsupportedEncodingException e){
-            Log.e("UnsupportedEncoding", e.toString());
+        for (int i = 0; i < size; i++) {
+            ParsedNdefRecord record = records.get(i);
+            String str = record.str();
+            builder.append(str).append("\n");
         }
-    }
 
-    @Override
-    public void onNewIntent(Intent intent){
-        super.onNewIntent(intent);
-        setIntent(intent);
-        //read nfc
-        readFromIntent(intent);
+        binding.scrollListChecklist.setVisibility(View.VISIBLE);
+        binding.loader.layoutLoading.setVisibility(View.GONE);
+        binding.layoutScanNFCPage.setVisibility(View.GONE);
+
+
+        HashMap<String, String> s = session.getSession();
+        if(checkList==null){
+            live_message.postValue("Checklist is null");
+        }
+        else if(checkList.getCek_mesin()==null){
+            live_message.postValue("CheckMachine is null");
+        }
+        else if(checkList.getCek_mesin().getMesin()==null){
+            live_message.postValue("Machine is null");
+        }
+        else if(checkList.getCek_mesin().getMesin().getKode_nfc().equals( builder.toString() )){
+            Intent intent = new Intent(this,CheckListActivity.class);
+            intent.putExtra("id_checklist",checkList.getId());
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+        }
+        else if(s.get(SessionManager.KEY_NFC).equals( builder.toString() )){
+            Intent intent = new Intent(this,CheckListActivity.class);
+            intent.putExtra("id_checklist",s.get(SessionManager.KEY_ID_CHECKLIST));
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+        }
+        else if(Pattern.compile(checkList.getCek_mesin().getMesin().getKode_nfc()).matcher(builder.toString()).find()){
+            Intent intent = new Intent(this,CheckListActivity.class);
+            intent.putExtra("id_checklist",checkList.getId());
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+        }
+        else if(Pattern.compile(s.get(SessionManager.KEY_NFC)).matcher( builder.toString() ).find()){
+            Intent intent = new Intent(this,CheckListActivity.class);
+            intent.putExtra("id_checklist",s.get(SessionManager.KEY_ID_CHECKLIST));
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+        }
+        else{
+            live_message.postValue( String.format("%s=%s",checkList.getCek_mesin().getMesin().getKode_nfc(),builder.toString()) );
+        }
+
+        checkList = initModel();
     }
 
     CheckList initModel(){
@@ -176,10 +230,9 @@ public class ListCheckListActivity extends AppCompatActivity implements ListChec
         binding.scrollListChecklist.setVisibility(View.VISIBLE);
         binding.loader.layoutLoading.setVisibility(View.GONE);
         binding.layoutScanNFCPage.setVisibility(View.GONE);
+        tmp_select.postValue(initModel());
 
-        checkList = initModel();
-        id_checklist=null;
-        kode_nfc=null;
+//        checkList = initModel();
 //        Intent intent = new Intent(this,CheckListActivity.class);
 //        intent.putExtra("id_checklist",checkList.getId());
 //        intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -189,97 +242,6 @@ public class ListCheckListActivity extends AppCompatActivity implements ListChec
     public void back(){
         startActivity(new Intent(this,MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP));
     }
-
-//    protected void onResume() {
-//        super.onResume();
-//
-//        if (nfcAdapter != null) {
-//            if (!nfcAdapter.isEnabled())
-//                showWirelessSettings();
-//
-//            nfcAdapter.enableForegroundDispatch(this, pendingIntent, null, null);
-//        }
-//    }
-
-//    private void showWirelessSettings() {
-//        Toast.makeText(this, "You need to enable NFC", Toast.LENGTH_SHORT).show();
-//        Intent intent = new Intent(Settings.ACTION_WIRELESS_SETTINGS);
-//        startActivity(intent);
-//    }
-
-//    protected void onNewIntent(Intent intent) {
-//        super.onNewIntent(intent);
-//        setIntent(intent);
-//        resolveIntent(intent);
-//    }
-//
-//    private void resolveIntent(Intent intent) {
-//        String action = intent.getAction();
-//
-//        if (NfcAdapter.ACTION_TAG_DISCOVERED.equals(action)
-//                || NfcAdapter.ACTION_TECH_DISCOVERED.equals(action)
-//                || NfcAdapter.ACTION_NDEF_DISCOVERED.equals(action)) {
-//            Parcelable[] rawMsgs = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
-//            NdefMessage[] msgs;
-//
-//            if (rawMsgs != null) {
-//                msgs = new NdefMessage[rawMsgs.length];
-//
-//                for (int i = 0; i < rawMsgs.length; i++) {
-//                    msgs[i] = (NdefMessage) rawMsgs[i];
-//                }
-//
-//            } else {
-//                byte[] empty = new byte[0];
-//                byte[] id = intent.getByteArrayExtra(NfcAdapter.EXTRA_ID);
-//                Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
-//                byte[] payload = dumpTagData(tag).getBytes();
-//                NdefRecord record = new NdefRecord(NdefRecord.TNF_UNKNOWN, empty, id, payload);
-//                NdefMessage msg = new NdefMessage(new NdefRecord[] {record});
-//                msgs = new NdefMessage[] {msg};
-//            }
-//
-//            displayMsgs(msgs);
-//        }
-//    }
-
-//    private void displayMsgs(NdefMessage[] msgs) {
-//        if (msgs == null || msgs.length == 0)
-//            return;
-//
-//        StringBuilder builder = new StringBuilder();
-//        List<ParsedNdefRecord> records = NdefMessageParser.parse(msgs[0]);
-//        final int size = records.size();
-//
-//        for (int i = 0; i < size; i++) {
-//            ParsedNdefRecord record = records.get(i);
-//            String str = record.str();
-//            builder.append(str).append("\n");
-//        }
-//
-//        binding.scrollListChecklist.setVisibility(View.VISIBLE);
-//        binding.loader.layoutLoading.setVisibility(View.GONE);
-//        binding.layoutScanNFCPage.setVisibility(View.GONE);
-//
-//        if(checkList.getCek_mesin()==null){
-//            Snackbar.make(binding.scrollListChecklist,"Machine cannot selected",Snackbar.LENGTH_LONG).show();
-//        }
-//        else if(builder.toString().equals(checkList.getCek_mesin().getMesin().getKode_nfc())){
-//            Intent intent = new Intent(this,CheckListActivity.class);
-//            intent.putExtra("id_checklist",checkList.getId());
-//            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-//            startActivity(intent);
-//        }
-//        else{
-//            Log.i("app-log masalah",String.format("%s=%s",checkList.getCek_mesin().getMesin().getKode_nfc(),builder.toString()));
-//            Intent intent = new Intent(this,CheckListActivity.class);
-//            intent.putExtra("id_checklist",checkList.getId());
-//            intent.putExtra("nfc",builder.toString());
-//            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-//            startActivity(intent);
-//        }
-//        checkList = initModel();
-//    }
 
     public void loadData(){
         binding.scrollListChecklist.setVisibility(View.GONE);
@@ -335,49 +297,41 @@ public class ListCheckListActivity extends AppCompatActivity implements ListChec
             binding.scrollListChecklist.setVisibility(View.VISIBLE);
             binding.loader.layoutLoading.setVisibility(View.GONE);
             binding.layoutScanNFCPage.setVisibility(View.GONE);
-            Snackbar.make(binding.layoutListChecklist,message,Snackbar.LENGTH_LONG).show();
+            live_message.postValue(message);
         }, 1000);
     }
 
     @Override
-    public void onSelect(CheckList checkList, String id_checklist, String kode_nfc) {
+    public void onSelect(CheckList checkList) {
+        logging("line 344=> "+checkList.toJson());
+        session.SessionTapNfc(checkList.getId(),checkList.getCek_mesin().getMesin().getKode_nfc());
+        tmp_select.postValue(checkList);
+
         binding.scrollListChecklist.setVisibility(View.GONE);
         binding.loader.layoutLoading.setVisibility(View.GONE);
         binding.layoutScanNFCPage.setVisibility(View.VISIBLE);
-        this.id_checklist=id_checklist;
-        this.kode_nfc=kode_nfc;
-        this.checkList = new CheckList(
-                checkList.getId(),
-                checkList.getTanggal(),
-                checkList.getSupervisor(),
-                checkList.getOperator(),
-                new MachineCheck(
-                        checkList.getCek_mesin().getId(),
-                        new Machine(
-                                checkList.getCek_mesin().getMesin().getId(),
-                                checkList.getCek_mesin().getMesin().getKode_nfc(),
-                                checkList.getCek_mesin().getMesin().getNama(),
-                                new MachineCategory(
-                                        checkList.getCek_mesin().getMesin().getKategori().getId(),
-                                        checkList.getCek_mesin().getMesin().getKategori().getNama()
-                                )
-                        )
-                ),
-                checkList.getTugas(),
-                checkList.getTotalTugas().equals(checkList.getTotalTugasSelesai()),
-                checkList.getAlasan(),
-                0
-        );
-        readFromIntent(getIntent());
-
-//        binding.scrollListChecklist.setVisibility(View.VISIBLE);
-//        binding.loader.layoutLoading.setVisibility(View.GONE);
-//        binding.layoutScanNFCPage.setVisibility(View.GONE);
-//
-//        Intent intent = new Intent(this,CheckListActivity.class);
-//        intent.putExtra("id_checklist",checkList.getId());
-//        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-//        startActivity(intent);
+//        this.checkList = new CheckList(
+//                checkList.getId(),
+//                checkList.getTanggal(),
+//                checkList.getSupervisor(),
+//                checkList.getOperator(),
+//                new MachineCheck(
+//                        checkList.getCek_mesin().getId(),
+//                        new Machine(
+//                                checkList.getCek_mesin().getMesin().getId(),
+//                                checkList.getCek_mesin().getMesin().getKode_nfc(),
+//                                checkList.getCek_mesin().getMesin().getNama(),
+//                                new MachineCategory(
+//                                        checkList.getCek_mesin().getMesin().getKategori().getId(),
+//                                        checkList.getCek_mesin().getMesin().getKategori().getNama()
+//                                )
+//                        )
+//                ),
+//                checkList.getTugas(),
+//                checkList.getTotalTugas().equals(checkList.getTotalTugasSelesai()),
+//                checkList.getAlasan(),
+//                0
+//        );
     }
 
     @Override
@@ -726,7 +680,7 @@ public class ListCheckListActivity extends AppCompatActivity implements ListChec
                         }
                     }
 
-                    list_checkList.add(new CheckList(
+                    CheckList checkList = new CheckList(
                             obj.getString("id"),
                             obj.getString("tanggal"),
                             new Supervisor(
@@ -759,7 +713,10 @@ public class ListCheckListActivity extends AppCompatActivity implements ListChec
                             (obj.getInt("status") >= 1),
                             obj.getString("alasan"),
                             obj.getInt("sync")
-                    ));
+                    );
+//                    logging("line 763=> "+checkList.toJson());
+
+                    list_checkList.add(checkList);
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -812,6 +769,7 @@ public class ListCheckListActivity extends AppCompatActivity implements ListChec
     }
 
     void logging(String message){
+//        int callersLineNumber = Thread.currentThread().getStackTrace()[1].getLineNumber();
         Log.i("app-log [ListCheckList]",message);
     }
 }

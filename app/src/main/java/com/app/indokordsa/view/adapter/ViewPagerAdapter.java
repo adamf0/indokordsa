@@ -14,6 +14,9 @@ import com.app.indokordsa.databinding.ItemRowSliderBinding;
 import com.app.indokordsa.helper.SessionManager;
 import com.app.indokordsa.interfaces.ViewPagerListener;
 import com.app.indokordsa.record.db.DB;
+import com.app.indokordsa.view.model.CheckList;
+import com.app.indokordsa.view.model.JawabanKuesioner;
+import com.app.indokordsa.view.model.KuesionerResult;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -46,7 +49,9 @@ public class ViewPagerAdapter extends PagerAdapter {
             SimpleDateFormat sdf0 = new SimpleDateFormat("yyyy-MM-01");
             SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
 
-            String StartDate = sdf0.format(new Date());
+            Calendar cal = Calendar.getInstance();
+            cal.add(Calendar.MONTH, -1);
+            String StartDate = sdf0.format(cal.getTime());
 
             String dateAsString = sdf1.format(new Date());
             Date dateFromString = sdf1.parse(dateAsString);
@@ -59,7 +64,14 @@ public class ViewPagerAdapter extends PagerAdapter {
 
             if(db.countListCheckList(data.get(SessionManager.KEY_ID_USER),StartDate,new SimpleDateFormat("yyyy-MM-dd").format(end))>0){
                 binding.lbTitleNotificationMonthItemRowSlider.setVisibility(View.VISIBLE);
-                binding.lbNotificationMonthItemRowSlider.setVisibility(View.VISIBLE);
+                int num=0;
+                ArrayList<CheckList> list = db.getListCheckList(data.get(SessionManager.KEY_ID_USER),StartDate,new SimpleDateFormat("yyyy-MM-dd").format(end));
+                for (CheckList item:list){
+                    if(!item.getTotalTugas().equals(item.getTotalTugasSelesai()) && item.getTanggal().equals(new SimpleDateFormat("yyyy-MM-01").format(new Date())) ){
+                        num++;
+                    }
+                }
+                binding.lbNotificationMonthItemRowSlider.setVisibility(num<1? View.INVISIBLE:View.VISIBLE);
             }
             else{
                 binding.lbTitleNotificationMonthItemRowSlider.setVisibility(View.GONE);
@@ -72,23 +84,35 @@ public class ViewPagerAdapter extends PagerAdapter {
 
     @SuppressLint("SimpleDateFormat")
     void loadDay(ItemRowSliderBinding binding){
-//        Calendar cal = Calendar.getInstance();
-//        cal.add(Calendar.DATE, -1);
-//        SimpleDateFormat sdf0 = new SimpleDateFormat("yyyy-MM-dd");
-//        String StartDate = sdf0.format(cal.getTime());
-//
-//        Calendar c = Calendar.getInstance();
-//        c.setTime(new Date());
-//        Date end = c.getTime();
-//
-//        if(db.countKuesionerResultByIdUser(data.get(SessionManager.KEY_ID_USER),StartDate,new SimpleDateFormat("yyyy-MM-dd").format(end))>0){
-//            binding.lbTitleNotificationDayItemRowSlider.setVisibility(View.VISIBLE);
-//            binding.lbNotificationDayItemRowSlider.setVisibility(View.VISIBLE);
-//        }
-//        else{
-//            binding.lbTitleNotificationDayItemRowSlider.setVisibility(View.GONE);
-//            binding.lbNotificationDayItemRowSlider.setVisibility(View.GONE);
-//        }
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DATE, -1);
+        SimpleDateFormat sdf0 = new SimpleDateFormat("yyyy-MM-dd");
+        String StartDate = sdf0.format(cal.getTime());
+
+        Calendar c = Calendar.getInstance();
+        c.setTime(new Date());
+        Date end = c.getTime();
+
+        if(db.countKuesionerResultByIdUser(data.get(SessionManager.KEY_ID_USER),StartDate,new SimpleDateFormat("yyyy-MM-dd").format(end))>0){
+            binding.lbTitleNotificationDayItemRowSlider.setVisibility(View.VISIBLE);
+            int num = 0;
+            ArrayList<KuesionerResult> list = db.getListKuesioner(data.get(SessionManager.KEY_ID_USER),StartDate,new SimpleDateFormat("yyyy-MM-dd").format(end));
+            for (KuesionerResult item:list) {
+                if(!item.getJawaban().equals("1") && item.getCreated_at().equals(new SimpleDateFormat("yyyy-MM-dd").format(new Date())) ){
+                    ArrayList<JawabanKuesioner> list_jawaban = item.getList_pertanyaan();
+                    for (JawabanKuesioner subItem : list_jawaban) {
+                        if(!subItem.isDone()){
+                            num++;
+                        }
+                    }
+                }
+            }
+            binding.lbNotificationDayItemRowSlider.setVisibility(num<1? View.INVISIBLE:View.VISIBLE);
+        }
+        else{
+            binding.lbTitleNotificationDayItemRowSlider.setVisibility(View.GONE);
+            binding.lbNotificationDayItemRowSlider.setVisibility(View.GONE);
+        }
     }
 
     public int getCount() {

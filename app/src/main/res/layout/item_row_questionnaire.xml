@@ -17,10 +17,9 @@
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
         android:elevation="8dp"
-        android:onClick="@{()->action.selectItem(model,(model.jawaban==`2`)? true:false)}"
+        android:onClick="@{()->action.selectItem(model,(model.jawaban==`2`)? true: model.enableClick)}"
         app:cardCornerRadius="8dp"
         tools:ignore="UnusedAttribute">
-        <!--        model.list_pertanyaan.size()==model.totalPertanyaanSelesai-->
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"

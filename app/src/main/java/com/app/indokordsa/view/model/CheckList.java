@@ -9,6 +9,9 @@ import androidx.databinding.Bindable;
 import com.app.indokordsa.BR;
 import com.app.indokordsa.Util;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 
 public class CheckList extends BaseObservable implements Parcelable {
@@ -17,7 +20,7 @@ public class CheckList extends BaseObservable implements Parcelable {
     private Supervisor supervisor;
     private Operator operator;
     private MachineCheck cek_mesin;
-    private ArrayList<Job> tugas;
+    private ArrayList<Job> tugas = new ArrayList<>();
     private boolean status;
     private String alasan;
     private boolean sync;
@@ -159,6 +162,15 @@ public class CheckList extends BaseObservable implements Parcelable {
     }
 
     @Bindable
+    public String getProgressTask(){
+        return String.format("%s (%s/%s)",getTotalTugas(),getTotalTugasSelesai(),getTotalTugas());
+    }
+    @Bindable
+    public boolean getEnableClick(){
+        return getTotalTugasSelesai().equals(getTotalTugas());
+    }
+
+    @Bindable
     public String getTanggal() {
         return tanggal;
     }
@@ -213,5 +225,45 @@ public class CheckList extends BaseObservable implements Parcelable {
 
     public void setSync_(int sync_) {
         this.sync_ = sync_;
+    }
+
+    public String toJson(){
+        JSONObject obj = new JSONObject();
+        try {
+            JSONObject supervisor = new JSONObject();
+            supervisor.put("id",getSupervisor().getId());
+            supervisor.put("nama",getSupervisor().getNama());
+            supervisor.put("image",getSupervisor().getImage());
+            supervisor.put("phone",getSupervisor().getPhone());
+            supervisor.put("level",getSupervisor().getLevel());
+
+            JSONObject operator = new JSONObject();
+            operator.put("id",getOperator().getId());
+            operator.put("nama",getOperator().getNama());
+            operator.put("image",getOperator().getImage());
+            operator.put("phone",getOperator().getPhone());
+            operator.put("level",getOperator().getLevel());
+
+            JSONObject machinecheck = new JSONObject();
+            machinecheck.put("id",getCek_mesin().getId());
+                JSONObject machine = new JSONObject();
+                machine.put("id",getCek_mesin().getMesin().getId());
+                machine.put("kode_nfc",getCek_mesin().getMesin().getKode_nfc());
+                machine.put("nama",getCek_mesin().getMesin().getNama());
+                    JSONObject kategori = new JSONObject();
+                    kategori.put("id",getCek_mesin().getMesin().getKategori().getId());
+                    kategori.put("nama",getCek_mesin().getMesin().getKategori().getNama());
+                machine.put("kategori",kategori);
+            machinecheck.put("mesin",machine);
+
+            obj.put("id",getId());
+            obj.put("tanggal",getTanggal());
+            obj.put("supervisor",supervisor);
+            obj.put("operator",operator);
+            obj.put("cek_mesin",machinecheck);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return obj.toString().replace("\\","");
     }
 }

@@ -46,12 +46,12 @@ public class ListQuestionnaireAdapter extends RecyclerView.Adapter<ListQuestionn
         String now = sdf.format(new Date());
 
         if(reFormatDatev3(item.getCreated_at()).equals(now)){
-//           if(!isFinishTask){
+           if(!isFinishTask){
                ListQuestionnairelistener.onSelect(item);
-//           }
+           }
         }
 //        if(!isFinishTask)
-//            ListQuestionnairelistener.onSelect(checkList);
+//            ListQuestionnairelistener.onSelect(item);
     }
     public void updateItem(KuesionerResult item) {
         ListQuestionnairelistener.onUpdate(item);
@@ -76,7 +76,7 @@ public class ListQuestionnaireAdapter extends RecyclerView.Adapter<ListQuestionn
 
         if(!model.getCreated_at().equals(now)){
             if(model.getList_pertanyaan().size()!=model.getTotalPertanyaanSelesai()){
-                if(model.getAlasan().equals("0")){
+                if(model.getAlasan().equals("0") || model.getAlasan().equals("")){
                     binding.layoutAlasanItemRowListQuestionnaire.setVisibility(View.VISIBLE);
                 }
                 else{

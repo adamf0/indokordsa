@@ -17,7 +17,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
         android:elevation="8dp"
-        android:onClick="@{()->action.selectItem(model,model.id,model.cek_mesin.mesin.kode_nfc,model.totalTugasSelesai==model.totalTugas)}"
+        android:onClick="@{()->action.selectItem(model,model.enableClick)}"
         app:cardCornerRadius="8dp"
         tools:ignore="UnusedAttribute">
 
@@ -86,7 +86,7 @@
                 android:id="@+id/txt_nama_mesin_item_row_list_checklist"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="@{model.cek_mesin.mesin.nama + ` (` + model.cek_mesin.mesin.kode_nfc + `)`}"
+                android:text="@{model.cek_mesin.mesin.nama}"
                 android:textColor="#000"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="@+id/textView12"
@@ -148,7 +148,7 @@
                 android:id="@+id/txt_total_tugas_item_row_list_checklist"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="@{model.totalTugas+` tugas (`+model.totalTugasSelesai+`/`+model.totalTugas+`)`}"
+                android:text="@{model.progressTask}"
                 android:textColor="#000"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="@+id/textView11"

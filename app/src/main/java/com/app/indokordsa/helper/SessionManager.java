@@ -19,6 +19,8 @@ public class SessionManager {
     public static final String KEY_IS_LOGIN = "islogin";
     public static final String KEY_ID_USER = "id_user";
     public static final String KEY_Name = "name";
+    public static final String KEY_ID_CHECKLIST = "id_checklist";
+    public static final String KEY_NFC = "nfc";
 
     @SuppressLint("CommitPrefEdits")
     public SessionManager(Context context){
@@ -34,16 +36,20 @@ public class SessionManager {
         editor.putString(KEY_Name, name);
         editor.commit();
     }
-
-    public void checkLogin(){
-        if(!this.isLoggedIn()){
-            Intent i = new Intent(_context, LoginActivity.class);
-            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            _context.startActivity(i);
-        }
-
+    public void SessionTapNfc(String id_checklist,String nfc){
+        editor.putString(KEY_ID_CHECKLIST, id_checklist);
+        editor.putString(KEY_NFC, nfc);
+        editor.commit();
     }
+
+//    public void checkLogin(){
+//        if(!this.isLoggedIn()){
+//            Intent i = new Intent(_context, LoginActivity.class);
+//            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//            i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//            _context.startActivity(i);
+//        }
+//    }
 
     public HashMap<String, String> getSession(){
         HashMap<String, String> data = new HashMap<>();
@@ -52,16 +58,16 @@ public class SessionManager {
         return data;
     }
 
-    public void logout(){
-        editor.clear();
-        editor.commit();
-
-        Intent i = new Intent(_context, LoginActivity.class);
-        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        _context.startActivity(i);
-    }
-
-    private boolean isLoggedIn(){
-        return pref.getBoolean(KEY_IS_LOGIN, false);
-    }
+//    public void logout(){
+//        editor.clear();
+//        editor.commit();
+//
+//        Intent i = new Intent(_context, LoginActivity.class);
+//        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//        _context.startActivity(i);
+//    }
+//
+//    private boolean isLoggedIn(){
+//        return pref.getBoolean(KEY_IS_LOGIN, false);
+//    }
 }

@@ -104,9 +104,6 @@ public class ListQuestionnaireActivity extends AppCompatActivity implements List
                     binding.loader.layoutLoading.setVisibility(View.GONE);
 
                     list_data = db.getListKuesioner(data_session.get(SessionManager.KEY_ID_USER),StartDate,EndDate);
-//                    for (KuesionerResult kr:list_data){
-//                        kr.setList_pertanyaan(db.getListPertanyaan(kr.getId_kuesioner_result()));
-//                    }
                     binding.rvListQuestionnaire.setLayoutManager(new LinearLayoutManager(this));
                     listQuestionnaireAdapter = new ListQuestionnaireAdapter(this, this);
                     listQuestionnaireAdapter.setList(list_data);
@@ -149,7 +146,7 @@ public class ListQuestionnaireActivity extends AppCompatActivity implements List
             else {
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
                 String updated_at = sdf.format(new Date());
-                AddUpdateKuesionerResult(item.getId_kuesioner_result(),item.getId_user(),item.getShift().getId(), item.getKuesioner().getId(),item.getJawaban(), String.valueOf(item.getStatus()), item.getAlasan(), "0", item.getCreated_at(), updated_at, item.getDeleted_at());
+                AddUpdateKuesionerResult(item.getId_kuesioner_result(),item.getId_user(),item.getShift().getId(), item.getKuesioner().getId(),item.getJawaban(), String.valueOf(item.getStatus()), item.getAlasan(), "0", item.getCreated_at(), updated_at, item.getDeleted_at(),true);
             }
         }
         else{
@@ -277,7 +274,8 @@ public class ListQuestionnaireActivity extends AppCompatActivity implements List
             e.printStackTrace();
         }
     }
-    void AddUpdateKuesionerResult(String id,String id_user,String id_shift, String id_kuesioner, String jawaban, String status, String alasan, String sync, String created_at, String updated_at, String deleted_at){
+    void AddUpdateKuesionerResult(String id,String id_user,String id_shift, String id_kuesioner, String jawaban, String status, String alasan, String sync, String created_at, String updated_at, String deleted_at,boolean isRecall){
+        String message = "";
         if(db.countKuesionerResultByIdUser(id_user,StartDate,EndDate)<1){
             if(db.save_kuesioner_result(
                     id,
@@ -292,9 +290,11 @@ public class ListQuestionnaireActivity extends AppCompatActivity implements List
                     updated_at,
                     deleted_at
             ) != -1){
+                message = "successfully save the questionnaire";
                 logging(String.format("berhasil simpan id_kuesioner_result=%s", id));
             }
             else{
+                message = "failed to save the questionnaire";
                 logging(String.format("gagal simpan id_kuesioner_result=%s", id));
             }
         }
@@ -313,11 +313,18 @@ public class ListQuestionnaireActivity extends AppCompatActivity implements List
                     updated_at,
                     deleted_at
             )>=0){
+                message = "successfully updated the questionnaire";
                 logging(String.format("berhasil update id_kuesioner_result=%s", id));
             }
             else{
+                message = "failed to update the questionnaire";
                 logging(String.format("gagal update id_kuesioner_result=%s", id));
             }
+        }
+
+        if(isRecall) {
+            closeDialog(message);
+            startActivity(new Intent(this, ListQuestionnaireActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
         }
     }
 
@@ -361,8 +368,30 @@ public class ListQuestionnaireActivity extends AppCompatActivity implements List
                     );
                     AddUpdateKuesioner(kuesioner,tmp_area);
 
-                    String jawaban                                      = data.getString("jawaban");
-                    ArrayList<JawabanKuesioner> list_pertanyaan         = new ArrayList<>();
+                    String jawaban              = data.getString("jawaban");
+                    int status                  = data.getInt("status");
+                    int sync                    = data.getInt("sync");
+                    String alasan               = data.getString("alasan");
+                    String created_at           = data.getString("created_at");
+                    String updated_at           = data.getString("updated_at");
+                    String deleted_at           = data.getString("deleted_at");
+                    AddUpdateKuesionerResult(id,id_user,tmp_shift.getId(), tmp_kuesioner.getId(), jawaban, String.valueOf(status),alasan, String.valueOf(sync), created_at, updated_at, deleted_at,false);
+
+                    KuesionerResult tmp_kr = new KuesionerResult(
+                            id,
+                            id_user,
+                            tmp_shift,
+                            tmp_kuesioner,
+                            jawaban,
+                            status,
+                            alasan,
+                            sync,
+                            new ArrayList<>(),
+                            created_at,
+                            updated_at,
+                            deleted_at
+                    );
+//                    ArrayList<JawabanKuesioner> list_pertanyaan         = new ArrayList<>();
                     ArrayList<JawabanKuesioner> list_pertanyaan_server  = new ArrayList<>();
                     Set<String> list_pertanyaan_server_s                = new HashSet<>();
 
@@ -371,8 +400,8 @@ public class ListQuestionnaireActivity extends AppCompatActivity implements List
                         JSONObject obj = data_pertanyaan.getJSONObject(j);
                         JSONObject topik = obj.getJSONObject("topik");
                         Topik tmp_topik = new Topik(
-                            topik.getString("id"),
-                            topik.getString("name")
+                                topik.getString("id"),
+                                topik.getString("name")
                         );
                         AddUpdateTopik(topik, id);
 
@@ -384,16 +413,19 @@ public class ListQuestionnaireActivity extends AppCompatActivity implements List
                         AddUpdatePertanyaan(pertanyaan,topik);
 
                         String val = obj.getString("val");
+                        String other = obj.getString("other");
                         String start = obj.getString("start");
                         String end = obj.getString("end");
-//                        String duration = obj.getString("duration");
+                        String remarks = obj.getString("remarks");
 
                         list_pertanyaan_server.add(new JawabanKuesioner(
                                 tmp_topik,
                                 tmp_pertanyaan,
                                 val,
+                                other,
                                 start,
-                                end
+                                end,
+                                remarks
                         ));
                         list_pertanyaan_server_s.add(String.format("%s-%s",tmp_topik.getId(),tmp_pertanyaan.getId()));
 
@@ -414,9 +446,11 @@ public class ListQuestionnaireActivity extends AppCompatActivity implements List
                                 jk.getPertanyaan().getId(),
                                 jk.getVal(),
                                 jk.getStart(),
-                                jk.getEnd()
+                                jk.getEnd(),
+                                jk.getRemarks()
                         );
-                        list_pertanyaan.add(jk);
+                        tmp_kr.getList_pertanyaan().add(jk);
+//                        list_pertanyaan.add(jk);
 
                         JSONObject x = new JSONObject();
                         x.put("id_kuesioner_hasil", jk.getId());
@@ -438,16 +472,18 @@ public class ListQuestionnaireActivity extends AppCompatActivity implements List
                         String id_pertanyaan = idtp.split("-")[1];
                         for (JawabanKuesioner jk : list_pertanyaan_server) {
                             if (jk.getTopik().getId().equals(id_topik) && jk.getPertanyaan().getId().equals(id_pertanyaan)) {
-                                db.save_kuesioner_hasil( //masalah
+                                db.save_kuesioner_hasil(
                                         id,
                                         jk.getTopik().getId(),
                                         jk.getPertanyaan().getId(),
                                         jk.getVal(),
+                                        jk.getOther(),
                                         jk.getStart(),
                                         jk.getEnd(),
-                                        jk.getDurationFormatMinute()
+                                        jk.getRemarks()
                                 );
-                                list_pertanyaan.add(jk);
+                                tmp_kr.getList_pertanyaan().add(jk);
+//                                list_pertanyaan.add(jk);
                                 logging(String.format("berhasil simpan kuesioner_hasil id_kuesioner_hasil=%s", jk.getId()));
                             }
                         }
@@ -466,29 +502,9 @@ public class ListQuestionnaireActivity extends AppCompatActivity implements List
                         }
                     }
 
-                    int status                  = data.getInt("status");
-                    int sync                    = data.getInt("sync");
-                    String alasan               = data.getString("alasan");
-                    String created_at           = data.getString("created_at");
-                    String updated_at           = data.getString("updated_at");
-                    String deleted_at           = data.getString("deleted_at");
-                    AddUpdateKuesionerResult(id,id_user,tmp_shift.getId(), tmp_kuesioner.getId(), jawaban, String.valueOf(status),alasan, String.valueOf(sync), created_at, updated_at, deleted_at);
-
-                    list_data.add(new KuesionerResult(
-                            id,
-                            id_user,
-                            tmp_shift,
-                            tmp_kuesioner,
-                            jawaban,
-                            status,
-                            alasan,
-                            sync,
-                            list_pertanyaan,
-                            created_at,
-                            updated_at,
-                            deleted_at
-                    ));
-                    logging("[list_pertanyaan] "+ list_pertanyaan.size());
+                    //list_pertanyaan langsung loss
+                    list_data.add(tmp_kr);
+                    logging("[list_pertanyaan] "+ tmp_kr.getList_pertanyaan().size());
                 }
 
                 binding.rvListQuestionnaire.setLayoutManager(new LinearLayoutManager(this));
@@ -511,7 +527,7 @@ public class ListQuestionnaireActivity extends AppCompatActivity implements List
     public void onSuccessPost(String response, KuesionerResult item) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
         String updated_at = sdf.format(new Date());
-        AddUpdateKuesionerResult(item.getId_kuesioner_result(),item.getId_user(),item.getShift().getId(), item.getKuesioner().getId(), item.getJawaban(), String.valueOf(item.getStatus()), item.getAlasan(), "0", item.getCreated_at(), updated_at, item.getDeleted_at());
+        AddUpdateKuesionerResult(item.getId_kuesioner_result(),item.getId_user(),item.getShift().getId(), item.getKuesioner().getId(), item.getJawaban(), String.valueOf(item.getStatus()), item.getAlasan(), "0", item.getCreated_at(), updated_at, item.getDeleted_at(),true);
 
         closeDialog(response);
     }

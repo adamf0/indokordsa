@@ -18,28 +18,34 @@ public class JawabanKuesioner extends BaseObservable implements Parcelable {
     private Topik topik;
     private Pertanyaan pertanyaan;
     private String val;
+    private String other;
     private String start;
     private String end;
+    private String remarks;
     private String message;
 
     JawabanKuesioner(){
 
     }
-    public JawabanKuesioner(Topik topik, Pertanyaan pertanyaan, String val, String start, String end){
+    public JawabanKuesioner(Topik topik, Pertanyaan pertanyaan, String val, String other, String start, String end,String remarks){
      setTopik(topik);
      setPertanyaan(pertanyaan);
      setVal(val);
+     setOther(other);
      setStart(start);
      setEnd(end);
+     setRemarks(remarks);
      setMessage("");
     }
-    public JawabanKuesioner(String id, Topik topik, Pertanyaan pertanyaan, String val, String start, String end){
+    public JawabanKuesioner(String id, Topik topik, Pertanyaan pertanyaan, String val, String other, String start, String end,String remarks){
         setId(id);
         setTopik(topik);
         setPertanyaan(pertanyaan);
         setVal(val);
+        setOther(other);
         setStart(start);
         setEnd(end);
+        setRemarks(remarks);
         setMessage("");
     }
 
@@ -50,6 +56,7 @@ public class JawabanKuesioner extends BaseObservable implements Parcelable {
         val = in.readString();
         start = in.readString();
         end = in.readString();
+        remarks = in.readString();
     }
 
     @Override
@@ -60,6 +67,7 @@ public class JawabanKuesioner extends BaseObservable implements Parcelable {
         dest.writeString(val);
         dest.writeString(start);
         dest.writeString(end);
+        dest.writeString(remarks);
     }
 
     @Override
@@ -206,5 +214,25 @@ public class JawabanKuesioner extends BaseObservable implements Parcelable {
 
     public boolean isDone(){
         return !TextUtils.isEmpty(getVal()) && !TextUtils.isEmpty(getStart()) && !TextUtils.isEmpty(getEnd());
+    }
+
+    @Bindable
+    public String getRemarks() {
+        return remarks;
+    }
+
+    public void setRemarks(String remarks) {
+        this.remarks = remarks;
+        this.notifyPropertyChanged(BR.remarks);
+    }
+
+    @Bindable
+    public String getOther() {
+        return other;
+    }
+
+    public void setOther(String other) {
+        this.other = other;
+        this.notifyPropertyChanged(BR.other);
     }
 }

@@ -10,7 +10,11 @@ import androidx.databinding.Bindable;
 import com.app.indokordsa.BR;
 import com.app.indokordsa.Util;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+
+import static com.app.indokordsa.Util.reFormatDatev3;
 
 public class KuesionerResult extends BaseObservable implements Parcelable {
     private String id_kuesioner_result;
@@ -225,6 +229,10 @@ public class KuesionerResult extends BaseObservable implements Parcelable {
     @Bindable
     public String getProgressTask() {
         return String.format("%s (%s/%s)",getList_pertanyaan().size(),getTotalPertanyaanSelesai(),getList_pertanyaan().size());
+    }
+    @Bindable
+    public boolean getEnableClick() {
+        return getList_pertanyaan().size()==getTotalPertanyaanSelesai();
     }
 
     @Bindable

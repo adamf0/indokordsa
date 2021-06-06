@@ -62,7 +62,7 @@ public class MainActivity extends AppCompatActivity implements ViewPagerListener
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.navigation_home:
-                startActivity(new Intent(this,ListCheckListActivity.class));
+                startActivity(new Intent(this,MainActivity.class));
                 break;
             case R.id.navigation_profile:
                 startActivity(new Intent(MainActivity.this,ProfileActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
