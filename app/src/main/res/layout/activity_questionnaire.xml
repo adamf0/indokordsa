@@ -148,10 +148,11 @@
                         android:id="@+id/textView34"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:fontFamily="@font/montserrat_aiternates_light"
+                        android:fontFamily="@font/montserrat_aiternates_semi_bold"
                         android:text="@{(jawaban_kuesioner.pertanyaan==null? ``:jawaban_kuesioner.pertanyaan.pertanyaan)}"
                         android:textColor="#000"
                         android:textSize="20sp"
+                        android:textStyle="bold"
                         app:layout_constraintEnd_toEndOf="@+id/textView33"
                         app:layout_constraintStart_toStartOf="@+id/textView33"
                         app:layout_constraintTop_toBottomOf="@+id/txt_topik_LayoutInputChoiceQuestionnaire" />
