@@ -51,17 +51,17 @@
 <!--            </intent-filter>-->
 <!--        </service>-->
 
-        <receiver
-            android:name=".SendingQuestionnaire"
-            android:enabled="true"
-            android:exported="true"
-            tools:ignore="ExportedReceiver" />
+<!--        <receiver-->
+<!--            android:name=".SendingQuestionnaire"-->
+<!--            android:enabled="true"-->
+<!--            android:exported="true"-->
+<!--            tools:ignore="ExportedReceiver" />-->
 
-        <receiver
-            android:name=".SendingCheckList"
-            android:enabled="true"
-            android:exported="true"
-            tools:ignore="ExportedReceiver" />
+<!--        <receiver-->
+<!--            android:name=".SendingCheckList"-->
+<!--            android:enabled="true"-->
+<!--            android:exported="true"-->
+<!--            tools:ignore="ExportedReceiver" />-->
 
 <!--        <receiver-->
 <!--            android:name=".Receive"-->

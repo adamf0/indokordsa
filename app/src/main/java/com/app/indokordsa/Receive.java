@@ -1,28 +1,29 @@
 package com.app.indokordsa;
 
-import android.annotation.SuppressLint;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.util.Log;
+//import android.annotation.SuppressLint;
+//import android.content.BroadcastReceiver;
+//import android.content.Context;
+//import android.content.Intent;
+//import android.os.Bundle;
+//import android.os.Handler;
+//import android.os.Message;
+//import android.util.Log;
+//
+//import com.rabbitmq.client.AMQP;
+//import com.rabbitmq.client.Channel;
+//import com.rabbitmq.client.Connection;
+//import com.rabbitmq.client.ConnectionFactory;
+//import com.rabbitmq.client.DefaultConsumer;
+//import com.rabbitmq.client.Envelope;
+//
+//import java.io.IOException;
+//import java.util.concurrent.TimeoutException;
 
-import com.rabbitmq.client.AMQP;
-import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.ConnectionFactory;
-import com.rabbitmq.client.DefaultConsumer;
-import com.rabbitmq.client.Envelope;
-
-import java.io.IOException;
-import java.util.concurrent.TimeoutException;
-
-public class Receive extends BroadcastReceiver {
+//public class Receive extends BroadcastReceiver {
+public class Receive{
 //    ConnectionFactory factory = new ConnectionFactory();
 
-    public void onReceive(final Context context, Intent intent) {
+//    public void onReceive(final Context context, Intent intent) {
 //        Log.i("app-log","Run Service Sender");
 //
 //        Handler incomingMessageHandler = new Handler() {
@@ -34,7 +35,7 @@ public class Receive extends BroadcastReceiver {
 //        };
 //
 //        new Thread(() -> basicConsume(incomingMessageHandler)).start();
-    }
+//    }
 
 //    private void basicConsume(final Handler handler){
 //        try {
