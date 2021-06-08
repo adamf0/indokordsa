@@ -150,6 +150,8 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:text="@{model.realStatus}"
+                android:textColor="#000"
+                android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="@+id/textView16"
                 app:layout_constraintStart_toStartOf="@+id/textView16"
                 app:layout_constraintTop_toBottomOf="@+id/textView16" />
@@ -177,7 +179,9 @@
                 android:id="@+id/txt_sync_item_row_list_questionnaire"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="@{model.realSync}"
+                android:text="@{model.sync? `Finish`:`Unfinish`}"
+                android:textColor="#000"
+                android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="@+id/textView"
                 app:layout_constraintStart_toStartOf="@+id/textView"
                 app:layout_constraintTop_toBottomOf="@+id/textView" />
@@ -186,7 +190,7 @@
                 android:id="@+id/linearLayout14"
                 android:layout_width="0dp"
                 android:layout_height="1dp"
-                android:layout_marginBottom="8dp"
+                android:layout_marginBottom="16dp"
                 android:background="#000"
                 android:orientation="vertical"
                 app:layout_constraintBottom_toTopOf="@+id/layout_alasan_item_row_list_questionnaire"
@@ -198,8 +202,45 @@
                 android:id="@+id/layout_alasan_item_row_list_questionnaire"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:orientation="vertical"
+                android:visibility="visible"
+                app:layout_constraintBottom_toTopOf="@+id/layout_input_alasan_item_row_list_questionnaire"
+                app:layout_constraintEnd_toEndOf="@+id/textView"
+                app:layout_constraintStart_toStartOf="@+id/textView">
+
+                <TextView
+                    android:id="@+id/textView60"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Reason" />
+
+                <TextView
+                    android:id="@+id/textView61"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@{model.alasan}"
+                    android:textColor="#000"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:id="@+id/linearLayout16"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="#000"
+                    android:orientation="vertical"
+                    app:layout_constraintEnd_toEndOf="@+id/textView"
+                    app:layout_constraintStart_toStartOf="@+id/textView"
+                    app:layout_constraintTop_toBottomOf="@+id/txt_sync_item_row_list_questionnaire" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/layout_input_alasan_item_row_list_questionnaire"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 android:orientation="vertical"
+                android:visibility="visible"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="@+id/textView"
                 app:layout_constraintStart_toStartOf="@+id/textView">
@@ -222,8 +263,8 @@
                     android:layout_marginTop="16dp"
                     android:background="@drawable/button_blue"
                     android:fontFamily="@font/helvetica_neue_condensed_bold"
-                    android:text="Save"
                     android:onClick="@{()->action.updateItem(model)}"
+                    android:text="Save"
                     android:textColor="#fff"
                     android:textSize="14sp"
                     android:visibility="visible"

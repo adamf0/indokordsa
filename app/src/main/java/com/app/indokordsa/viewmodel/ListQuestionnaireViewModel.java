@@ -28,7 +28,6 @@ public class ListQuestionnaireViewModel extends ViewModel {
         this.listener = listener;
         this.session = session;
     }
-    @SuppressLint("LongLogTag")
     public void loadData(){
         HashMap<String, String> data = session.getSession();
 

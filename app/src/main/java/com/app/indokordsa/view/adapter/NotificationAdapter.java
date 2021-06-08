@@ -39,7 +39,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
     }
 
     @Override
-    public void onBindViewHolder(@NonNull NotificationAdapter.NotificationViewHolder holder, @SuppressLint("RecyclerView") final int position) {
+    public void onBindViewHolder(@NonNull NotificationAdapter.NotificationViewHolder holder, final int position) {
         Notification model = list_notification.get(position);
         binding.setModel(model);
         binding.setAction(this);

@@ -86,6 +86,7 @@
             app:layout_constraintStart_toStartOf="@+id/edt_password_login"
             app:layout_constraintTop_toBottomOf="@+id/edt_password_login" />
 
+
         <RelativeLayout
             android:id="@+id/btn_masuk_loading_login"
             android:layout_width="0dp"
@@ -130,55 +131,22 @@
             android:orientation="vertical"
             app:layout_constraintGuide_percent="0.1" />
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <Button
+            android:id="@+id/button4"
+            style="@style/Widget.AppCompat.Button.Borderless"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent">
-
-            <androidx.constraintlayout.widget.Guideline
-                android:id="@+id/guideline3"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                app:layout_constraintGuide_percent="0.09975669" />
-
-            <androidx.constraintlayout.widget.Guideline
-                android:id="@+id/guideline27"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                app:layout_constraintGuide_percent="0.9002433" />
-
-            <TextView
-                android:id="@+id/txt_barcode_login"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:layout_marginBottom="14dp"
-                android:fontFamily="@font/helvetica_neue_ultra_light"
-                android:gravity="center"
-                android:text="use scan barcode here"
-                android:textColor="@color/lb_footer"
-                android:textFontWeight="900"
-                android:textSize="20sp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
-
-            <LinearLayout
-                android:id="@+id/linearLayout"
-                android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_marginTop="8dp"
-                android:background="#000"
-                android:orientation="vertical"
-                app:layout_constraintEnd_toStartOf="@+id/guideline27"
-                app:layout_constraintStart_toStartOf="@+id/guideline3"
-                app:layout_constraintTop_toTopOf="parent"></LinearLayout>
-        </androidx.constraintlayout.widget.ConstraintLayout>
+            android:layout_marginTop="16dp"
+            android:fontFamily="@font/helvetica_neue_condensed_bold"
+            android:onClick="@{()->action.loginScanBarcode()}"
+            android:text="SIGN IN Scan Barcode"
+            android:textColor="#096FCE"
+            android:textSize="14sp"
+            android:visibility="visible"
+            app:backgroundTint="@null"
+            app:layout_constraintEnd_toEndOf="@+id/btn_masuk_login"
+            app:layout_constraintStart_toStartOf="@+id/btn_masuk_login"
+            app:layout_constraintTop_toBottomOf="@+id/btn_masuk_login" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

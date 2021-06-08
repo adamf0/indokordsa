@@ -64,7 +64,6 @@ import static com.app.indokordsa.Util.dumpTagData;
 import static com.app.indokordsa.Util.intersection;
 import static com.app.indokordsa.Util.isNetworkAvailable;
 
-@SuppressLint("SimpleDateFormat")
 public class ListCheckListActivity extends AppCompatActivity implements ListChecklistlistener {
     ListCheckListViewModel vmodel;
     ActivityListChecklistBinding binding;
@@ -227,14 +226,15 @@ public class ListCheckListActivity extends AppCompatActivity implements ListChec
             startActivity(intent);
         }
         else{
-            live_message.postValue(
-                    String.format("%s=%s, %s, %s",
-                        checkList.getCek_mesin().getMesin().getKode_nfc(),
-                        builder.toString(),
-                        s.get(SessionManager.KEY_NFC),
-                        Pattern.compile(s.get(SessionManager.KEY_NFC)).matcher( builder.toString() ).find()
-                    )
-            );
+//            live_message.postValue(
+//                    String.format("%s=%s, %s, %s",
+//                        checkList.getCek_mesin().getMesin().getKode_nfc(),
+//                        builder.toString(),
+//                        s.get(SessionManager.KEY_NFC),
+//                        Pattern.compile(s.get(SessionManager.KEY_NFC)).matcher( builder.toString() ).find()
+//                    )
+//            );
+            live_message.postValue("Invalid NFC tag");
         }
 
         checkList = initModel();
@@ -617,8 +617,8 @@ public class ListCheckListActivity extends AppCompatActivity implements ListChec
                                     Mformat.format(normal.parse(_tmp.getTanggal())),
                                     Yformat.format(normal.parse(_tmp.getTanggal())),
                                     (_tmp.isStatus()? "1":"0"),
-                                    String.valueOf(_tmp.getSync_()),
                                     _tmp.getAlasan(),
+                                    String.valueOf(_tmp.getSync_()),
                                     obj.getString("created_at"),
                                     obj.getString("updated_at"),
                                     obj.getString("deleted_at")
@@ -768,8 +768,8 @@ public class ListCheckListActivity extends AppCompatActivity implements ListChec
                     Mformat.format(Objects.requireNonNull(normal.parse(checkList.getTanggal()))),
                     Yformat.format(Objects.requireNonNull(normal.parse(checkList.getTanggal()))),
                     (checkList.isStatus()? "1":"0"),
-                    "0",
                     checkList.getAlasan(),
+                    "0",
                     checkList.getTanggal(),
                     "",
                     ""

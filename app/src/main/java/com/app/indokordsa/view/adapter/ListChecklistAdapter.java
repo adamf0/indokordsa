@@ -59,7 +59,6 @@ public class ListChecklistAdapter extends RecyclerView.Adapter<ListChecklistAdap
         return (new ListChecklistAdapter.ListChecklistViewHolder(binding));
     }
 
-    @SuppressLint({"UseCompatLoadingForDrawables","SimpleDateFormat","RecyclerView"})
     @Override
     public void onBindViewHolder(@NonNull ListChecklistAdapter.ListChecklistViewHolder holder, final int position) {
         CheckList model = list_checkList.get(position);
@@ -72,17 +71,21 @@ public class ListChecklistAdapter extends RecyclerView.Adapter<ListChecklistAdap
         if(!model.getTanggal().equals(now)){
             if(!model.getTotalTugasSelesai().equals(model.getTotalTugas())){
                 if(model.getAlasan().equals("0") || model.getAlasan().equals("")){
-                    binding.layoutAlasanItemRowListChecklist.setVisibility(View.VISIBLE);
+                    binding.layoutInputAlasanItemRowListChecklist.setVisibility(View.VISIBLE);
+                    binding.layoutAlasanItemRowListChecklist.setVisibility(View.GONE);
                 }
                 else{
-                    binding.layoutAlasanItemRowListChecklist.setVisibility(View.GONE);
+                    binding.layoutInputAlasanItemRowListChecklist.setVisibility(View.GONE);
+                    binding.layoutAlasanItemRowListChecklist.setVisibility(View.VISIBLE);
                 }
             }
             else{
+                binding.layoutInputAlasanItemRowListChecklist.setVisibility(View.GONE);
                 binding.layoutAlasanItemRowListChecklist.setVisibility(View.GONE);
             }
         }
         else{
+            binding.layoutInputAlasanItemRowListChecklist.setVisibility(View.GONE);
             binding.layoutAlasanItemRowListChecklist.setVisibility(View.GONE);
         }
     }

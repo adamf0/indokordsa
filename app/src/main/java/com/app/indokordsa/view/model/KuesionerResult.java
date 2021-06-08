@@ -55,7 +55,7 @@ public class KuesionerResult extends BaseObservable implements Parcelable {
         setJawaban(jawaban);
         setStatus(status);
         setAlasan(alasan);
-        setSync(sync == 0);
+        setSync(sync == 1);
         setSync_(sync);
         setCreated_at(created_at);
         setUpdated_at(updated_at);

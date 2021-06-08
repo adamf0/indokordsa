@@ -37,7 +37,6 @@ public class MainActivity extends AppCompatActivity implements ViewPagerListener
     private ImageView[] dots;
     SessionManager session;
 
-    @SuppressLint({"UseCompatLoadingForDrawables", "SetTextI18n"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,7 +57,6 @@ public class MainActivity extends AppCompatActivity implements ViewPagerListener
         ActivityCompat.finishAffinity(this);
     }
 
-    @SuppressLint("NonConstantResourceId")
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.navigation_home:
@@ -71,7 +69,6 @@ public class MainActivity extends AppCompatActivity implements ViewPagerListener
         return false;
     }
 
-    @SuppressLint("SimpleDateFormat")
     void load_greeting(){
         HashMap<String, String> data = session.getSession();
 

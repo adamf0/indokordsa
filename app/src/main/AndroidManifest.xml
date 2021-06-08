@@ -43,25 +43,31 @@
             </intent-filter>
         </activity>
 
-        <service
-            android:name=".FirebaseCloudMessagingService"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT" />
-            </intent-filter>
-        </service>
+<!--        <service-->
+<!--            android:name=".FirebaseCloudMessagingService"-->
+<!--            android:exported="false">-->
+<!--            <intent-filter>-->
+<!--                <action android:name="com.google.firebase.MESSAGING_EVENT" />-->
+<!--            </intent-filter>-->
+<!--        </service>-->
 
         <receiver
-            android:name=".Sending"
+            android:name=".SendingQuestionnaire"
             android:enabled="true"
             android:exported="true"
             tools:ignore="ExportedReceiver" />
 
         <receiver
-            android:name=".Receive"
+            android:name=".SendingCheckList"
             android:enabled="true"
             android:exported="true"
             tools:ignore="ExportedReceiver" />
+
+<!--        <receiver-->
+<!--            android:name=".Receive"-->
+<!--            android:enabled="true"-->
+<!--            android:exported="true"-->
+<!--            tools:ignore="ExportedReceiver" />-->
     </application>
 
 </manifest>

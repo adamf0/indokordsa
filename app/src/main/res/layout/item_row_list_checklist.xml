@@ -182,6 +182,8 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:text="@{model.totalTugasSelesai==model.totalTugas? `Finish`:`Unfinish`}"
+                android:textColor="#000"
+                android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="@+id/textView16"
                 app:layout_constraintStart_toStartOf="@+id/textView16"
                 app:layout_constraintTop_toBottomOf="@+id/textView16" />
@@ -211,6 +213,8 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:text="@{model.sync? `Finish`:`Unfinish`}"
+                android:textColor="#000"
+                android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="@+id/textView"
                 app:layout_constraintStart_toStartOf="@+id/textView"
                 app:layout_constraintTop_toBottomOf="@+id/textView" />
@@ -229,6 +233,40 @@
 
             <LinearLayout
                 android:id="@+id/layout_alasan_item_row_list_checklist"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:orientation="vertical"
+                android:visibility="visible"
+                app:layout_constraintBottom_toTopOf="@+id/layout_input_alasan_item_row_list_checklist"
+                app:layout_constraintEnd_toEndOf="@+id/textView"
+                app:layout_constraintStart_toStartOf="@+id/textView">
+
+                <TextView
+                    android:id="@+id/textView58"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Reason" />
+
+                <TextView
+                    android:id="@+id/textView59"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@{model.alasan}"
+                    android:textColor="#000"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:id="@+id/linearLayout15"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="#000"
+                    android:orientation="vertical" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/layout_input_alasan_item_row_list_checklist"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"

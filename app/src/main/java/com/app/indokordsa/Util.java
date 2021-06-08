@@ -55,7 +55,6 @@ public class Util {
         }
         return byteBuffer.toByteArray();
     }
-    @SuppressLint("SetTextI18n")
     public static Drawable buildCounterDrawable(Activity act, int layout, int count, int backgroundImageId) {
         LayoutInflater inflater = LayoutInflater.from(act);
         View view = inflater.inflate(layout, null);
@@ -155,7 +154,6 @@ public class Util {
     public static String reFormatDatev1(String date){
         try {
             SimpleDateFormat oldformat = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
-            @SuppressLint("SimpleDateFormat")
             SimpleDateFormat newformat = new SimpleDateFormat("dd MMMM yyyy");
             TimeZone tz = TimeZone.getTimeZone("Asia/Jakarta");
             System.out.println(tz.getDisplayName(false, TimeZone.SHORT, Locale.ENGLISH)); // WIB
@@ -170,7 +168,6 @@ public class Util {
     public static String reFormatDatev3(String date){
         try {
             SimpleDateFormat oldformat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
-            @SuppressLint("SimpleDateFormat")
             SimpleDateFormat newformat = new SimpleDateFormat("yyyy-MM-dd");
             TimeZone tz = TimeZone.getTimeZone("Asia/Jakarta");
             System.out.println(tz.getDisplayName(false, TimeZone.SHORT, Locale.ENGLISH)); // WIB

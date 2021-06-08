@@ -37,5 +37,18 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             app:layout_constraintGuide_percent="0.05109489" />
+
+        <TextView
+            android:id="@+id/textView62"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:text="@{action.versionApp()}"
+            android:gravity="center"
+            android:textColor="#fff"
+            android:fontFamily="@font/montserrat_aiternates_semi_bold"
+            app:layout_constraintBottom_toBottomOf="@+id/imageView4"
+            app:layout_constraintEnd_toStartOf="@+id/guideline11"
+            app:layout_constraintStart_toStartOf="@+id/guideline12" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

@@ -22,7 +22,6 @@ public class SessionManager {
     public static final String KEY_ID_CHECKLIST = "id_checklist";
     public static final String KEY_NFC = "nfc";
 
-    @SuppressLint("CommitPrefEdits")
     public SessionManager(Context context){
         this._context = context;
         int PRIVATE_MODE = 0;

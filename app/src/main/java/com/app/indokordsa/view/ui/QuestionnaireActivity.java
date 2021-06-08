@@ -41,7 +41,6 @@ import java.util.TimeZone;
 
 import static com.app.indokordsa.Util.isNetworkAvailable;
 
-@SuppressLint({"SimpleDateFormat", "LongLogTag", "SetTextI18n"})
 public class QuestionnaireActivity extends AppCompatActivity implements Questionnairelistener, DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener {
     QuestionnaireViewModel vmodel;
     ActivityQuestionnaireBinding binding;
@@ -151,7 +150,7 @@ public class QuestionnaireActivity extends AppCompatActivity implements Question
 
                 int found = 0;
                 for (int i=0;i<list_reason.size();i++){
-                    if (list_reason.get(i).toLowerCase().equals(list_jawabanKuesioner.get(index).getVal().toLowerCase())){
+                    if (list_jawabanKuesioner.get(index).getVal().toLowerCase().equals(list_reason.get(i).toLowerCase())){
                         found++;
                         binding.deopdownValQuestionnaire.setSelection(i,true);
                         if(list_jawabanKuesioner.get(index).getVal().toLowerCase().equals("others")){
@@ -352,6 +351,7 @@ public class QuestionnaireActivity extends AppCompatActivity implements Question
                 updated_at,
                 deleted_at
         )>=0){
+            db.update_sinkron_kuesioner_result(id_kuesioner_result,"0");
             logging("[329]","",String.format("berhasil update id_kuesioner_result=%s", kuestionResult.getId_kuesioner_result()));
             if(type==0)
                 startActivity(new Intent(this,ListQuestionnaireActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
@@ -404,7 +404,7 @@ public class QuestionnaireActivity extends AppCompatActivity implements Question
         binding.setJawabanKuesioner(list_jawabanKuesioner.get(index));
         int found = 0;
         for (int i=0;i<list_reason.size();i++){
-            if (list_reason.get(i).toLowerCase().equals(list_jawabanKuesioner.get(index).getVal().toLowerCase())){
+            if (list_jawabanKuesioner.get(index).getVal().toLowerCase().equals(list_reason.get(i).toLowerCase())){
                 found++;
                 binding.deopdownValQuestionnaire.setSelection(i,true);
                 if(list_jawabanKuesioner.get(index).getVal().toLowerCase().equals("others")){
@@ -494,6 +494,7 @@ public class QuestionnaireActivity extends AppCompatActivity implements Question
                 end,
                 remarks
         )>=0){
+            db.update_sinkron_kuesioner_result(id,"0");
             logging("[459]","",String.format("berhasil update kuesioner_hasil id_kuesioner_result=%s id_topik=%s id_pertanyaan=%s val=%s start=%s end=%s", kuestionResult.getId_kuesioner_result(),list_jawabanKuesioner.get(index).getTopik().getId(),list_jawabanKuesioner.get(index).getPertanyaan().getId(),val,start,end));
             if(type==1) {
                 live_message.postValue("successfully updated the questionnaire");
@@ -528,7 +529,6 @@ public class QuestionnaireActivity extends AppCompatActivity implements Question
         pick_jam();
     }
 
-    @SuppressLint("DefaultLocale")
     @Override
     public void onTimeSet(TimePickerDialog view, int hourOfDay, int minute, int second) {
         String jam = String.format("%02d:%02d",hourOfDay,minute);
@@ -549,6 +549,7 @@ public class QuestionnaireActivity extends AppCompatActivity implements Question
             list_jawabanKuesioner.get(index).setRemarks(s.toString());
         }
     }
+
     public void onOtherChanged(CharSequence s, int start, int before, int count) {
         if(list_jawabanKuesioner.size()>0){
             list_jawabanKuesioner.get(index).setOther(s.toString());

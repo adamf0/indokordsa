@@ -42,9 +42,8 @@ public class FiturAdapter extends RecyclerView.Adapter<FiturAdapter.FiturViewHol
         return (new FiturViewHolder(binding));
     }
 
-    @SuppressLint("UseCompatLoadingForDrawables")
     @Override
-    public void onBindViewHolder(@NonNull FiturAdapter.FiturViewHolder holder, @SuppressLint("RecyclerView") final int position) {
+    public void onBindViewHolder(@NonNull FiturAdapter.FiturViewHolder holder, final int position) {
         Fitur model = list_fitur.get(position);
         binding.setModel(model);
         binding.setAction(this);

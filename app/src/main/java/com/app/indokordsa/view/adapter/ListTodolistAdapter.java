@@ -48,9 +48,8 @@ public class ListTodolistAdapter extends RecyclerView.Adapter<ListTodolistAdapte
         return (new ListTodolistAdapter.ListTodolistViewHolder(binding));
     }
 
-    @SuppressLint("UseCompatLoadingForDrawables")
     @Override
-    public void onBindViewHolder(@NonNull ListTodolistAdapter.ListTodolistViewHolder holder, @SuppressLint("RecyclerView") final int position) {
+    public void onBindViewHolder(@NonNull ListTodolistAdapter.ListTodolistViewHolder holder, final int position) {
         Todo model = list_todo.get(position);
         binding.setModel(model);
         binding.setAction(this);

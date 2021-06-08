@@ -16,7 +16,6 @@ import retrofit2.Callback;
 public class LoginViewModel extends ViewModel {
     public LoginModel model;
     private Loginlistener loginlistener;
-    @SuppressLint("StaticFieldLeak")
 
     public LoginViewModel(Loginlistener loginlistener){
         this.model = new LoginModel("","");

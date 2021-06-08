@@ -36,7 +36,6 @@ public class PermissionHelper {
     }
 
 
-    @SuppressLint("ObsoleteSdkInt")
     public boolean checkAndRequestPermissions(){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             int permissionCamera = ContextCompat.checkSelfPermission(mActivity, Manifest.permission.CAMERA);

@@ -9,7 +9,6 @@ import java.util.ArrayList;
 public class MainViewModel extends ViewModel {
     public ArrayList<Fitur> list_fitur = new ArrayList<>();
 
-    @SuppressLint("UseCompatLoadingForDrawables")
     public MainViewModel(){
         list_fitur.add(new Fitur("1",R.drawable.ic_list_todo,"CheckList Machine"));
         list_fitur.add(new Fitur("2",R.drawable.ic_list_todo,"Questionnaire"));

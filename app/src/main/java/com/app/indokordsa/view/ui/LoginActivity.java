@@ -1,29 +1,16 @@
 package com.app.indokordsa.view.ui;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.Spanned;
-import android.text.TextPaint;
-import android.text.method.LinkMovementMethod;
-import android.text.style.ClickableSpan;
-import android.text.style.StyleSpan;
-import android.text.style.TypefaceSpan;
 import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.res.ResourcesCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.app.indokordsa.R;
 import com.app.indokordsa.databinding.ActivityLoginBinding;
-import com.app.indokordsa.helper.CustomTypefaceSpan;
 import com.app.indokordsa.helper.SessionManager;
 import com.app.indokordsa.interfaces.Loginlistener;
 import com.app.indokordsa.viewmodel.LoginViewModel;
@@ -61,30 +48,34 @@ public class LoginActivity extends AppCompatActivity implements Loginlistener {
 //        });
 
 //        StyleSpan bold = new StyleSpan(android.graphics.Typeface.BOLD);
-        SpannableString ss = new SpannableString(binding.txtBarcodeLogin.getText().toString());
-        ClickableSpan clickableSpan = new ClickableSpan() {
-            @Override
-            public void onClick(View textView) {
-                startActivity(new Intent(LoginActivity.this,BarcodeActivity.class));
-            }
-            @Override
-            public void updateDrawState(TextPaint ds) {
-                super.updateDrawState(ds);
-                ds.setUnderlineText(false);
-                ds.setColor(Color.BLACK);
-            }
-        };
+//        SpannableString ss = new SpannableString(binding.txtBarcodeLogin.getText().toString());
+//        ClickableSpan clickableSpan = new ClickableSpan() {
+//            @Override
+//            public void onClick(View textView) {
+//                startActivity(new Intent(LoginActivity.this,BarcodeActivity.class));
+//            }
+//            @Override
+//            public void updateDrawState(TextPaint ds) {
+//                super.updateDrawState(ds);
+//                ds.setUnderlineText(false);
+//                ds.setColor(Color.BLACK);
+//            }
+//        };
+//
+//        String spannableString = ss.toString();
+//        int start = spannableString.indexOf("here");
+//        int end = start + "here".length();
+////        ss.setSpan(bold, start, end, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+//        ss.setSpan(clickableSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+////        ss.setSpan(new CustomTypefaceSpan(getResources().getFont(R.font.helvetica_neue_condensed_bold)), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+//
+//        binding.txtBarcodeLogin.setText(ss);
+//        binding.txtBarcodeLogin.setMovementMethod(LinkMovementMethod.getInstance());
+//        binding.txtBarcodeLogin.setHighlightColor(Color.TRANSPARENT);
+    }
 
-        String spannableString = ss.toString();
-        int start = spannableString.indexOf("here");
-        int end = start + "here".length();
-//        ss.setSpan(bold, start, end, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
-        ss.setSpan(clickableSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-//        ss.setSpan(new CustomTypefaceSpan(getResources().getFont(R.font.helvetica_neue_condensed_bold)), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-
-        binding.txtBarcodeLogin.setText(ss);
-        binding.txtBarcodeLogin.setMovementMethod(LinkMovementMethod.getInstance());
-        binding.txtBarcodeLogin.setHighlightColor(Color.TRANSPARENT);
+    public void loginScanBarcode(){
+        startActivity(new Intent(LoginActivity.this,BarcodeActivity.class));
     }
 
     public void doLogin(){

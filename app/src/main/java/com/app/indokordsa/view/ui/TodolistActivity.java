@@ -343,7 +343,6 @@ public class TodolistActivity extends AppCompatActivity implements Todolistliste
         binding.edtTanggalTodo.setText(todo.getTanggalFormat());
     }
 
-    @SuppressLint("DefaultLocale")
     @Override
     public void onTimeSet(TimePickerDialog view, int hourOfDay, int minute, int second) {
         todo.setTime(String.format("%02d:%02d",hourOfDay,minute));

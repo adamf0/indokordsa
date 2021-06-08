@@ -19,7 +19,6 @@ import retrofit2.Callback;
 public class BarcodeViewModel extends ViewModel {
     public Barcodelistener listener;
 
-    @SuppressLint("UseCompatLoadingForDrawables")
     public BarcodeViewModel(Barcodelistener listener){
         this.listener = listener;
     }

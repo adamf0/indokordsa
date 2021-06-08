@@ -43,7 +43,6 @@ public class ViewPagerAdapter extends PagerAdapter {
         data = session.getSession();
     }
 
-    @SuppressLint("SimpleDateFormat")
     void loadMonth(ItemRowSliderBinding binding){
         try {
             SimpleDateFormat sdf0 = new SimpleDateFormat("yyyy-MM-01");
@@ -82,7 +81,6 @@ public class ViewPagerAdapter extends PagerAdapter {
         }
     }
 
-    @SuppressLint("SimpleDateFormat")
     void loadDay(ItemRowSliderBinding binding){
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.DATE, -1);

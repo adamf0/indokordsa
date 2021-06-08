@@ -49,7 +49,7 @@ public class CheckList extends BaseObservable implements Parcelable {
         setStatus(status);
         setAlasan(alasan);
         setSync_(sync);
-        setSync(sync == 0);
+        setSync(sync == 1);
     }
 
     protected CheckList(Parcel in) {

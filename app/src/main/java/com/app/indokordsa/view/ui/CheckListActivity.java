@@ -47,7 +47,6 @@ import cn.pedant.SweetAlert.SweetAlertDialog;
 import static com.app.indokordsa.Util.intersection;
 import static com.app.indokordsa.Util.isNetworkAvailable;
 
-@SuppressLint("SimpleDateFormat")
 public class CheckListActivity extends AppCompatActivity implements Checklistlistener {
     CheckListViewModel vmodel;
     ActivityCheckListBinding binding;
@@ -459,8 +458,8 @@ public class CheckListActivity extends AppCompatActivity implements Checklistlis
                                 Mformat.format(Objects.requireNonNull(normal.parse(_tmp.getTanggal()))),
                                 Yformat.format(Objects.requireNonNull(normal.parse(_tmp.getTanggal()))),
                                 (_tmp.isStatus()? "1":"0"),
-                                String.valueOf(_tmp.getSync_()),
                                 _tmp.getAlasan(),
+                                String.valueOf(_tmp.getSync_()),
                                 obj.getString("created_at"),
                                 obj.getString("updated_at"),
                                 obj.getString("deleted_at")

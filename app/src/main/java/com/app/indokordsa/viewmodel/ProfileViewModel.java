@@ -28,7 +28,6 @@ public class ProfileViewModel extends ViewModel {
     public Profilelistener listener;
     SessionManager session;
 
-    @SuppressLint("UseCompatLoadingForDrawables")
     public ProfileViewModel(Profilelistener listener, SessionManager session){
         this.listener = listener;
         this.session = session;

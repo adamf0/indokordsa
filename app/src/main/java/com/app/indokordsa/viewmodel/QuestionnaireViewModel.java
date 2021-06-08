@@ -23,12 +23,10 @@ public class QuestionnaireViewModel extends ViewModel {
     public Questionnairelistener listener;
     SessionManager session;
 
-    @SuppressLint("UseCompatLoadingForDrawables")
     public QuestionnaireViewModel(Questionnairelistener listener, SessionManager session){
         this.listener = listener;
         this.session = session;
     }
-    @SuppressLint("LongLogTag")
     public void updateKuesioner(String id_kuesioner_result, String id_user, String jawaban, String result, int type){
         ApiRoute getResponse = AppConfig.getRetrofit(0).create(ApiRoute.class);
         Call<String> call = getResponse.save_questionneir("api/save_questionneir", id_kuesioner_result, id_user, jawaban, result);

@@ -49,7 +49,6 @@ import java.util.Set;
 import static com.app.indokordsa.Util.intersectionv2;
 import static com.app.indokordsa.Util.isNetworkAvailable;
 
-@SuppressLint("SimpleDateFormat")
 public class ListQuestionnaireActivity extends AppCompatActivity implements ListQuestionnairelistener {
     ListQuestionnaireViewModel vmodel;
     ActivityListQuestionnaireBinding binding;
@@ -529,10 +528,10 @@ public class ListQuestionnaireActivity extends AppCompatActivity implements List
         String updated_at = sdf.format(new Date());
         AddUpdateKuesionerResult(item.getId_kuesioner_result(),item.getId_user(),item.getShift().getId(), item.getKuesioner().getId(), item.getJawaban(), String.valueOf(item.getStatus()), item.getAlasan(), "0", item.getCreated_at(), updated_at, item.getDeleted_at(),true);
 
+        db.update_sinkron_kuesioner_result(item.getId_kuesioner_result(),"0");
         closeDialog(response);
     }
 
-    @SuppressLint("LongLogTag")
     void logging(String message){
         Log.i("app-log [ListQuestionnaire]",message);
     }

@@ -168,9 +168,9 @@ public class DB extends SQLiteOpenHelper {
 //        values.put(TblPenugasan.key_created_at, created_at);
 //        values.put(TblPenugasan.key_updated_at, updated_at);
 //        values.put(TblPenugasan.key_deleted_at, deleted_at);
-        return db.insert(TblPenugasan.tbl_penugasan, null, _penugasan(id_penugasan,id_supervisor,id_operator,id_cek_mesin,bulan,tahun,status,alasan,sync,created_at,updated_at,deleted_at,false));
+        return db.insert(TblPenugasan.tbl_penugasan, null, _penugasan(id_penugasan,id_supervisor,id_operator,id_cek_mesin,bulan,tahun,status,sync,alasan,created_at,updated_at,deleted_at,false));
     }
-    public int update_penugasan(String id_penugasan,String id_supervisor,String id_operator,String id_cek_mesin,String bulan, String tahun,String status,String sync,String alasan,String created_at,String updated_at,String deleted_at) {
+    public int update_penugasan(String id_penugasan,String id_supervisor,String id_operator,String id_cek_mesin,String bulan, String tahun,String status,String alasan,String sync,String created_at,String updated_at,String deleted_at) {
         SQLiteDatabase db = this.getWritableDatabase();
 //        ContentValues values = new ContentValues();
 //        values.put(TblPenugasan.key_id_supervisor, id_supervisor);
@@ -184,7 +184,7 @@ public class DB extends SQLiteOpenHelper {
 //        values.put(TblPenugasan.key_created_at, created_at);
 //        values.put(TblPenugasan.key_updated_at, updated_at);
 //        values.put(TblPenugasan.key_deleted_at, deleted_at);
-        return db.update(TblPenugasan.tbl_penugasan,_penugasan(id_penugasan,id_supervisor,id_operator,id_cek_mesin,bulan,tahun,status,alasan,sync,created_at,updated_at,deleted_at,true),TblPenugasan.key_id_penugasan+"= ?",new String[]{id_penugasan});
+        return db.update(TblPenugasan.tbl_penugasan,_penugasan(id_penugasan,id_supervisor,id_operator,id_cek_mesin,bulan,tahun,status,sync,alasan,created_at,updated_at,deleted_at,true),TblPenugasan.key_id_penugasan+"= ?",new String[]{id_penugasan});
     }
     ContentValues _penugasan(String id_penugasan,String id_supervisor,String id_operator,String id_cek_mesin,String bulan, String tahun,String status,String sync,String alasan,String created_at,String updated_at,String deleted_at,boolean isUpdate){
         ContentValues values = new ContentValues();
@@ -489,6 +489,13 @@ public class DB extends SQLiteOpenHelper {
         values.put(TblPenugasan.key_sync, sinkron);
         return db.update(TblPenugasan.tbl_penugasan,values,TblPenugasan.key_id_penugasan+"= ?",new String[]{id_penugasan});
     }
+    public int update_sinkron_kuesioner_result(String id,String sinkron) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(TblKuesionerResult.key_sync, sinkron);
+        return db.update(TblKuesionerResult.tbl_kuesioner_result,values, TblKuesionerResult.key_id_kuesioner_result+"= ?",new String[]{id});
+    }
     public int update_kuesioner_hasil(String id,String id_kuesioner_result,String id_topik_kuesioner, String id_pertanyaan_kuesioner, String val, String other, String start, String end, String remarks) {
         SQLiteDatabase db = this.getWritableDatabase();
 
@@ -533,7 +540,6 @@ public class DB extends SQLiteOpenHelper {
                 "WHERE tb_penugasan.created_at BETWEEN '%s' AND '%s' AND sync='0'", start,end);
         Log.i("app-log [query]",sql);
 
-        @SuppressLint("Recycle")
         Cursor cursor = db.rawQuery(sql, null);
 
         if (cursor != null) {
@@ -623,7 +629,6 @@ public class DB extends SQLiteOpenHelper {
                 "tb_penugasan.created_at BETWEEN '%s' AND '%s'", id_operator,start,end);
         Log.i("app-log [query]",sql);
 
-        @SuppressLint("Recycle")
         Cursor cursor = db.rawQuery(sql, null);
 
         if (cursor != null) {
@@ -690,7 +695,6 @@ public class DB extends SQLiteOpenHelper {
         String sql = String.format("Select * FROM " + TblTugas.tbl_tugas + " WHERE id_penugasan = %s", id_penugasan);
         Log.i("app-log [query]",sql);
 
-        @SuppressLint("Recycle")
         Cursor cursor = db.rawQuery(sql, null);
 
         if (cursor != null) {
@@ -715,6 +719,81 @@ public class DB extends SQLiteOpenHelper {
         cursor.close();
         return list_job;
     }
+    public ArrayList<KuesionerResult> getListKuesioner(String start, String end) {
+        ArrayList<KuesionerResult> list_data = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String sql = String.format("Select "+
+                "id_kuesioner_result," +
+                "id_user," +
+                "id_shift," +
+                "id_kuesioner," +
+                "jawaban," +
+                "status," +
+                "alasan," +
+                "sync," +
+                "created_at," +
+                "updated_at," +
+                "deleted_at " +
+                "FROM tbl_kuesioner_result " +
+                "WHERE DATE(created_at) BETWEEN '%s' AND '%s' AND sync='0'", start,end);
+        Log.i("app-log [query]",sql);
+
+        Cursor cursor = db.rawQuery(sql, null);
+
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                Log.i("app-log [query][id]",cursor.getString(cursor.getColumnIndex("id_kuesioner_result")) );
+                do {
+                    Cursor shift = getShift(cursor.getString(cursor.getColumnIndex("id_shift")));
+                    Cursor kuesioner = getKuesioner(cursor.getString(cursor.getColumnIndex("id_kuesioner")));
+                    Cursor area = (kuesioner!=null? getArea(kuesioner.getString(kuesioner.getColumnIndex("id_area"))):null);
+                    KuesionerResult tmp_kr = new KuesionerResult(
+                            cursor.getString(cursor.getColumnIndex("id_kuesioner_result")),
+                            cursor.getString(cursor.getColumnIndex("id_user")),
+                            (shift!=null?
+                                    new Shift(
+                                            shift.getString(shift.getColumnIndex("id_shift")),
+                                            shift.getString(shift.getColumnIndex("nama"))
+                                    )
+                                    :
+                                    null
+                            ),
+                            (kuesioner!=null?
+                                    new Kuesioner(
+                                            kuesioner.getString(kuesioner.getColumnIndex("id_kuesioner")),
+                                            (area!=null?
+                                                    new Area(
+                                                            area.getString(area.getColumnIndex("id_area")),
+                                                            area.getString(area.getColumnIndex("nama"))
+                                                    )
+                                                    :
+                                                    null
+                                            ),
+                                            kuesioner.getString(kuesioner.getColumnIndex("pertanyaan"))
+                                    )
+                                    :
+                                    null
+                            ),
+                            cursor.getString(cursor.getColumnIndex("jawaban")),
+                            cursor.getInt(cursor.getColumnIndex("status")),
+                            cursor.getString(cursor.getColumnIndex("alasan")),
+                            cursor.getInt(cursor.getColumnIndex("sync")),
+                            new ArrayList<>(),
+                            cursor.getString(cursor.getColumnIndex("created_at")),
+                            cursor.getString(cursor.getColumnIndex("updated_at")),
+                            cursor.getString(cursor.getColumnIndex("deleted_at"))
+                    );
+                    tmp_kr.getList_pertanyaan().addAll( getListPertanyaan(cursor.getString(cursor.getColumnIndex("id_kuesioner_result"))) );
+                    list_data.add(tmp_kr);
+
+                } while (cursor.moveToNext());
+            }
+        }
+        assert cursor != null;
+        cursor.close();
+        return list_data;
+    }
     public ArrayList<KuesionerResult> getListKuesioner(String id_operator, String start, String end) {
         ArrayList<KuesionerResult> list_data = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
@@ -736,7 +815,6 @@ public class DB extends SQLiteOpenHelper {
                 "DATE(created_at) BETWEEN '%s' AND '%s'", id_operator,start,end);
         Log.i("app-log [query]",sql);
 
-        @SuppressLint("Recycle")
         Cursor cursor = db.rawQuery(sql, null);
 
         if (cursor != null) {
@@ -814,7 +892,6 @@ public class DB extends SQLiteOpenHelper {
                 "WHERE id_kuesioner_result = %s order by tbl_pertanyaan_kuesioner.id_pertanyaan_kuesioner ASC", id_kuesioner_result);
         Log.i("app-log [query]",sql);
 
-        @SuppressLint("Recycle")
         Cursor cursor = db.rawQuery(sql, null);
 
         if (cursor != null) {
@@ -847,7 +924,6 @@ public class DB extends SQLiteOpenHelper {
     public Cursor getArea(String id) {
         SQLiteDatabase db = this.getReadableDatabase();
 
-        @SuppressLint("Recycle")
         Cursor cursor = db.query(
                 TblArea.tbl_area,
                 new String[]{TblArea.key_id_area,TblArea.key_nama},
@@ -867,7 +943,6 @@ public class DB extends SQLiteOpenHelper {
     public Cursor getKuesioner(String id) {
         SQLiteDatabase db = this.getReadableDatabase();
 
-        @SuppressLint("Recycle")
         Cursor cursor = db.query(
                 TblKuesioner.tbl_kuesioner,
                 new String[]{TblKuesioner.key_id_kuesioner,TblKuesioner.key_id_area,TblKuesioner.key_pertanyaan},
@@ -887,7 +962,6 @@ public class DB extends SQLiteOpenHelper {
     public Cursor getShift(String id) {
         SQLiteDatabase db = this.getReadableDatabase();
 
-        @SuppressLint("Recycle")
         Cursor cursor = db.query(
                 TblShift.tbl_shift,
                 new String[]{TblShift.key_id_shift,TblShift.key_nama},
@@ -907,7 +981,6 @@ public class DB extends SQLiteOpenHelper {
     public Cursor getUsers(String id) {
         SQLiteDatabase db = this.getReadableDatabase();
 
-        @SuppressLint("Recycle")
         Cursor cursor = db.query(TblUsers.tbl_users, new String[]{TblUsers.key_id,TblUsers.key_phone,TblUsers.key_image,TblUsers.key_nama,TblUsers.key_level}, TblUsers.key_id + "=?", new String[]{id}, null, null, null, null);
         if (cursor != null) {
             cursor.moveToFirst();
@@ -918,7 +991,6 @@ public class DB extends SQLiteOpenHelper {
     public Cursor getTopik(String id) {
         SQLiteDatabase db = this.getReadableDatabase();
 
-        @SuppressLint("Recycle")
         Cursor cursor = db.query(
                 TblTopikKuesioner.tbl_topik_kuesioner,
                 new String[]{TblTopikKuesioner.key_id_topik_kuesioner,TblTopikKuesioner.key_tentang},
@@ -938,7 +1010,6 @@ public class DB extends SQLiteOpenHelper {
     public Cursor getPertanyaan(String id) {
         SQLiteDatabase db = this.getReadableDatabase();
 
-        @SuppressLint("Recycle")
         Cursor cursor = db.query(
                 TblPertanyaanKuesioner.tbl_pertanyaan_kuesioner,
                 new String[]{TblPertanyaanKuesioner.key_id_pertanyaan_kuesioner,TblPertanyaanKuesioner.key_pertanyaan},
@@ -1177,7 +1248,6 @@ public class DB extends SQLiteOpenHelper {
                 "WHERE id_kuesioner_result = %s and id_topik_kuesioner = %s and id_pertanyaan_kuesioner = %s", id_kuesioner_result, id_topik, id_pertanyaan);
         Log.i("app-log [query]",sql);
 
-        @SuppressLint("Recycle")
         Cursor cursor = db.rawQuery(sql, null);
         num_row=cursor.getCount();
         cursor.close();
@@ -1206,7 +1276,6 @@ public class DB extends SQLiteOpenHelper {
                         "WHERE id_kuesioner_result = %s and id_topik_kuesioner = %s and id_pertanyaan_kuesioner = %s order by tbl_pertanyaan_kuesioner.id_pertanyaan_kuesioner ASC", id_kuesioner_result, id_topik, id_pertanyaan);
         Log.i("app-log [query]",sql);
 
-        @SuppressLint("Recycle")
         Cursor cursor = db.rawQuery(sql, null);
 
         if (cursor != null) {
@@ -1266,7 +1335,6 @@ public class DB extends SQLiteOpenHelper {
                 "id_operator = %s", id, id_operator);
         Log.i("app-log [query]",sql);
 
-        @SuppressLint("Recycle")
         Cursor cursor = db.rawQuery(sql, null);
 
         if (cursor != null) {
@@ -1346,7 +1414,6 @@ public class DB extends SQLiteOpenHelper {
                 "WHERE id_kuesioner_result = %s AND id_user = %s", id, id_operator);
         Log.i("app-log [query]",sql);
 
-        @SuppressLint("Recycle")
         Cursor cursor = db.rawQuery(sql, null);
 
         if (cursor != null) {

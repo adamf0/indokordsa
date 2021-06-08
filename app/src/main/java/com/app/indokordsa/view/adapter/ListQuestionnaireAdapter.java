@@ -64,7 +64,6 @@ public class ListQuestionnaireAdapter extends RecyclerView.Adapter<ListQuestionn
         return (new ListQuestionnaireAdapter.ListQuestionnaireViewHolder(binding));
     }
 
-    @SuppressLint({"UseCompatLoadingForDrawables", "SimpleDateFormat", "RecyclerView", "LongLogTag"})
     @Override
     public void onBindViewHolder(@NonNull ListQuestionnaireAdapter.ListQuestionnaireViewHolder holder, final int position) {
         KuesionerResult model = list_data.get(position);
@@ -77,17 +76,21 @@ public class ListQuestionnaireAdapter extends RecyclerView.Adapter<ListQuestionn
         if(!model.getCreated_at().equals(now)){
             if(model.getList_pertanyaan().size()!=model.getTotalPertanyaanSelesai()){
                 if(model.getAlasan().equals("0") || model.getAlasan().equals("")){
-                    binding.layoutAlasanItemRowListQuestionnaire.setVisibility(View.VISIBLE);
+                    binding.layoutInputAlasanItemRowListQuestionnaire.setVisibility(View.VISIBLE);
+                    binding.layoutAlasanItemRowListQuestionnaire.setVisibility(View.GONE);
                 }
                 else{
-                    binding.layoutAlasanItemRowListQuestionnaire.setVisibility(View.GONE);
+                    binding.layoutInputAlasanItemRowListQuestionnaire.setVisibility(View.GONE);
+                    binding.layoutAlasanItemRowListQuestionnaire.setVisibility(View.VISIBLE);
                 }
             }
             else{
+                binding.layoutInputAlasanItemRowListQuestionnaire.setVisibility(View.GONE);
                 binding.layoutAlasanItemRowListQuestionnaire.setVisibility(View.GONE);
             }
         }
         else{
+            binding.layoutInputAlasanItemRowListQuestionnaire.setVisibility(View.GONE);
             binding.layoutAlasanItemRowListQuestionnaire.setVisibility(View.GONE);
         }
 
