@@ -15,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 
+import com.app.indokordsa.helper.RealPathUtil;
 import com.app.indokordsa.view.model.Job;
 import com.app.indokordsa.view.model.JawabanKuesioner;
 
@@ -34,15 +35,15 @@ public class Util {
         if(selectedImage==null)
             return null;
 
-        String[] filePathColumn = {MediaStore.Images.Media.DATA};
-        Cursor cursor = activity.getContentResolver().query(selectedImage, filePathColumn, null, null, null);
-        assert cursor != null;
-        cursor.moveToFirst();
-        int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-        String path = cursor.getString(columnIndex);
-        cursor.close();
+//        String[] filePathColumn = {MediaStore.Images.Media.DATA};
+//        Cursor cursor = activity.getContentResolver().query(selectedImage, filePathColumn, null, null, null);
+//        assert cursor != null;
+//        cursor.moveToFirst();
+//        int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+//        String path = cursor.getString(columnIndex);
+//        cursor.close();
 
-        return path;
+        return RealPathUtil.getRealPath(activity,selectedImage);
     }
     public static byte[] getBytes(InputStream inputStream) throws IOException {
         ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();

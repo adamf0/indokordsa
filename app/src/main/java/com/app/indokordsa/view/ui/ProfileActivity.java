@@ -5,11 +5,14 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
+import android.provider.MediaStore;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ForegroundColorSpan;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 
@@ -22,6 +25,7 @@ import com.app.indokordsa.R;
 import com.app.indokordsa.Util;
 import com.app.indokordsa.databinding.ActivityProfileBinding;
 import com.app.indokordsa.helper.PermissionHelper;
+import com.app.indokordsa.helper.RealPathUtil;
 import com.app.indokordsa.helper.SessionManager;
 import com.app.indokordsa.interfaces.Profilelistener;
 import com.app.indokordsa.viewmodel.ProfileViewModel;
@@ -33,7 +37,15 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 
 
 public class ProfileActivity extends AppCompatActivity implements Profilelistener, PermissionHelper.PermissionListener {
@@ -45,6 +57,7 @@ public class ProfileActivity extends AppCompatActivity implements Profilelistene
     int FILE = 1;
     Uri Uri_foto;
     String file_foto;
+    HashMap<String, String> data_session;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +71,8 @@ public class ProfileActivity extends AppCompatActivity implements Profilelistene
 
         loadData();
         session = new SessionManager(this);
+        data_session = session.getSession();
+
         permissionHelper = new PermissionHelper(this);
         permissionHelper.permissionListener(this);
 
@@ -147,7 +162,7 @@ public class ProfileActivity extends AppCompatActivity implements Profilelistene
                 binding.getModel().setImage(obj.getString("image"));
 
                 if(!obj.isNull("image")){
-                    Glide.with(this).load(String.format("http://192.168.43.210/indokordsa/assets/user/image/%s",obj.getString("image"))).into(binding.imgUserProfile);
+                    Glide.with(this).load(String.format("http://indokordsa.media-phonix.co.id/assets/user/image/%s",obj.getString("image"))).into(binding.imgUserProfile);
                 }
 
             } catch (JSONException e) {
@@ -160,7 +175,7 @@ public class ProfileActivity extends AppCompatActivity implements Profilelistene
     public void onPermissionCheckDone() {
         Log.i("app-log","akses permission berhasil");
 
-        Intent intent = new Intent();
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.INTERNAL_CONTENT_URI);
         intent.setType("image/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);
         startActivityForResult(Intent.createChooser(intent, "Select Picture"), FILE);
@@ -173,15 +188,34 @@ public class ProfileActivity extends AppCompatActivity implements Profilelistene
         if (resultCode == Activity.RESULT_OK) {
             if (requestCode == FILE && data != null && data.getData() != null) {
                 Uri_foto = data.getData();
-//                    InputStream iStream = getContentResolver().openInputStream(Uri_foto);
-//                    byte[] inputData = Util.getBytes(iStream);
+                try {
+                    Log.i("app-log uri",Uri_foto.toString());
+                    file_foto = RealPathUtil.getRealPath(this,Uri_foto);
+                    Log.i("app-log path:", (file_foto==null? "null":file_foto));
+                    if(file_foto==null){
+                        InputStream iStream = getContentResolver().openInputStream(Uri_foto);
+                        byte[] inputData = Util.getBytes(iStream);
 
-                Log.i("app-log uri",Uri_foto.toString());
-                file_foto = Util.getPathFromUri(this,Uri_foto);
-                vmodel.model.setImage_file(new File(file_foto));
+                        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "Indokorsda");
+                        if (!mediaStorageDir.exists()) {
+                            if (!mediaStorageDir.mkdirs()) {
+                                Log.e("Monitoring", "Oops! Failed create Monitoring directory");
+                            }
+                        }
 
-                Log.i("app-log path:", file_foto);
-                Glide.with(this).load(Uri_foto).into(binding.imgUserProfile);
+                        String timeStamp = new SimpleDateFormat("yyyy_MM_dd", Locale.getDefault()).format(new Date());
+                        File file_pdf_copy = new File(mediaStorageDir.getPath(), String.format("%s_%s.jpg",data_session.get(SessionManager.KEY_ID_USER),timeStamp));
+                        OutputStream op = new FileOutputStream(file_pdf_copy);
+                        op.write(inputData);
+                        file_foto = file_pdf_copy.getPath();
+                        Log.i("app-log path:", (file_foto==null? "null":file_foto));
+                    }
+
+                    vmodel.model.setImage_file(new File(file_foto));
+                    Glide.with(this).load(Uri_foto).into(binding.imgUserProfile);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
