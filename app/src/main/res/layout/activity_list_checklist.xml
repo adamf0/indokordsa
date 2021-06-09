@@ -187,16 +187,22 @@
                 android:orientation="horizontal"
                 app:layout_constraintGuide_percent="0.24487004" />
 
-            <ImageView
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/btn_back_nfc"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginBottom="16dp"
+                android:background="#000"
                 android:clickable="true"
+                android:focusable="true"
                 android:onClick="@{()->action.cancelScan()}"
-                app:layout_constraintBottom_toTopOf="@+id/guideline19"
-                app:layout_constraintStart_toStartOf="@+id/guideline10"
-                app:srcCompat="@drawable/ic_arrow_go_back_line"
+                app:backgroundTint="#000"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:maxImageSize="18dp"
+                app:srcCompat="@drawable/ic_arrow_back"
+                app:tint="@android:color/white"
                 tools:ignore="VectorDrawableCompat" />
 
             <androidx.constraintlayout.widget.Guideline

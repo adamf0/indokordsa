@@ -3,6 +3,7 @@ package com.app.indokordsa.view.ui;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -18,6 +19,7 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.app.indokordsa.R;
 import com.app.indokordsa.databinding.ActivityMainBinding;
+import com.app.indokordsa.helper.PermissionHelper;
 import com.app.indokordsa.helper.SessionManager;
 import com.app.indokordsa.interfaces.ViewPagerListener;
 import com.app.indokordsa.view.adapter.ViewPagerAdapter;
@@ -29,12 +31,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
-public class MainActivity extends AppCompatActivity implements ViewPagerListener, ViewPager.OnPageChangeListener, BottomNavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements ViewPagerListener, ViewPager.OnPageChangeListener, BottomNavigationView.OnNavigationItemSelectedListener, PermissionHelper.PermissionListener {
     MainViewModel vmodel;
     ActivityMainBinding binding;
     ArrayList<String> list_slide = new ArrayList<>();
     int dotscount=2;
     private ImageView[] dots;
+    PermissionHelper permissionHelper;
     SessionManager session;
 
     @Override
@@ -49,9 +52,26 @@ public class MainActivity extends AppCompatActivity implements ViewPagerListener
         list_slide.add("slide 2");
 
         session = new SessionManager(this);
+        permissionHelper = new PermissionHelper(this);
+        permissionHelper.permissionListener(this);
+
         load_slide();
         load_greeting();
+//        addShortcut();
     }
+
+//    private void addShortcut() {
+//        Intent shortcutIntent = new Intent(getApplicationContext(), SplashActivity.class);
+//        shortcutIntent.setAction(Intent.ACTION_MAIN);
+//
+//        Intent addIntent = new Intent();
+//        addIntent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent);
+//        addIntent.putExtra(Intent.EXTRA_SHORTCUT_NAME, getApplication().getResources().getString(R.string.app_name));
+//        addIntent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, Intent.ShortcutIconResource.fromContext(getApplicationContext(), R.drawable.ic_launcher_foreground));
+//        addIntent.setAction("com.android.launcher.action.INSTALL_SHORTCUT");
+//        addIntent.putExtra("duplicate", false);
+//        getApplicationContext().sendBroadcast(addIntent);
+//    }
 
     public void closeApp(){
         ActivityCompat.finishAffinity(this);
@@ -152,5 +172,15 @@ public class MainActivity extends AppCompatActivity implements ViewPagerListener
     @Override
     public void onPointerCaptureChanged(boolean hasCapture) {
 
+    }
+
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        permissionHelper.onRequestCallBack(requestCode, permissions, grantResults);
+    }
+
+    @Override
+    public void onPermissionCheckDone() {
+        Log.i("app-log","akses permission berhasil");
     }
 }

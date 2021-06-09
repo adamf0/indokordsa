@@ -41,6 +41,7 @@ public class PermissionHelper {
             int permissionCamera = ContextCompat.checkSelfPermission(mActivity, Manifest.permission.CAMERA);
             int permissionReadStorage = ContextCompat.checkSelfPermission(mActivity, Manifest.permission.READ_EXTERNAL_STORAGE);
             int permissionWriteStorage = ContextCompat.checkSelfPermission(mActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+//            int permissionShortut = ContextCompat.checkSelfPermission(mActivity, Manifest.permission.INSTALL_SHORTCUT);
 
             List<String> listPermissionsNeeded = new ArrayList<>();
 
@@ -53,6 +54,9 @@ public class PermissionHelper {
             if (permissionWriteStorage != PackageManager.PERMISSION_GRANTED) {
                 listPermissionsNeeded.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
             }
+//            if (permissionShortut != PackageManager.PERMISSION_GRANTED) {
+//                listPermissionsNeeded.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+//            }
 
             if (!listPermissionsNeeded.isEmpty()) {
                 ActivityCompat.requestPermissions(mActivity, listPermissionsNeeded.toArray(new String[listPermissionsNeeded.size()]), REQUEST_PERMISSION);
@@ -76,6 +80,7 @@ public class PermissionHelper {
             perms.put(Manifest.permission.CAMERA, PackageManager.PERMISSION_GRANTED);
             perms.put(Manifest.permission.READ_EXTERNAL_STORAGE, PackageManager.PERMISSION_GRANTED);
             perms.put(Manifest.permission.WRITE_EXTERNAL_STORAGE, PackageManager.PERMISSION_GRANTED);
+//            perms.put(Manifest.permission.INSTALL_SHORTCUT, PackageManager.PERMISSION_GRANTED);
             if (grantResults.length > 0) {
                 for (int i = 0; i < permissions.length; i++)
                     perms.put(permissions[i], grantResults[i]);
@@ -84,6 +89,7 @@ public class PermissionHelper {
                         perms.get(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED &&
                                 perms.get(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
                                 perms.get(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+//                                perms.get(Manifest.permission.INSTALL_SHORTCUT) == PackageManager.PERMISSION_GRANTED
                 ) {
                     Log.e(TAG, "permission granted");
 
@@ -92,7 +98,9 @@ public class PermissionHelper {
                     Log.e(TAG, "Some permissions are not granted ask again ");
                     if (ActivityCompat.shouldShowRequestPermissionRationale(mActivity, Manifest.permission.CAMERA) ||
                             ActivityCompat.shouldShowRequestPermissionRationale(mActivity, Manifest.permission.READ_EXTERNAL_STORAGE)
-                            || ActivityCompat.shouldShowRequestPermissionRationale(mActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                            || ActivityCompat.shouldShowRequestPermissionRationale(mActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+//                            || ActivityCompat.shouldShowRequestPermissionRationale(mActivity, Manifest.permission.INSTALL_SHORTCUT)
+                    ) {
                         showDialogOK("OK",
                                 (dialog, which) -> {
                                     if (which == DialogInterface.BUTTON_POSITIVE) {

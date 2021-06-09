@@ -11,8 +11,9 @@ android {
         applicationId "com.app.indokordsa"
         minSdkVersion 19
         targetSdkVersion 30
-        versionCode 1
-        versionName "0.1.002"
+        versionCode 2
+        versionName "0.1.003"
+        //0.1.003 2021-06-09
         //0.1.002 2021-06-09
         multiDexEnabled true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
