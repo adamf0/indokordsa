@@ -1,31 +1,39 @@
 package com.app.indokordsa;
 
+import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+import com.app.indokordsa.record.api.ApiRoute;
+import com.app.indokordsa.record.api.AppConfig;
 import com.app.indokordsa.record.db.DB;
 import com.app.indokordsa.view.model.JawabanKuesioner;
 import com.app.indokordsa.view.model.KuesionerResult;
-import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.ConnectionFactory;
 
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.concurrent.TimeoutException;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+
+import static com.app.indokordsa.Util.isNetworkAvailable;
+
+//import com.rabbitmq.client.Channel;
+//import com.rabbitmq.client.Connection;
+//import com.rabbitmq.client.ConnectionFactory;
 
 public class SendingQuestionnaire extends BroadcastReceiver {
 //public class SendingQuestionnaire{
-    ConnectionFactory factory = new ConnectionFactory();
+//    ConnectionFactory factory = new ConnectionFactory();
     DB db;
 
     public void onReceive(final Context context, Intent intent) {
@@ -35,6 +43,7 @@ public class SendingQuestionnaire extends BroadcastReceiver {
         new Thread(this::init).start();
     }
 
+    @SuppressLint("LongLogTag")
     private void init() {
         try{
             Calendar cal = Calendar.getInstance();
@@ -61,7 +70,7 @@ public class SendingQuestionnaire extends BroadcastReceiver {
                 for (int j=0;j<list_pertanyaan.size();j++){
                     JSONObject obj1 = new JSONObject();
 
-                    JawabanKuesioner jk = list_pertanyaan.get(i);
+                    JawabanKuesioner jk = list_pertanyaan.get(j);
                     obj1.put("id_kuesioner_detail_1",jk.getTopik().getId());
                     obj1.put("id_kuesioner_detail_2",jk.getPertanyaan().getId());
                     obj1.put("val",jk.getVal());
@@ -78,41 +87,77 @@ public class SendingQuestionnaire extends BroadcastReceiver {
             Log.i("app-log [pending questionnaire]",arr0.toString());
 
             if(arr0.length()>0) {
-//                factory = new ConnectionFactory();
-//                factory.setHost("192.168.219.35"); //wsl
-//                factory.setPort(5672);
-//                factory.setUsername("test");
-//                factory.setPassword("test");
-            factory.setHost("barnacle.rmq.cloudamqp.com");
-            factory.setPort(5672);
-            factory.setUsername("hnnmtjju");
-            factory.setPassword("aGkn6Ia-bsidQZ7X_vtCGs0y_g3I03og");
-            factory.setVirtualHost("hnnmtjju");
+                ApiRoute getResponse = AppConfig.getRetrofitV2(10).create(ApiRoute.class);
+                Call<String> call = getResponse.sync("api/receive_questionnaire", arr0.toString());
 
-                Connection connection;
-                Channel channel;
-                connection = factory.newConnection();
-                channel = connection.createChannel();
+                Log.i("app-log [Service Questionnaire]", "request to " + call.request().url().toString());
+                call.enqueue(new Callback<String>() {
+                    @SuppressLint("LongLogTag")
+                    @Override
+                    public void onResponse(@NotNull Call<String> call, @NotNull retrofit2.Response<String> response) {
+                        String res_ = response.body();
+                        Log.i("app-log [Service Questionnaire]", res_);
 
-                if (channel.isOpen()) {
-                    channel.queueDeclare("queue_questionnaire", false, false, false, null);
-                    channel.basicPublish("", "queue_questionnaire", null, arr0.toString().getBytes());
-                    Log.i("app-log", " [x] Sent '" + arr0.toString());
-                    channel.close();
-                    connection.close();
+                        if (response.isSuccessful()) {
+                            try {
+                                assert res_ != null;
+                                JSONObject res = new JSONObject(res_);
 
-                    for (String _id:list_id) {
-                        Log.i("app-log background",_id);
-                        db.update_sinkron_kuesioner_result(_id,"1");
+                                String status = res.getString("status");
+                                String message = res.getString("message");
+                                if (status.equals("1")) {
+                                    Log.i("app-log [Service Questionnaire]",message);
+                                    for (String _id:list_id) {
+                                        Log.i("app-log background",_id);
+                                        db.update_sinkron_kuesioner_result(_id,"1");
+                                    }
+                                } else {
+                                    Log.i("app-log [Service Questionnaire]",message);
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        } else {
+                            Log.i("app-log [Service Questionnaire]", "Fail connect to server");
+                        }
                     }
-                }
-            }
 
+                    @Override
+                    public void onFailure(@NotNull Call<String> call, @NotNull Throwable t) {
+                        Log.i("app-log [Service Questionnaire]", t.toString());
+                        if (call.isCanceled()) {
+                            Log.i("app-log [Service Questionnaire]", "Request was aborted");
+                        } else {
+                            Log.i("app-log [Service Questionnaire]", t.getMessage());
+                        }
+                    }
+                });
+
+//                factory.setHost("barnacle.rmq.cloudamqp.com");
+//                factory.setPort(5672);
+//                factory.setUsername("hnnmtjju");
+//                factory.setPassword("aGkn6Ia-bsidQZ7X_vtCGs0y_g3I03og");
+//                factory.setVirtualHost("hnnmtjju");
+//
+//                    Connection connection;
+//                    Channel channel;
+//                    connection = factory.newConnection();
+//                    channel = connection.createChannel();
+//
+//                    if (channel.isOpen()) {
+//                        channel.queueDeclare("queue_questionnaire", false, false, false, null);
+//                        channel.basicPublish("", "queue_questionnaire", null, arr0.toString().getBytes());
+//                        Log.i("app-log", " [x] Sent '" + arr0.toString());
+//                        channel.close();
+//                        connection.close();
+//
+//                        for (String _id:list_id) {
+//                            Log.i("app-log background",_id);
+//                            db.update_sinkron_kuesioner_result(_id,"1");
+//                        }
+//                    }
+            }
         } catch (JSONException e) {
-            e.printStackTrace();
-        } catch (TimeoutException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
             e.printStackTrace();
         }
     }

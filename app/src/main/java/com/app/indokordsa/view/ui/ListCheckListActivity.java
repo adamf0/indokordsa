@@ -250,7 +250,6 @@ public class ListCheckListActivity extends AppCompatActivity implements ListChec
         binding.layoutScanNFCPage.setVisibility(View.GONE);
         tmp_select.postValue(initModel());
 
-//        checkList = initModel();
 //        Intent intent = new Intent(this,CheckListActivity.class);
 //        intent.putExtra("id_checklist",checkList.getId());
 //        intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -258,7 +257,7 @@ public class ListCheckListActivity extends AppCompatActivity implements ListChec
     }
 
     public void back(){
-        startActivity(new Intent(this,MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+        startActivity(new Intent(this,MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP).putExtra("slide2",true));
     }
 
     public void loadData(){

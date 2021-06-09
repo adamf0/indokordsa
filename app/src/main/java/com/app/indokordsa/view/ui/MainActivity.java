@@ -132,7 +132,13 @@ public class MainActivity extends AppCompatActivity implements ViewPagerListener
         }
         dots[0].setImageDrawable(ContextCompat.getDrawable(MainActivity.this, R.drawable.active_dot));
         binding.sliderMain.addOnPageChangeListener(this);
-        binding.sliderMain.setCurrentItem(0);
+        Bundle b = getIntent().getExtras();
+        if(b!=null && b.getBoolean("slide2",false)){
+            binding.sliderMain.setCurrentItem(1);
+        }
+        else {
+            binding.sliderMain.setCurrentItem(0);
+        }
     }
 
     @Override

@@ -30,4 +30,27 @@ public class AppConfig {
                     .build();
         }
     }
+    public static Retrofit getRetrofitV2(int timeout) {
+        if(timeout>0) {
+            OkHttpClient okHttpClient = new OkHttpClient().newBuilder()
+                    .connectTimeout(timeout, TimeUnit.MINUTES)
+                    .readTimeout(timeout, TimeUnit.MINUTES)
+                    .writeTimeout(timeout, TimeUnit.MINUTES)
+                    .build();
+
+            return new Retrofit.Builder()
+                    .baseUrl("http://indokordsa.media-phonix.co.id/")
+//                    .baseUrl("http://192.168.43.210/indokordsa/")
+                    .client(okHttpClient) //.client(UnsafeOkHttpClient.getUnsafeOkHttpClient())
+                    .addConverterFactory(ScalarsConverterFactory.create())
+                    .build();
+        }
+        else{
+            return new Retrofit.Builder()
+                    .baseUrl("http://indokordsa.media-phonix.co.id/")
+//                    .baseUrl("http://192.168.43.210/indokordsa/")
+                    .addConverterFactory(ScalarsConverterFactory.create()) //.client(UnsafeOkHttpClient.getUnsafeOkHttpClient())
+                    .build();
+        }
+    }
 }

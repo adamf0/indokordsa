@@ -343,7 +343,9 @@ public class QuestionnaireActivity extends AppCompatActivity implements Question
     }
 
     void updateKuesionerResult(String id_kuesioner_result, String id_user, String id_shift, String id_kuesioner, String jawaban, String status, String alasan, String sync, String created_at, String updated_at, String deleted_at, String message, int type){
-        live_message.postValue(message);
+        if(message!=null)
+            live_message.postValue(message);
+
         if(db.update_kuesioner_result(
                 id_kuesioner_result,
                 id_user,
@@ -460,6 +462,23 @@ public class QuestionnaireActivity extends AppCompatActivity implements Question
 
                     binding.LayoutInputQuestionnaire.setVisibility(View.VISIBLE);
                     binding.loader.layoutLoading.setVisibility(View.GONE);
+
+                    updateKuesionerResult(
+                            kuestionResult.getId_kuesioner_result(),
+                            kuestionResult.getId_user(),
+                            kuestionResult.getShift().getId(),
+                            kuestionResult.getKuesioner().getId(),
+                            kuestionResult.getJawaban(),
+                            "0",
+                            "",
+                            "0",
+                            kuestionResult.getCreated_at(),
+                            updatedAt(),
+                            "",
+                            null,
+                            1
+                    );
+
                     updateJawabanPertanyaan(
                             kuestionResult.getId_kuesioner_result(),
                             list_jawabanKuesioner.get(index).getTopik().getId(),

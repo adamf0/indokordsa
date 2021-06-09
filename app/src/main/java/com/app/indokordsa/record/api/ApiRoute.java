@@ -56,6 +56,13 @@ public interface ApiRoute {
 
     @POST
     @FormUrlEncoded
+    Call<String>sync(
+            @Url String url,
+            @Field("data_local") String data_local
+    );
+
+    @POST
+    @FormUrlEncoded
     Call<String>update_alasan_checklist(
             @Url String url,
             @Field("id_penugasan") String id_penugasan,
