@@ -73,7 +73,7 @@ public class ListQuestionnaireAdapter extends RecyclerView.Adapter<ListQuestionn
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         String now = sdf.format(new Date());
 
-        if(!model.getCreated_at().equals(now)){
+        if(!reFormatDatev3(model.getCreated_at()).equals(now)){
             if(model.getList_pertanyaan().size()!=model.getTotalPertanyaanSelesai()){
                 if(model.getAlasan().equals("0") || model.getAlasan().equals("")){
                     binding.layoutInputAlasanItemRowListQuestionnaire.setVisibility(View.VISIBLE);

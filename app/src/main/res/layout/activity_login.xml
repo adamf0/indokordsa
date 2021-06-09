@@ -69,11 +69,12 @@
             app:layout_constraintTop_toBottomOf="@+id/edt_username_login"
             tools:ignore="HardcodedText,UnusedAttribute" />
 
+
         <Button
             android:id="@+id/btn_masuk_login"
             android:layout_width="0dp"
             android:layout_height="48dp"
-            android:layout_marginTop="22dp"
+            android:layout_marginTop="24dp"
             android:background="@drawable/button"
             android:fontFamily="@font/helvetica_neue_condensed_bold"
             android:onClick="@{()->action.doLogin()}"
@@ -83,9 +84,9 @@
             android:visibility="visible"
             app:backgroundTint="@null"
             app:layout_constraintEnd_toEndOf="@+id/edt_password_login"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="@+id/edt_password_login"
             app:layout_constraintTop_toBottomOf="@+id/edt_password_login" />
-
 
         <RelativeLayout
             android:id="@+id/btn_masuk_loading_login"
@@ -133,20 +134,20 @@
 
         <Button
             android:id="@+id/button4"
-            style="@style/Widget.AppCompat.Button.Borderless"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/button"
             android:fontFamily="@font/helvetica_neue_condensed_bold"
             android:onClick="@{()->action.loginScanBarcode()}"
-            android:text="SIGN IN Scan Barcode"
+            android:text="SIGN IN BY BARCODE"
             android:textColor="#096FCE"
             android:textSize="14sp"
             android:visibility="visible"
             app:backgroundTint="@null"
             app:layout_constraintEnd_toEndOf="@+id/btn_masuk_login"
             app:layout_constraintStart_toStartOf="@+id/btn_masuk_login"
-            app:layout_constraintTop_toBottomOf="@+id/btn_masuk_login" />
+            app:layout_constraintTop_toBottomOf="@+id/btn_masuk_loading_login" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

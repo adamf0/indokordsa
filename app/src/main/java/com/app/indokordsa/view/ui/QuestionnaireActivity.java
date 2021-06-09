@@ -97,6 +97,10 @@ public class QuestionnaireActivity extends AppCompatActivity implements Question
         live_message.observe(this, msg -> Snackbar.make(binding.LayoutQuestionnaire,msg,Snackbar.LENGTH_LONG).show());
     }
 
+    void back(){
+        startActivity(new Intent(this, ListQuestionnaireActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+    }
+
     void initDropdown(){
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, list_reason);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -117,7 +121,7 @@ public class QuestionnaireActivity extends AppCompatActivity implements Question
             public void onNothingSelected(AdapterView<?> parent) {
             }
         });
-        binding.deopdownValQuestionnaire.setSelection(0,true);
+//        binding.deopdownValQuestionnaire.setSelection(0,true);
     }
 
     public void pick_tgl(int input_position){
@@ -150,6 +154,8 @@ public class QuestionnaireActivity extends AppCompatActivity implements Question
 
                 int found = 0;
                 for (int i=0;i<list_reason.size();i++){
+                    Log.i("app-log [target]",String.format("%s=%s",list_jawabanKuesioner.get(index).getVal().toLowerCase(),list_reason.get(i).toLowerCase()));
+
                     if (list_jawabanKuesioner.get(index).getVal().toLowerCase().equals(list_reason.get(i).toLowerCase())){
                         found++;
                         binding.deopdownValQuestionnaire.setSelection(i,true);
@@ -392,7 +398,6 @@ public class QuestionnaireActivity extends AppCompatActivity implements Question
         binding.txtNumberQuestionnaire.setText("#"+nomor);
     }
 
-    //index=0 set spinner ga jalan
     void initInput(){
         binding.edtOtherQuestionnaire.setText(list_jawabanKuesioner.get(index).getOther());
         binding.edtStartQuestionnaire.setText(list_jawabanKuesioner.get(index).getStart());

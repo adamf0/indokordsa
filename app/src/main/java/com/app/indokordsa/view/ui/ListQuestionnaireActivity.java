@@ -86,7 +86,7 @@ public class ListQuestionnaireActivity extends AppCompatActivity implements List
     }
 
     public void back(){
-        startActivity(new Intent(this,MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP));
+        startActivity(new Intent(this,MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
     }
 
     public void loadData(){

@@ -140,6 +140,7 @@ public class TodolistActivity extends AppCompatActivity implements Todolistliste
             vmodel.save_todolist( (!isUpdate? "":todo.getId()), data_session.get(SessionManager.KEY_ID_USER), todo.getTanggal(), String.valueOf(todo.getArea().getId()), String.valueOf(todo.getGroup().getId()), String.valueOf(todo.getShift().getId()), String.valueOf(todo.getTime()), String.valueOf(todo.getRemarks()), String.valueOf(todo.getAction()), String.valueOf(todo.getStatus().getId()), String.valueOf(todo.getPic().getId()), isUpdate);
         }
     }
+
     void closeDialog(String message){
         new Handler().postDelayed(() -> {
             binding.scrollTodo.setVisibility(View.VISIBLE);

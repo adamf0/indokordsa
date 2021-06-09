@@ -258,7 +258,7 @@ public class ListCheckListActivity extends AppCompatActivity implements ListChec
     }
 
     public void back(){
-        startActivity(new Intent(this,MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP));
+        startActivity(new Intent(this,MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
     }
 
     public void loadData(){

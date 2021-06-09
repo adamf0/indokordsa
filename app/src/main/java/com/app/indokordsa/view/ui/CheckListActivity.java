@@ -86,6 +86,10 @@ public class CheckListActivity extends AppCompatActivity implements Checklistlis
         live_message.observe(this, msg -> Snackbar.make(binding.LayoutCheklist,msg,Snackbar.LENGTH_LONG).show());
     }
 
+    void back(){
+        startActivity(new Intent(this, ListCheckListActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+    }
+
     public void loadData(String id_checklist){
         binding.LayoutInputChecklist.setVisibility(View.GONE);
         binding.loader.layoutLoading.setVisibility(View.VISIBLE);
@@ -611,6 +615,7 @@ public class CheckListActivity extends AppCompatActivity implements Checklistlis
         this.job.setVal(job.getVal());
         this.job.setKet(job.getKet());
     }
+
     void logging(String message){
         Log.i("app-log [CheckList]",message);
     }
