@@ -116,6 +116,7 @@ public interface ApiRoute {
     @FormUrlEncoded
     Call<String>save_questionneir(
             @Url String url,
+            @Field("id_kuesioner_result_detail") String id_kuesioner_result_detail,
             @Field("id_kuesioner_result") String id_kuesioner_result,
             @Field("id_user") String id_user,
             @Field("jawaban") String jawaban,

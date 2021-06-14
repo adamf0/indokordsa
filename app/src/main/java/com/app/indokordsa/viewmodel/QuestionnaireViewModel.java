@@ -27,11 +27,12 @@ public class QuestionnaireViewModel extends ViewModel {
         this.listener = listener;
         this.session = session;
     }
-    public void updateKuesioner(String id_kuesioner_result, String id_user, String jawaban, String result, int type){
+    public void updateKuesioner(String id_kuesioner_result_detail, String id_kuesioner_result, String id_user, String jawaban, String result, int type){
         ApiRoute getResponse = AppConfig.getRetrofit(0).create(ApiRoute.class);
-        Call<String> call = getResponse.save_questionneir("api/save_questionneir", id_kuesioner_result, id_user, jawaban, result);
+        Call<String> call = getResponse.save_questionneir("api/save_questionneir", id_kuesioner_result_detail,id_kuesioner_result, id_user, jawaban, result);
 
         Log.i("app-log [Questionneir]", "request to " + call.request().url().toString());
+        Log.i("app-log [Questionneir]", String.format("id_kuesioner_result_detail=%s id_kuesioner_result=%s id_user=%s jawaban=%s result=%s",id_kuesioner_result_detail,id_kuesioner_result,id_user,jawaban,result));
         call.enqueue(new Callback<String>() {
             @Override
             public void onResponse(@NotNull Call<String> call, @NotNull retrofit2.Response<String> response) {
@@ -48,7 +49,7 @@ public class QuestionnaireViewModel extends ViewModel {
                         if (status.equals("1")) {
                             listener.onSuccessPost(message,type);
                         } else {
-                            listener.onFailPost(message);
+                            listener.onFailPost(message,(jawaban.equals("1")? 0:1));
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();

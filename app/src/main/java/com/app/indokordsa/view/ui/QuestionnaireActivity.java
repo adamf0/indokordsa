@@ -21,6 +21,7 @@ import com.app.indokordsa.interfaces.Questionnairelistener;
 import com.app.indokordsa.record.db.DB;
 import com.app.indokordsa.view.model.JawabanKuesioner;
 import com.app.indokordsa.view.model.KuesionerResult;
+import com.app.indokordsa.view.model.KuesionerResultDetail;
 import com.app.indokordsa.viewmodel.QuestionnaireViewModel;
 import com.app.indokordsa.viewmodel.QuestionnaireViewModelFactory;
 import com.google.android.material.snackbar.Snackbar;
@@ -41,6 +42,7 @@ import java.util.TimeZone;
 
 import static com.app.indokordsa.Util.isNetworkAvailable;
 
+@SuppressLint({"SetTextI18n","SimpleDateFormat","DefaultLocale"})
 public class QuestionnaireActivity extends AppCompatActivity implements Questionnairelistener, DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener {
     QuestionnaireViewModel vmodel;
     ActivityQuestionnaireBinding binding;
@@ -50,12 +52,15 @@ public class QuestionnaireActivity extends AppCompatActivity implements Question
     TimePickerDialog timePickerDialog;
     Calendar calendar;
     DB db;
+    int idx = 0;
     int index = 0;
     int input_position=0;
     int nomor=1;
     String tmp_date="";
     String id_kuesioner_result=null;
     KuesionerResult kuestionResult = null;
+    KuesionerResultDetail kuestionResultDetail = null;
+    ArrayList<KuesionerResultDetail> list_kuesioner = new ArrayList<>();
     ArrayList<JawabanKuesioner> list_jawabanKuesioner = new ArrayList<>();
     ArrayList<String> list_reason = new ArrayList<>();
     MutableLiveData<String> live_message = new MutableLiveData<>();
@@ -73,11 +78,15 @@ public class QuestionnaireActivity extends AppCompatActivity implements Question
         if(b!=null){
             id_kuesioner_result = b.getString("id_kuesioner_result");
             kuestionResult = db.getKuesionerResult(id_kuesioner_result,data_session.get(SessionManager.KEY_ID_USER));
-            list_jawabanKuesioner = db.getListPertanyaan(id_kuesioner_result);
+
+            list_kuesioner = db.getListKuesioner(id_kuesioner_result);
+            kuestionResultDetail = list_kuesioner.get(idx);
+
+            list_jawabanKuesioner = kuestionResultDetail.getList_pertanyaan();
             logging("[78]","list_jawabanKuesioner size", String.valueOf(list_jawabanKuesioner.size()));
 
             binding.setAction(this);
-            binding.setKuestionResult(kuestionResult);
+            binding.setKuestionResultDetail(kuestionResultDetail);
             vmodel  = new ViewModelProvider(this,new QuestionnaireViewModelFactory(this,session)).get(QuestionnaireViewModel.class);
 
             list_reason.add("-- Select Value --");
@@ -95,10 +104,6 @@ public class QuestionnaireActivity extends AppCompatActivity implements Question
         }
 
         live_message.observe(this, msg -> Snackbar.make(binding.LayoutQuestionnaire,msg,Snackbar.LENGTH_LONG).show());
-    }
-
-    void back(){
-        startActivity(new Intent(this, ListQuestionnaireActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
     }
 
     void initDropdown(){
@@ -142,14 +147,14 @@ public class QuestionnaireActivity extends AppCompatActivity implements Question
     }
 
     public void loadData(){
-        binding.LayoutInputQuestionnaire.setVisibility(View.GONE);
-        binding.loader.layoutLoading.setVisibility(View.VISIBLE);
+        openDialog();
 
         new Handler().postDelayed(() -> {
-            binding.LayoutInputQuestionnaire.setVisibility(View.VISIBLE);
-            binding.loader.layoutLoading.setVisibility(View.GONE);
+            closeDialog();
+            binding.btnYaQuestionnaire.setBackgroundColor(list_kuesioner.get(idx).getJawaban().equals("2")? getResources().getColor(R.color.on):getResources().getColor(R.color.off));
+            binding.btnTidakQuestionnaire.setBackgroundColor(list_kuesioner.get(idx).getJawaban().equals("1")? getResources().getColor(R.color.on):getResources().getColor(R.color.off));
 
-            if(kuestionResult.getJawaban().equals("2")){
+            if(list_kuesioner.get(idx).getJawaban().equals("2")){
                 binding.setJawabanKuesioner(list_jawabanKuesioner.size()>0? list_jawabanKuesioner.get(index):null);
 
                 int found = 0;
@@ -177,81 +182,102 @@ public class QuestionnaireActivity extends AppCompatActivity implements Question
                 binding.edtEndQuestionnaire.setText(list_jawabanKuesioner.get(index).getEnd());
                 binding.edtRemarksQuestionnaire.setText(list_jawabanKuesioner.get(index).getRemarks());
 
-                binding.LayoutInputQuestionnaireFooter.setVisibility(View.VISIBLE);
-                binding.LayoutInputYNQuestionnaire.setVisibility(View.GONE);
-                binding.LayoutInputChoiceQuestionnaire.setVisibility(View.VISIBLE);
+                openChoice();
                 binding.txtNumberQuestionnaire.setText("#"+nomor);
             }
             else{
-                binding.LayoutInputQuestionnaireFooter.setVisibility(View.GONE);
-                binding.LayoutInputYNQuestionnaire.setVisibility(View.VISIBLE);
-                binding.LayoutInputChoiceQuestionnaire.setVisibility(View.GONE);
+                openYN();
             }
         }, 1000);
     }
 
     public void selectYN(String jawaban){
-        if(jawaban.equals("ya")){
-            kuestionResult.setJawaban("2");
-            binding.setJawabanKuesioner(list_jawabanKuesioner.size()>0? list_jawabanKuesioner.get(index):null);
-            initInput();
+        if(list_kuesioner.get(idx).getJawaban().equals("0")) {
+            if (jawaban.equals("ya")) {
+                list_kuesioner.get(idx).setJawaban("2");
+                binding.setKuestionResultDetail(kuestionResultDetail);
+                binding.setJawabanKuesioner(list_jawabanKuesioner.size() > 0 ? list_jawabanKuesioner.get(index) : null);
+                initInput();
+                openChoice();
+                binding.LayoutOtherQuestionnaire.setVisibility(View.GONE);
+                binding.txtNumberQuestionnaire.setText("#" + nomor);
+            } else {
+                list_kuesioner.get(idx).setJawaban("1");
+                binding.setKuestionResultDetail(kuestionResultDetail);
+                binding.setJawabanKuesioner(null);
 
-            binding.LayoutInputQuestionnaireFooter.setVisibility(View.VISIBLE);
-            binding.LayoutOtherQuestionnaire.setVisibility(View.GONE);
-            binding.LayoutInputYNQuestionnaire.setVisibility(View.GONE);
-            binding.LayoutInputChoiceQuestionnaire.setVisibility(View.VISIBLE);
-            binding.txtNumberQuestionnaire.setText("#"+nomor);
+                for (JawabanKuesioner jk : list_jawabanKuesioner) {
+                    jk.setVal("");
+                    jk.setOther("");
+                    jk.setStart("");
+                    jk.setEnd("");
+                    jk.setRemarks("");
+                }
+                closeChoiceWithYN();
+                openDialog();
+
+                if (isNetworkAvailable(this)) {
+                    vmodel.updateKuesioner(list_kuesioner.get(idx).getId(), id_kuesioner_result, data_session.get(SessionManager.KEY_ID_USER), "1", "", 0);
+                } else {
+                    openYN();
+                    closeDialog();
+
+                    if (db.update_kuesioner_result_detail(
+                            list_kuesioner.get(idx).getId(),
+                            id_kuesioner_result,
+                            list_kuesioner.get(idx).getKuesioner().getId(),
+                            "1"
+                    ) >= 0) {
+                        logging("[218]", "", String.format("berhasil update id_kuesioner_result_detail=%s", list_kuesioner.get(idx).getId()));
+                        live_message.postValue("successfully updated the questionnaire");
+                    } else {
+                        logging("[221]", "", String.format("gagal update id_kuesioner_result_detail=%s", list_kuesioner.get(idx).getId()));
+                        live_message.postValue("failed to update the questionnaire");
+                    }
+
+                    checkAllQuestion();
+                }
+            }
         }
         else{
-            kuestionResult.setJawaban("1");
-            binding.setJawabanKuesioner(null);
+            live_message.postValue("answer can't be changed");
+        }
+    }
 
-            for (JawabanKuesioner jk:list_jawabanKuesioner){
-                jk.setVal("");
-                jk.setOther("");
-                jk.setStart("");
-                jk.setEnd("");
-                jk.setRemarks("");
+    void checkAllQuestion(){
+        int done=0;
+        for (KuesionerResultDetail kuesioner:list_kuesioner) {
+            if(kuesioner.getJawaban().equals("1")){
+                done++;
             }
-            binding.LayoutInputQuestionnaireFooter.setVisibility(View.GONE);
-            binding.LayoutInputYNQuestionnaire.setVisibility(View.GONE);
-            binding.LayoutInputChoiceQuestionnaire.setVisibility(View.GONE);
-
-            binding.LayoutInputQuestionnaire.setVisibility(View.GONE);
-            binding.loader.layoutLoading.setVisibility(View.VISIBLE);
-
-            if(isNetworkAvailable(this)) {
-                vmodel.updateKuesioner(kuestionResult.getId_kuesioner_result(), data_session.get(SessionManager.KEY_ID_USER),"1","",0);
-            }
-            else {
-                binding.LayoutInputQuestionnaireFooter.setVisibility(View.GONE);
-                binding.LayoutInputYNQuestionnaire.setVisibility(View.VISIBLE);
-                binding.LayoutInputChoiceQuestionnaire.setVisibility(View.GONE);
-
-                binding.LayoutInputQuestionnaire.setVisibility(View.GONE);
-                binding.loader.layoutLoading.setVisibility(View.GONE);
-                if(db.update_kuesioner_result(
-                        kuestionResult.getId_kuesioner_result(),
-                        kuestionResult.getId_user(),
-                        kuestionResult.getShift().getId(),
-                        kuestionResult.getKuesioner().getId(),
-                        "1",
-                        "1",
-                        "",
-                        "0",
-                        kuestionResult.getCreated_at(),
-                        updatedAt(),
-                        ""
-                )>=0){
-                    logging("[218]","",String.format("berhasil update id_kuesioner_result=%s", kuestionResult.getId_kuesioner_result()));
-                    live_message.postValue("successfully updated the questionnaire");
-                    startActivity(new Intent(this,ListQuestionnaireActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+            if(kuesioner.getJawaban().equals("2")){
+                int tmp = 0;
+                for (JawabanKuesioner pertanyaan:kuesioner.getList_pertanyaan()) {
+                    if(pertanyaan.isDone()){
+                        tmp++;
+                    }
                 }
-                else{
-                    logging("[221]","",String.format("gagal update id_kuesioner_result=%s", kuestionResult.getId_kuesioner_result()));
-                    live_message.postValue("failed to update the questionnaire");
+                if(tmp==kuesioner.getList_pertanyaan().size()){
+                    done++;
                 }
             }
+        }
+
+        Log.i("app-log [277]",done+"="+list_kuesioner.size());
+        if(done==list_kuesioner.size()){
+            updateKuesionerResult(
+                    id_kuesioner_result,
+                    kuestionResult.getId_user(),
+                    kuestionResult.getShift().getId(),
+                    "1",
+                    kuestionResult.getAlasan(),
+                    "0",
+                    kuestionResult.getCreated_at(),
+                    updatedAt(),
+                    kuestionResult.getDeleted_at()
+            );
+
+            startActivity(new Intent(this,ListQuestionnaireActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
         }
     }
 
@@ -264,71 +290,54 @@ public class QuestionnaireActivity extends AppCompatActivity implements Question
 
     @Override
     public void onFail(String message) {
-        closeDialog(message);
+        if(kuestionResultDetail.getJawaban().equals("1")){
+            openYN();
+        }
+        if(kuestionResultDetail.getJawaban().equals("2")){
+            openChoice();
+        }
+        closeDialogWithMessage(message);
     }
 
     @Override
     public void onError(String message) {
-        closeDialog(message);
+        closeDialogWithMessage(message);
     }
 
     @Override
     public void onSuccessPost(String message, int type) {
         if(type==0){
             new Handler().postDelayed(() -> {
-                live_message.postValue(message);
-                binding.LayoutInputQuestionnaireFooter.setVisibility(View.GONE);
-                binding.LayoutInputYNQuestionnaire.setVisibility(View.VISIBLE);
-                binding.LayoutInputChoiceQuestionnaire.setVisibility(View.GONE);
+                openYN();
+                closeDialog();
 
-                binding.LayoutInputQuestionnaire.setVisibility(View.GONE);
-                binding.loader.layoutLoading.setVisibility(View.GONE);
-
-                updateKuesionerResult(
-                        kuestionResult.getId_kuesioner_result(),
-                        kuestionResult.getId_user(),
-                        kuestionResult.getShift().getId(),
-                        kuestionResult.getKuesioner().getId(),
-                        "1",
-                        "1",
-                        "",
-                        "0",
-                        kuestionResult.getCreated_at(),
-                        updatedAt(),
-                        "",
-                        message,
-                        type
+                updateKuesionerResultDetail(
+                        list_kuesioner.get(idx).getId(),
+                        id_kuesioner_result,
+                        list_kuesioner.get(idx).getKuesioner().getId(),
+                        "1"
                 );
+
+                db.update_sinkron_kuesioner_result(kuestionResult.getId_kuesioner_result(),"0");
+                live_message.postValue(message);
+
+                checkAllQuestion();
             }, 1000);
         }
         else{
             new Handler().postDelayed(() -> {
-                live_message.postValue(message);
-                binding.LayoutInputQuestionnaireFooter.setVisibility(View.VISIBLE);
-                binding.LayoutInputYNQuestionnaire.setVisibility(View.GONE);
-                binding.LayoutInputChoiceQuestionnaire.setVisibility(View.VISIBLE);
+                openChoice();
+                closeDialog();
 
-                binding.LayoutInputQuestionnaire.setVisibility(View.VISIBLE);
-                binding.loader.layoutLoading.setVisibility(View.GONE);
-
-                updateKuesionerResult(
-                        kuestionResult.getId_kuesioner_result(),
-                        kuestionResult.getId_user(),
-                        kuestionResult.getShift().getId(),
-                        kuestionResult.getKuesioner().getId(),
-                        "2",
-                        "0",
-                        "",
-                        "0",
-                        kuestionResult.getCreated_at(),
-                        updatedAt(),
-                        "",
-                        message,
-                        type
+                updateKuesionerResultDetail(
+                        list_kuesioner.get(idx).getId(),
+                        id_kuesioner_result,
+                        list_kuesioner.get(idx).getKuesioner().getId(),
+                        "2"
                 );
 
                 updateJawabanPertanyaan(
-                        kuestionResult.getId_kuesioner_result(),
+                        list_kuesioner.get(idx).getId(),
                         list_jawabanKuesioner.get(index).getTopik().getId(),
                         list_jawabanKuesioner.get(index).getPertanyaan().getId(),
                         list_jawabanKuesioner.get(index).getVal(),
@@ -338,20 +347,20 @@ public class QuestionnaireActivity extends AppCompatActivity implements Question
                         list_jawabanKuesioner.get(index).getRemarks(),
                         0
                 );
+
+                db.update_sinkron_kuesioner_result(kuestionResult.getId_kuesioner_result(),"0");
+                live_message.postValue(message);
+
+                checkAllQuestion();
             }, 1000);
         }
     }
 
-    void updateKuesionerResult(String id_kuesioner_result, String id_user, String id_shift, String id_kuesioner, String jawaban, String status, String alasan, String sync, String created_at, String updated_at, String deleted_at, String message, int type){
-        if(message!=null)
-            live_message.postValue(message);
-
+    void updateKuesionerResult(String id_kuesioner_result, String id_user, String id_shift, String status, String alasan, String sync, String created_at, String updated_at, String deleted_at){
         if(db.update_kuesioner_result(
                 id_kuesioner_result,
                 id_user,
                 id_shift,
-                id_kuesioner,
-                jawaban,
                 status,
                 alasan,
                 sync,
@@ -360,18 +369,106 @@ public class QuestionnaireActivity extends AppCompatActivity implements Question
                 deleted_at
         )>=0){
             db.update_sinkron_kuesioner_result(id_kuesioner_result,"0");
-            logging("[329]","",String.format("berhasil update id_kuesioner_result=%s", kuestionResult.getId_kuesioner_result()));
-            if(type==0)
-                startActivity(new Intent(this,ListQuestionnaireActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+            logging("[329]","",String.format("berhasil update id_kuesioner_result=%s", id_kuesioner_result));
         }
         else{
-            logging("[334]","",String.format("gagal update id_kuesioner_result=%s", kuestionResult.getId_kuesioner_result()));
+            logging("[334]","",String.format("gagal update id_kuesioner_result=%s", id_kuesioner_result));
+        }
+    }
+
+    void updateKuesionerResultDetail(String id_kuesioner_result_detail,String id_kuesioner_result,String id_kuesioner,String jawaban){
+        if(db.update_kuesioner_result_detail(
+                id_kuesioner_result_detail,
+                id_kuesioner_result,
+                id_kuesioner,
+                jawaban
+        )>=0){
+            db.update_sinkron_kuesioner_result(id_kuesioner_result,"0");
+            logging("[329]","",String.format("berhasil update id_kuesioner_result_detail=%s", list_kuesioner.get(idx).getId()));
+        }
+        else{
+            logging("[334]","",String.format("gagal update id_kuesioner_result_detail=%s", list_kuesioner.get(idx).getId()));
+        }
+    }
+
+    void updateJawabanPertanyaan(String id_kuesioner_result_detail, String id_topik, String id_pertanyaan, String val, String other, String start, String end, String remarks, int type){
+        if(db.update_kuesioner_hasil(
+                id_kuesioner_result_detail,
+                id_topik,
+                id_pertanyaan,
+                val,
+                other,
+                start,
+                end,
+                remarks
+        )>=0){
+            db.update_sinkron_kuesioner_result(id_kuesioner_result,"0");
+            logging("[459]","",String.format("berhasil update kuesioner_hasil id_kuesioner_result=%s id_topik=%s id_pertanyaan=%s val=%s start=%s end=%s", id_kuesioner_result,list_jawabanKuesioner.get(index).getTopik().getId(),list_jawabanKuesioner.get(index).getPertanyaan().getId(),val,start,end));
+            if(type==1) {
+                live_message.postValue("successfully updated the questionnaire");
+            }
+        }
+        else{
+            logging("[463]","",String.format("gagal update kuesioner_hasil id_kuesioner_result=%s id_topik=%s id_pertanyaan=%s val=%s start=%s end=%s", id_kuesioner_result,list_jawabanKuesioner.get(index).getTopik().getId(),list_jawabanKuesioner.get(index).getPertanyaan().getId(),val,start,end));
+            if(type==1)
+                live_message.postValue("failed to update the questionnaire");
         }
     }
 
     @Override
-    public void onFailPost(String message) {
-        closeDialog(message);
+    public void onFailPost(String message, int type) {
+        if(type==0){
+            openYN();
+        }
+        else{
+            openChoice();
+        }
+        save_local();
+        closeDialogWithMessage("successfully updated the questionnaire");
+    }
+
+    public void nextQuestionnaire(){
+        idx++;
+        if(idx>=0 && idx<list_kuesioner.size()) {
+            index=0;
+            nomor=1;
+
+            kuestionResult          = db.getKuesionerResult(id_kuesioner_result,data_session.get(SessionManager.KEY_ID_USER));
+            list_kuesioner          = db.getListKuesioner(id_kuesioner_result);
+            kuestionResultDetail    = list_kuesioner.get(idx);
+            list_jawabanKuesioner   = kuestionResultDetail.getList_pertanyaan();
+            binding.setKuestionResultDetail(kuestionResultDetail);
+            binding.setJawabanKuesioner(null);
+            binding.txtNumberQuestionnaire.setText("");
+
+            loadData();
+        }
+        else{
+            idx=list_kuesioner.size();
+            live_message.postValue("end of questionnaire");
+        }
+    }
+
+    public void backQuestionnaire(){
+        idx--;
+        if(idx>=0 && idx<list_kuesioner.size()) {
+            index=0;
+            nomor=1;
+
+            kuestionResult          = db.getKuesionerResult(id_kuesioner_result,data_session.get(SessionManager.KEY_ID_USER));
+            list_kuesioner          = db.getListKuesioner(id_kuesioner_result);
+            kuestionResultDetail    = list_kuesioner.get(idx);
+            list_jawabanKuesioner   = kuestionResultDetail.getList_pertanyaan();
+            binding.setKuestionResultDetail(kuestionResultDetail);
+            binding.setJawabanKuesioner(null);
+            binding.txtNumberQuestionnaire.setText("");
+
+            loadData();
+        }
+        else{
+            index=0;
+            live_message.postValue("start of questionnaire");
+        }
     }
 
     public void nextTopic(){
@@ -445,61 +542,22 @@ public class QuestionnaireActivity extends AppCompatActivity implements Question
                 jsonArray.put(jsonObject);
             }
 
-            binding.LayoutInputQuestionnaireFooter.setVisibility(View.GONE);
-            binding.LayoutInputYNQuestionnaire.setVisibility(View.GONE);
-            binding.LayoutInputChoiceQuestionnaire.setVisibility(View.GONE);
-
-            binding.LayoutInputQuestionnaire.setVisibility(View.GONE);
-            binding.loader.layoutLoading.setVisibility(View.VISIBLE);
+            closeChoiceWithYN();
+            openDialog();
 
             if(list_jawabanKuesioner.get(index).isValidation()) {
                 if (isNetworkAvailable(this)) {
-                    vmodel.updateKuesioner(kuestionResult.getId_kuesioner_result(), data_session.get(SessionManager.KEY_ID_USER), "2", jsonArray.toString(), 1);
+                    vmodel.updateKuesioner(list_kuesioner.get(idx).getId(), id_kuesioner_result, data_session.get(SessionManager.KEY_ID_USER), "2", jsonArray.toString(), 1);
                 } else {
-                    binding.LayoutInputQuestionnaireFooter.setVisibility(View.VISIBLE);
-                    binding.LayoutInputYNQuestionnaire.setVisibility(View.GONE);
-                    binding.LayoutInputChoiceQuestionnaire.setVisibility(View.VISIBLE);
-
-                    binding.LayoutInputQuestionnaire.setVisibility(View.VISIBLE);
-                    binding.loader.layoutLoading.setVisibility(View.GONE);
-
-                    updateKuesionerResult(
-                            kuestionResult.getId_kuesioner_result(),
-                            kuestionResult.getId_user(),
-                            kuestionResult.getShift().getId(),
-                            kuestionResult.getKuesioner().getId(),
-                            kuestionResult.getJawaban(),
-                            "0",
-                            "",
-                            "0",
-                            kuestionResult.getCreated_at(),
-                            updatedAt(),
-                            "",
-                            null,
-                            1
-                    );
-
-                    updateJawabanPertanyaan(
-                            kuestionResult.getId_kuesioner_result(),
-                            list_jawabanKuesioner.get(index).getTopik().getId(),
-                            list_jawabanKuesioner.get(index).getPertanyaan().getId(),
-                            list_jawabanKuesioner.get(index).getVal(),
-                            list_jawabanKuesioner.get(index).getOther(),
-                            list_jawabanKuesioner.get(index).getStart(),
-                            list_jawabanKuesioner.get(index).getEnd(),
-                            list_jawabanKuesioner.get(index).getRemarks(),
-                            1
-                    );
+                    openChoice();
+                    save_local();
+                    checkAllQuestion();
+                    closeDialogWithMessage("successfully updated the questionnaire");
                 }
             }
             else{
-                binding.LayoutInputQuestionnaireFooter.setVisibility(View.VISIBLE);
-                binding.LayoutInputYNQuestionnaire.setVisibility(View.GONE);
-                binding.LayoutInputChoiceQuestionnaire.setVisibility(View.VISIBLE);
-
-                binding.LayoutInputQuestionnaire.setVisibility(View.VISIBLE);
-                binding.loader.layoutLoading.setVisibility(View.GONE);
-
+                openChoice();
+                closeDialog();
                 live_message.postValue(list_jawabanKuesioner.get(index).getMessage());
             }
         } catch (JSONException e) {
@@ -507,40 +565,66 @@ public class QuestionnaireActivity extends AppCompatActivity implements Question
         }
     }
 
-    void updateJawabanPertanyaan(String id, String id_topik, String id_pertanyaan, String val, String other, String start, String end, String remarks, int type){
-        if(db.update_kuesioner_hasil(
-                id,
-                id_topik,
-                id_pertanyaan,
-                val,
-                other,
-                start,
-                end,
-                remarks
-        )>=0){
-            db.update_sinkron_kuesioner_result(id,"0");
-            logging("[459]","",String.format("berhasil update kuesioner_hasil id_kuesioner_result=%s id_topik=%s id_pertanyaan=%s val=%s start=%s end=%s", kuestionResult.getId_kuesioner_result(),list_jawabanKuesioner.get(index).getTopik().getId(),list_jawabanKuesioner.get(index).getPertanyaan().getId(),val,start,end));
-            if(type==1) {
-                live_message.postValue("successfully updated the questionnaire");
-            }
-        }
-        else{
-            logging("[463]","",String.format("gagal update kuesioner_hasil id_kuesioner_result=%s id_topik=%s id_pertanyaan=%s val=%s start=%s end=%s", kuestionResult.getId_kuesioner_result(),list_jawabanKuesioner.get(index).getTopik().getId(),list_jawabanKuesioner.get(index).getPertanyaan().getId(),val,start,end));
-            if(type==1)
-                live_message.postValue("failed to update the questionnaire");
-        }
+    void save_local(){
+        updateKuesionerResultDetail(
+                list_kuesioner.get(idx).getId(),
+                id_kuesioner_result,
+                list_kuesioner.get(idx).getKuesioner().getId(),
+                list_kuesioner.get(idx).getJawaban()
+        );
+
+        updateJawabanPertanyaan(
+                list_kuesioner.get(idx).getId(),
+                list_jawabanKuesioner.get(index).getTopik().getId(),
+                list_jawabanKuesioner.get(index).getPertanyaan().getId(),
+                list_jawabanKuesioner.get(index).getVal(),
+                list_jawabanKuesioner.get(index).getOther(),
+                list_jawabanKuesioner.get(index).getStart(),
+                list_jawabanKuesioner.get(index).getEnd(),
+                list_jawabanKuesioner.get(index).getRemarks(),
+                1
+        );
+
+        db.update_sinkron_kuesioner_result(id_kuesioner_result,"0");
     }
 
     void logging(String line, String head, String value){
         Log.i(String.format("[%s] app-log %s",line,head),value);
     }
 
-    void closeDialog(String message){
+    void closeDialogWithMessage(String message){
         new Handler().postDelayed(() -> {
             live_message.postValue(message);
-            binding.LayoutInputQuestionnaire.setVisibility(View.VISIBLE);
-            binding.loader.layoutLoading.setVisibility(View.GONE);
+            closeDialog();
         }, 1000);
+    }
+
+    void closeDialog(){
+        binding.LayoutInputQuestionnaire.setVisibility(View.VISIBLE);
+        binding.loader.layoutLoading.setVisibility(View.GONE);
+    }
+
+    void openDialog(){
+        binding.LayoutInputQuestionnaire.setVisibility(View.GONE);
+        binding.loader.layoutLoading.setVisibility(View.VISIBLE);
+    }
+
+    void openChoice(){
+        binding.LayoutInputQuestionnaireFooter.setVisibility(View.VISIBLE);
+        binding.LayoutInputYNQuestionnaire.setVisibility(View.GONE);
+        binding.LayoutInputChoiceQuestionnaire.setVisibility(View.VISIBLE);
+    }
+
+    void openYN(){
+        binding.LayoutInputQuestionnaireFooter.setVisibility(View.GONE);
+        binding.LayoutInputYNQuestionnaire.setVisibility(View.VISIBLE);
+        binding.LayoutInputChoiceQuestionnaire.setVisibility(View.GONE);
+    }
+
+    void closeChoiceWithYN(){
+        binding.LayoutInputQuestionnaireFooter.setVisibility(View.GONE);
+        binding.LayoutInputYNQuestionnaire.setVisibility(View.GONE);
+        binding.LayoutInputChoiceQuestionnaire.setVisibility(View.GONE);
     }
 
     @Override

@@ -28,4 +28,7 @@
     <color name="bg_header_title_questionnaire">#000</color>
     <color name="bg_header_subtitle_questionnaire">#000</color>
     <color name="background">#A1F3F3F3</color>
+
+    <color name="on">#1D84E3</color>
+    <color name="off">#000000</color>
 </resources>

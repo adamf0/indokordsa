@@ -74,7 +74,7 @@ public class ListQuestionnaireAdapter extends RecyclerView.Adapter<ListQuestionn
         String now = sdf.format(new Date());
 
         if(!reFormatDatev3(model.getCreated_at()).equals(now)){
-            if(model.getList_pertanyaan().size()!=model.getTotalPertanyaanSelesai()){
+            if(model.getList_kuesioner().size()!=model.getTotalPertanyaanSelesai()){
                 if(model.getAlasan().equals("0") || model.getAlasan().equals("")){
                     binding.layoutInputAlasanItemRowListQuestionnaire.setVisibility(View.VISIBLE);
                     binding.layoutAlasanItemRowListQuestionnaire.setVisibility(View.GONE);
@@ -94,7 +94,7 @@ public class ListQuestionnaireAdapter extends RecyclerView.Adapter<ListQuestionn
             binding.layoutAlasanItemRowListQuestionnaire.setVisibility(View.GONE);
         }
 
-        Log.i("app-log [ListQuestionnaireAdapter]",String.valueOf(model.getList_pertanyaan().size()));
+        Log.i("app-log [ListQuestionnaireAdapter]",String.valueOf(model.getList_kuesioner().size()));
         Log.i("app-log [ListQuestionnaireAdapter]",String.valueOf(model.getTotalPertanyaanSelesai()));
     }
 

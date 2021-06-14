@@ -18,6 +18,7 @@ import android.widget.TextView;
 import com.app.indokordsa.helper.RealPathUtil;
 import com.app.indokordsa.view.model.Job;
 import com.app.indokordsa.view.model.JawabanKuesioner;
+import com.app.indokordsa.view.model.KuesionerResultDetail;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -299,6 +300,26 @@ public class Util {
                             source_local.getStart(),
                             source_local.getEnd(),
                             source_local.getRemarks()
+                    ));
+                }
+            }
+        }
+        return gamma;
+    }
+    public static ArrayList<KuesionerResultDetail> intersectionv3(ArrayList<KuesionerResultDetail> server, ArrayList<KuesionerResultDetail> local) {
+        ArrayList<KuesionerResultDetail> gamma = new ArrayList<>();
+        for(int k=0;k<local.size();k++){
+            KuesionerResultDetail source_local = local.get(k);
+            for(int l=0;l<server.size();l++){
+                KuesionerResultDetail source_server = server.get(l);
+                if(
+                        source_server.getId().equals(source_local.getId())
+                ){
+                    gamma.add(new KuesionerResultDetail(
+                            source_local.getId(),
+                            source_local.getKuesioner(),
+                            source_local.getJawaban(),
+                            source_local.getList_pertanyaan()
                     ));
                 }
             }

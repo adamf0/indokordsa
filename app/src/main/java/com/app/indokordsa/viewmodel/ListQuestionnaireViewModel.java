@@ -20,6 +20,7 @@ import java.util.HashMap;
 import retrofit2.Call;
 import retrofit2.Callback;
 
+@SuppressLint("LongLogTag")
 public class ListQuestionnaireViewModel extends ViewModel {
     SessionManager session;
     ListQuestionnairelistener listener;
@@ -73,15 +74,13 @@ public class ListQuestionnaireViewModel extends ViewModel {
         });
     }
     public void update_alasan_questionnaire(String id_kuesioner_result, String alasan, KuesionerResult item){
-        HashMap<String, String> data = session.getSession();
-
         ApiRoute getResponse = AppConfig.getRetrofit(0).create(ApiRoute.class);
         Call<String> call = getResponse.update_alasan_questionnaire("api/update_alasan_questionneir", id_kuesioner_result, alasan);
 
         Log.i("app-log [ListCheckList]", "request to " + call.request().url().toString());
         call.enqueue(new Callback<String>() {
             @Override
-            public void onResponse(Call<String> call, retrofit2.Response<String> response) {
+            public void onResponse(@NotNull Call<String> call, @NotNull retrofit2.Response<String> response) {
                 String res_ = response.body();
 
                 if (response.isSuccessful()) {
@@ -106,7 +105,7 @@ public class ListQuestionnaireViewModel extends ViewModel {
             }
 
             @Override
-            public void onFailure(Call<String> call, Throwable t) {
+            public void onFailure(@NotNull Call<String> call, @NotNull Throwable t) {
                 Log.i("app-log [ListCheckList]", t.toString());
                 if (call.isCanceled()) {
                     listener.onFail("Request was aborted");

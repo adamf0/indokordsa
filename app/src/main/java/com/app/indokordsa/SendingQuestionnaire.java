@@ -11,6 +11,7 @@ import com.app.indokordsa.record.api.AppConfig;
 import com.app.indokordsa.record.db.DB;
 import com.app.indokordsa.view.model.JawabanKuesioner;
 import com.app.indokordsa.view.model.KuesionerResult;
+import com.app.indokordsa.view.model.KuesionerResultDetail;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
@@ -32,7 +33,6 @@ import static com.app.indokordsa.Util.isNetworkAvailable;
 //import com.rabbitmq.client.ConnectionFactory;
 
 public class SendingQuestionnaire extends BroadcastReceiver {
-//public class SendingQuestionnaire{
 //    ConnectionFactory factory = new ConnectionFactory();
     DB db;
 
@@ -54,41 +54,54 @@ public class SendingQuestionnaire extends BroadcastReceiver {
             Calendar c = Calendar.getInstance();
             c.setTime(new Date());
             Date end = c.getTime();
+            String EndDate = new SimpleDateFormat("yyyy-MM-dd").format(end);
 
-            ArrayList<KuesionerResult> list_data = new ArrayList<>(db.getListKuesioner(StartDate,new SimpleDateFormat("yyyy-MM-dd").format(end)));
+
+            ArrayList<KuesionerResult> list_data = new ArrayList<>(db.getAllTaskKuesioner(StartDate,EndDate));
             ArrayList<String> list_id = new ArrayList<>();
-            JSONArray arr0 = new JSONArray();
+            JSONArray list_kuesioner_result = new JSONArray();
             for (int i=0;i<list_data.size();i++){
-                JSONObject obj0 = new JSONObject();
-                list_id.add(list_data.get(i).getId_kuesioner_result());
-                obj0.put("id_kuesioner_result",list_data.get(i).getId_kuesioner_result());
-                obj0.put("id_user",list_data.get(i).getId_user());
-                obj0.put("jawaban",list_data.get(i).getJawaban());
+                KuesionerResult kr = list_data.get(i);
+                list_id.add(kr.getId_kuesioner_result());
 
-                JSONArray arr1 = new JSONArray();
-                ArrayList<JawabanKuesioner> list_pertanyaan = new ArrayList<>(list_data.get(i).getList_pertanyaan());
-                for (int j=0;j<list_pertanyaan.size();j++){
-                    JSONObject obj1 = new JSONObject();
+                JSONArray list_kuesioner_jawaban = new JSONArray();
+                for (int j=0;j<kr.getList_kuesioner().size();j++){
+                    KuesionerResultDetail krd = kr.getList_kuesioner().get(j);
 
-                    JawabanKuesioner jk = list_pertanyaan.get(j);
-                    obj1.put("id_kuesioner_detail_1",jk.getTopik().getId());
-                    obj1.put("id_kuesioner_detail_2",jk.getPertanyaan().getId());
-                    obj1.put("val",jk.getVal());
-                    obj1.put("other",jk.getOther());
-                    obj1.put("start",jk.getStart());
-                    obj1.put("end",jk.getEnd());
-                    obj1.put("remarks",jk.getRemarks());
-                    arr1.put(obj1);
+                    JSONArray list_jawaban = new JSONArray();
+                    for (int k=0;k<krd.getList_pertanyaan().size();k++){
+                        JawabanKuesioner jk = krd.getList_pertanyaan().get(k);
+
+                        JSONObject jawaban = new JSONObject();
+                        jawaban.put("id_kuesioner_detail_1",jk.getTopik().getId());
+                        jawaban.put("id_kuesioner_detail_2",jk.getPertanyaan().getId());
+                        jawaban.put("val",jk.getVal());
+                        jawaban.put("other",jk.getOther());
+                        jawaban.put("start",jk.getStart());
+                        jawaban.put("end",jk.getEnd());
+                        jawaban.put("remarks",jk.getRemarks());
+                        list_jawaban.put(jawaban);
+                    }
+
+                    JSONObject kuesioner_jawaban = new JSONObject();
+                    kuesioner_jawaban.put("id",krd.getId());
+                    kuesioner_jawaban.put("jawaban",krd.getJawaban());
+                    kuesioner_jawaban.put("result",list_jawaban);
+                    list_kuesioner_jawaban.put(kuesioner_jawaban);
                 }
-                obj0.put("result",arr1);
-                obj0.put("alasan",list_data.get(i).getAlasan());
-                arr0.put(obj0);
-            }
-            Log.i("app-log [pending questionnaire]",arr0.toString());
 
-            if(arr0.length()>0) {
+                JSONObject kuesioner_result = new JSONObject();
+                kuesioner_result.put("id_kuesioner_result",list_data.get(i).getId_kuesioner_result());
+                kuesioner_result.put("id_user",list_data.get(i).getId_user());
+                kuesioner_result.put("alasan",list_data.get(i).getAlasan());
+                kuesioner_result.put("kuesioner_jawaban",list_kuesioner_jawaban);
+                list_kuesioner_result.put(kuesioner_result);
+            }
+            Log.i("app-log [pending questionnaire]",list_kuesioner_result.toString());
+
+            if(list_kuesioner_result.length()>0) {
                 ApiRoute getResponse = AppConfig.getRetrofitV2(10).create(ApiRoute.class);
-                Call<String> call = getResponse.sync("api/receive_questionnaire", arr0.toString());
+                Call<String> call = getResponse.sync("api/receive_questionnaire", list_kuesioner_result.toString());
 
                 Log.i("app-log [Service Questionnaire]", "request to " + call.request().url().toString());
                 call.enqueue(new Callback<String>() {

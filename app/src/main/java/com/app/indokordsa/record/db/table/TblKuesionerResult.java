@@ -5,8 +5,6 @@ public class TblKuesionerResult {
     public static String key_id_kuesioner_result    = "id_kuesioner_result";
     public static String key_id_user                = "id_user";
     public static String key_id_shift               = "id_shift";
-    public static String key_id_kuesioner           = "id_kuesioner";
-    public static String key_jawaban                = "jawaban";
     public static String key_status                 = "status";
     public static String key_alasan                 = "alasan";
     public static String key_sync                   = "sync";
@@ -18,8 +16,6 @@ public class TblKuesionerResult {
             TblKuesionerResult.key_id_kuesioner_result + " INTEGER PRIMARY KEY AUTOINCREMENT," +
             TblKuesionerResult.key_id_user + " INTEGER NOT NULL," +
             TblKuesionerResult.key_id_shift + " INTEGER NOT NULL," +
-            TblKuesionerResult.key_id_kuesioner + " INTEGER NOT NULL," +
-            TblKuesionerResult.key_jawaban + " INTEGER," +
             TblKuesionerResult.key_status + " INTEGER," +
             TblKuesionerResult.key_alasan + " TEXT NULL," +
             TblKuesionerResult.key_sync + " INTEGER," +

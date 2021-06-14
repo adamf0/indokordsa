@@ -17,7 +17,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
         android:elevation="8dp"
-        android:onClick="@{()->action.selectItem(model,(model.jawaban==`2`)? true: model.enableClick)}"
+        android:onClick="@{()->action.selectItem(model,model.getList_kuesioner().size()==model.getTotalPertanyaanSelesai())}"
         app:cardCornerRadius="8dp"
         tools:ignore="UnusedAttribute">
 
@@ -73,35 +73,36 @@
                 app:layout_constraintTop_toBottomOf="@+id/txt_tanggal_item_row_list_questionnaire" />
 
             <TextView
-                android:id="@+id/textView12"
+                android:id="@+id/textView63"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="7dp"
-                android:text="Area"
+                android:layout_marginTop="8dp"
+                android:text="Shift"
                 app:layout_constraintEnd_toEndOf="@+id/textView10"
+                app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="@+id/textView10"
                 app:layout_constraintTop_toBottomOf="@+id/linearLayout2" />
 
             <TextView
-                android:id="@+id/txt_nama_questionnaire_item_row_list_questionnaire"
+                android:id="@+id/textView64"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="@{model.areaKuesioner}"
+                android:text="@{model.shift.fullShift}"
                 android:textColor="#000"
                 android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="@+id/textView12"
-                app:layout_constraintStart_toStartOf="@+id/textView12"
-                app:layout_constraintTop_toBottomOf="@+id/textView12" />
+                app:layout_constraintEnd_toEndOf="@+id/textView63"
+                app:layout_constraintStart_toStartOf="@+id/textView63"
+                app:layout_constraintTop_toBottomOf="@+id/textView63" />
 
             <LinearLayout
-                android:id="@+id/linearLayout3"
+                android:id="@+id/linearLayout17"
                 android:layout_width="0dp"
                 android:layout_height="1dp"
                 android:background="#000"
                 android:orientation="vertical"
-                app:layout_constraintEnd_toEndOf="@+id/textView12"
-                app:layout_constraintStart_toStartOf="@+id/textView12"
-                app:layout_constraintTop_toBottomOf="@+id/txt_nama_questionnaire_item_row_list_questionnaire" />
+                app:layout_constraintEnd_toEndOf="@+id/textView63"
+                app:layout_constraintStart_toStartOf="@+id/textView63"
+                app:layout_constraintTop_toBottomOf="@+id/textView64" />
 
             <TextView
                 android:id="@+id/textView11"
@@ -109,9 +110,10 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:text="Task"
-                app:layout_constraintEnd_toEndOf="@+id/textView12"
-                app:layout_constraintStart_toStartOf="@+id/textView12"
-                app:layout_constraintTop_toBottomOf="@+id/linearLayout3" />
+                app:layout_constraintEnd_toEndOf="@+id/textView10"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toStartOf="@+id/textView10"
+                app:layout_constraintTop_toBottomOf="@+id/linearLayout17" />
 
             <TextView
                 android:id="@+id/txt_total_tugas_item_row_list_questionnaire"

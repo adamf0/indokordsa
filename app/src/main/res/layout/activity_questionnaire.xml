@@ -8,8 +8,8 @@
             name="action"
             type="com.app.indokordsa.view.ui.QuestionnaireActivity" />
         <variable
-            name="kuestion_result"
-            type="com.app.indokordsa.view.model.KuesionerResult" />
+            name="kuestion_result_detail"
+            type="com.app.indokordsa.view.model.KuesionerResultDetail" />
         <variable
             name="jawaban_kuesioner"
             type="com.app.indokordsa.view.model.JawabanKuesioner" />
@@ -79,25 +79,68 @@
                     app:layout_constraintStart_toStartOf="@+id/txt_number_questionnaire"
                     app:layout_constraintTop_toBottomOf="@+id/txt_number_questionnaire" />
 
-                <TextView
-                    android:id="@+id/textView32"
+                <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    android:fontFamily="@font/helvetica_neue_ultra_light"
-                    android:text="@{kuestion_result.areaKuesioner}"
-                    android:textColor="@color/bg_header_title_questionnaire"
-                    android:textSize="24sp"
+                    android:layout_marginBottom="8dp"
+                    android:orientation="horizontal"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="@+id/textView31"
                     app:layout_constraintStart_toStartOf="@+id/textView31"
-                    app:layout_constraintTop_toBottomOf="@+id/textView31" />
+                    app:layout_constraintTop_toBottomOf="@+id/textView31">
+
+                    <com.google.android.material.floatingactionbutton.FloatingActionButton
+                        android:id="@+id/btn_backQuestionnaire_questionnaire"
+                        android:layout_width="35dp"
+                        android:layout_height="wrap_content"
+                        android:background="#000"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:onClick="@{()->action.backQuestionnaire()}"
+                        android:visibility="visible"
+                        app:backgroundTint="#000"
+                        app:fabSize="mini"
+                        app:maxImageSize="18dp"
+                        app:srcCompat="@drawable/ic_arrow_back"
+                        app:tint="@android:color/white"
+                        tools:ignore="VectorDrawableCompat" />
+
+                    <TextView
+                        android:id="@+id/textView32"
+                        android:layout_width="220dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginBottom="16dp"
+                        android:fontFamily="@font/helvetica_neue_ultra_light"
+                        android:text="@{kuestion_result_detail.areaKuesioner}"
+                        android:textColor="@color/bg_header_title_questionnaire"
+                        android:textSize="24sp" />
+
+                    <com.google.android.material.floatingactionbutton.FloatingActionButton
+                        android:id="@+id/btn_nextQuestionnaire_questionnaire"
+                        android:layout_width="35dp"
+                        android:layout_height="wrap_content"
+                        android:background="#000"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:onClick="@{()->action.nextQuestionnaire()}"
+                        android:visibility="visible"
+                        app:backgroundTint="#000"
+                        app:fabSize="mini"
+                        app:maxImageSize="18dp"
+                        app:srcCompat="@drawable/ic_arrow_forward_24"
+                        app:tint="@android:color/white"
+                        tools:ignore="VectorDrawableCompat" />
+                </LinearLayout>
+
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <ScrollView
-                android:fillViewport="true"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
+                android:fillViewport="true"
                 app:layout_constraintBottom_toTopOf="@+id/LayoutInputQuestionnaireFooter"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -117,7 +160,7 @@
                         android:layout_marginEnd="16dp"
                         android:layout_marginRight="16dp"
                         android:fontFamily="@font/helvetica_neue_condensed_bold"
-                        android:text="@{kuestion_result.kuesioner.pertanyaan}"
+                        android:text="@{kuestion_result_detail.kuesioner.pertanyaan}"
                         android:textColor="#000"
                         android:textSize="34sp"
                         app:layout_constraintEnd_toEndOf="parent"
