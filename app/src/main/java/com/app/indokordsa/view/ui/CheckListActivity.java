@@ -47,6 +47,7 @@ import cn.pedant.SweetAlert.SweetAlertDialog;
 import static com.app.indokordsa.Util.intersection;
 import static com.app.indokordsa.Util.isNetworkAvailable;
 
+@SuppressLint("SimpleDateFormat")
 public class CheckListActivity extends AppCompatActivity implements Checklistlistener {
     CheckListViewModel vmodel;
     ActivityCheckListBinding binding;
@@ -84,10 +85,6 @@ public class CheckListActivity extends AppCompatActivity implements Checklistlis
 
         live_index.observe(this, index -> updateInput(list_job.get(index)));
         live_message.observe(this, msg -> Snackbar.make(binding.LayoutCheklist,msg,Snackbar.LENGTH_LONG).show());
-    }
-
-    void back(){
-        startActivity(new Intent(this, ListCheckListActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
     }
 
     public void loadData(String id_checklist){
@@ -186,6 +183,7 @@ public class CheckListActivity extends AppCompatActivity implements Checklistlis
             live_index.postValue(index);
         }
         else{
+            live_index.postValue(list_job.size()-1);
             live_message.postValue("end of question");
         }
     }
@@ -196,6 +194,7 @@ public class CheckListActivity extends AppCompatActivity implements Checklistlis
             live_index.postValue(index);
         }
         else{
+            live_index.postValue(0);
             live_message.postValue("start of question");
         }
     }

@@ -8,7 +8,6 @@ import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
-import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
@@ -107,13 +106,13 @@ public class ListQuestionnaireActivity extends AppCompatActivity implements List
                     binding.loader.layoutLoading.setVisibility(View.GONE);
 
                     ArrayList<KuesionerResult> tmp1 = new ArrayList<>(db.getTaskKuesioner(data_session.get(SessionManager.KEY_ID_USER),StartDate,EndDate));
-//                    for (int i=0;i<tmp1.size();i++){
-//                        KuesionerResult tmp2 = tmp1.get(i);
-//                        if(tmp2.getShift().getSekarangv2()>=tmp2.getShift().getMulaiv2() && tmp2.getShift().getSekarangv2()<tmp2.getShift().getSelesaiv2()){
-//                            list_task.add(tmp2);
-//                        }
-//                    }
-                    list_task.addAll(tmp1);
+                    for (int i=0;i<tmp1.size();i++){
+                        KuesionerResult tmp2 = tmp1.get(i);
+                        if(tmp2.getShift().getSekarangv2()>=tmp2.getShift().getMulaiv2() && tmp2.getShift().getSekarangv2()<tmp2.getShift().getSelesaiv2()){
+                            list_task.add(tmp2);
+                        }
+                    }
+//                    list_task.addAll(tmp1);
                     binding.rvListQuestionnaire.setLayoutManager(new LinearLayoutManager(this));
                     listQuestionnaireAdapter = new ListQuestionnaireAdapter(this, this);
                     listQuestionnaireAdapter.setList(list_task);
@@ -583,7 +582,6 @@ public class ListQuestionnaireActivity extends AppCompatActivity implements List
                     logging("[B][0][local]" + new JSONArray(list_kuesioner_lokal_s));
                     logging("[B][0][server]" + new JSONArray(list_kuesioner_server_s));
                     for (String id_kuesioner_result_detail:diff_b) {
-                        Toast.makeText(this, id_kuesioner_result_detail, Toast.LENGTH_SHORT).show();
                         db.delete_KuesionerResultDetailById(id_kuesioner_result_detail);
                         db.delete_KuesionerHasilByIdKuesionerResultDetail(id_kuesioner_result_detail);
                         logging(String.format("[1] berhasil hapus kuesioner_hasil id_kuesioner_result_detail=%s", id_kuesioner_result_detail));

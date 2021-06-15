@@ -1418,8 +1418,8 @@ public class DB extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(
                 TblJawabanKuesioner.tbl_jawaban_kuesioner,
-                TblJawabanKuesioner.key_id_kuesioner_result_detail + "= ? " +
-                        TblJawabanKuesioner.key_id_topik_kuesioner + "= ? " +
+                TblJawabanKuesioner.key_id_kuesioner_result_detail + "= ? and " +
+                        TblJawabanKuesioner.key_id_topik_kuesioner + "= ? and " +
                         TblJawabanKuesioner.key_id_pertanyaan_kuesioner + "= ?",
                 new String[]{id_kuesioner_result_detail, id_topik_kuesioner, id_pertanyaan_kuesioner});
         db.close();

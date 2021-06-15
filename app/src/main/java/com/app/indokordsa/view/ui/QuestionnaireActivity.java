@@ -444,7 +444,7 @@ public class QuestionnaireActivity extends AppCompatActivity implements Question
             loadData();
         }
         else{
-            idx=list_kuesioner.size();
+            idx=list_kuesioner.size()-1;
             live_message.postValue("end of questionnaire");
         }
     }
@@ -478,7 +478,7 @@ public class QuestionnaireActivity extends AppCompatActivity implements Question
             initInput();
         }
         else{
-            index=list_jawabanKuesioner.size();
+            index=list_jawabanKuesioner.size()-1;
             live_message.postValue("end of question");
         }
         binding.txtNumberQuestionnaire.setText("#"+nomor);
