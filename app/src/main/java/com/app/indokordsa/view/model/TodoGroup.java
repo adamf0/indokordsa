@@ -5,7 +5,8 @@ import android.os.Parcelable;
 
 import androidx.databinding.BaseObservable;
 import androidx.databinding.Bindable;
-import androidx.databinding.library.baseAdapters.BR;
+
+import com.app.indokordsa.BR;
 
 public class TodoGroup extends BaseObservable implements Parcelable {
     private int id;

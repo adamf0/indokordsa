@@ -1,12 +1,10 @@
 package com.app.indokordsa.view.adapter;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -19,8 +17,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-import static com.app.indokordsa.Util.reFormatDatev1;
-import static com.app.indokordsa.Util.reFormatDatev3;
+import static com.app.indokordsa.etc.Util.reFormatDatev3;
 
 public class ListQuestionnaireAdapter extends RecyclerView.Adapter<ListQuestionnaireAdapter.ListQuestionnaireViewHolder> {
     public ArrayList<KuesionerResult> list_data;

@@ -1,6 +1,5 @@
 package com.app.indokordsa.view.adapter;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -8,7 +7,6 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.app.indokordsa.R;
 import com.app.indokordsa.databinding.ItemRowFiturBinding;
 import com.app.indokordsa.interfaces.Fiturlistener;
 import com.app.indokordsa.view.model.Fitur;

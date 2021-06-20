@@ -11,7 +11,7 @@ import com.app.indokordsa.BR;
 
 import java.util.Date;
 
-import static com.app.indokordsa.Util.string2Date;
+import static com.app.indokordsa.etc.Util.string2Date;
 
 public class JawabanKuesioner extends BaseObservable implements Parcelable {
     private String id;

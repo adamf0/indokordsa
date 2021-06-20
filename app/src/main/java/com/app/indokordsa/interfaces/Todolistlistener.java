@@ -1,7 +1,5 @@
 package com.app.indokordsa.interfaces;
 
-import com.app.indokordsa.view.model.Todo;
-
 public interface Todolistlistener {
     void onFail(String message);
     void onError(String message);

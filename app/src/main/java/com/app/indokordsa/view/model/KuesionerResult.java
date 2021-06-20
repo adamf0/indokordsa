@@ -8,7 +8,7 @@ import androidx.databinding.BaseObservable;
 import androidx.databinding.Bindable;
 
 import com.app.indokordsa.BR;
-import com.app.indokordsa.Util;
+import com.app.indokordsa.etc.Util;
 
 import java.util.ArrayList;
 

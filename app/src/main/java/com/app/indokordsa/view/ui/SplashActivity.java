@@ -12,8 +12,8 @@ import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.app.indokordsa.R;
-import com.app.indokordsa.SendingCheckList;
-import com.app.indokordsa.SendingQuestionnaire;
+import com.app.indokordsa.etc.SendingCheckList;
+import com.app.indokordsa.etc.SendingQuestionnaire;
 import com.app.indokordsa.databinding.ActivitySplashBinding;
 import com.app.indokordsa.interfaces.Splashlistener;
 import com.app.indokordsa.viewmodel.SplashViewModel;

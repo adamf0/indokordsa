@@ -64,7 +64,8 @@ public class ListCheckListViewModel extends ViewModel {
                 if (call.isCanceled()) {
                     listener.onFail("Request was aborted");
                 } else {
-                    listener.onFail(t.getMessage());
+//                    listener.onFail(t.getMessage());
+                    listener.onFail("Fail connect to server");
                 }
             }
         });
@@ -108,7 +109,8 @@ public class ListCheckListViewModel extends ViewModel {
                 if (call.isCanceled()) {
                     listener.onFail("Request was aborted");
                 } else {
-                    listener.onFail(t.getMessage());
+//                    listener.onFail(t.getMessage());
+                    listener.onFail("Fail connect to server");
                 }
             }
         });

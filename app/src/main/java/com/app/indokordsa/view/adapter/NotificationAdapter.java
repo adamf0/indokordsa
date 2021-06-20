@@ -1,6 +1,5 @@
 package com.app.indokordsa.view.adapter;
 
-import android.annotation.SuppressLint;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 

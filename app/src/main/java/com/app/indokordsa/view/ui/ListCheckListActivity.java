@@ -1,6 +1,5 @@
 package com.app.indokordsa.view.ui;
 
-import android.annotation.SuppressLint;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.nfc.NdefMessage;
@@ -57,12 +56,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.app.indokordsa.Util.dumpTagData;
-import static com.app.indokordsa.Util.intersection;
-import static com.app.indokordsa.Util.isNetworkAvailable;
+import static com.app.indokordsa.etc.Util.dumpTagData;
+import static com.app.indokordsa.etc.Util.intersection;
+import static com.app.indokordsa.etc.Util.isNetworkAvailable;
 
 public class ListCheckListActivity extends AppCompatActivity implements ListChecklistlistener {
     ListCheckListViewModel vmodel;

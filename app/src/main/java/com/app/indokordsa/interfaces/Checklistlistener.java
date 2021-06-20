@@ -1,7 +1,5 @@
 package com.app.indokordsa.interfaces;
 
-import com.app.indokordsa.view.model.Job;
-
 public interface Checklistlistener {
     void onSuccessGet(String response);
     void onFailGet(String message);

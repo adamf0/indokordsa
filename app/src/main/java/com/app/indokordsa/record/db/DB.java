@@ -39,7 +39,7 @@ import com.app.indokordsa.view.model.Topik;
 
 import java.util.ArrayList;
 
-import static com.app.indokordsa.Util.SC;
+import static com.app.indokordsa.etc.Util.SC;
 
 public class DB extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 1;
@@ -1138,6 +1138,29 @@ public class DB extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery(String.format("Select * FROM " + TblPertanyaanKuesioner.tbl_pertanyaan_kuesioner +
                 " WHERE "+ TblPertanyaanKuesioner.key_id_pertanyaan_kuesioner +" = %s", id), null);
 
+        num_row=cursor.getCount();
+        cursor.close();
+        return num_row;
+    }
+    public int countKuesionerResultById(String id) {
+        int num_row = 0;
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String sql = String.format("Select "+
+                "id_kuesioner_result," +
+                "id_user," +
+                "id_shift," +
+                "status," +
+                "alasan," +
+                "sync," +
+                "created_at," +
+                "updated_at," +
+                "deleted_at " +
+                "FROM tbl_kuesioner_result " +
+                "WHERE id_kuesioner_result = %s", id);
+        Log.i("app-log [query]",sql);
+
+        Cursor cursor = db.rawQuery(sql, null);
         num_row=cursor.getCount();
         cursor.close();
         return num_row;

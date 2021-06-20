@@ -40,7 +40,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.TimeZone;
 
-import static com.app.indokordsa.Util.isNetworkAvailable;
+import static com.app.indokordsa.etc.Util.isNetworkAvailable;
 
 @SuppressLint({"SetTextI18n","SimpleDateFormat","DefaultLocale"})
 public class QuestionnaireActivity extends AppCompatActivity implements Questionnairelistener, DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener {
@@ -318,7 +318,7 @@ public class QuestionnaireActivity extends AppCompatActivity implements Question
                         "1"
                 );
 
-                db.update_sinkron_kuesioner_result(kuestionResult.getId_kuesioner_result(),"0");
+                db.update_sinkron_kuesioner_result(id_kuesioner_result,"0");
                 live_message.postValue(message);
 
                 checkAllQuestion();
@@ -348,7 +348,7 @@ public class QuestionnaireActivity extends AppCompatActivity implements Question
                         0
                 );
 
-                db.update_sinkron_kuesioner_result(kuestionResult.getId_kuesioner_result(),"0");
+                db.update_sinkron_kuesioner_result(id_kuesioner_result,"0");
                 live_message.postValue(message);
 
                 checkAllQuestion();

@@ -16,7 +16,6 @@ import com.app.indokordsa.databinding.ActivityListTodolistBinding;
 import com.app.indokordsa.helper.SessionManager;
 import com.app.indokordsa.interfaces.ListTodolistlistener;
 import com.app.indokordsa.view.adapter.ListTodolistAdapter;
-import com.app.indokordsa.view.model.Job;
 import com.app.indokordsa.view.model.Todo;
 import com.app.indokordsa.view.model.TodoArea;
 import com.app.indokordsa.view.model.TodoGroup;
@@ -33,11 +32,8 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Objects;
 
 import cn.pedant.SweetAlert.SweetAlertDialog;
-
-import static com.app.indokordsa.Util.isNetworkAvailable;
 
 public class ListTodolistActivity extends AppCompatActivity implements ListTodolistlistener {
     TodoListViewModel vmodel;

@@ -1,14 +1,13 @@
 package com.app.indokordsa.viewmodel;
 
-import android.annotation.SuppressLint;
 import android.util.Log;
 
 import androidx.lifecycle.ViewModel;
 
 import com.app.indokordsa.helper.SessionManager;
+import com.app.indokordsa.interfaces.Profilelistener;
 import com.app.indokordsa.record.api.ApiRoute;
 import com.app.indokordsa.record.api.AppConfig;
-import com.app.indokordsa.interfaces.Profilelistener;
 import com.app.indokordsa.view.model.User;
 
 import org.json.JSONException;
@@ -116,7 +115,8 @@ public class ProfileViewModel extends ViewModel {
                     if (call.isCanceled()) {
                         listener.onFail("Request was aborted");
                     } else {
-                        listener.onFail(t.getMessage());
+//                        listener.onFail(t.getMessage());
+                        listener.onFail("Fail connect to server");
                     }
                 }
             });
@@ -160,7 +160,8 @@ public class ProfileViewModel extends ViewModel {
                 if (call.isCanceled()) {
                     listener.onFail("Request was aborted");
                 } else {
-                    listener.onFail(t.getMessage());
+//                    listener.onFail(t.getMessage());
+                    listener.onFail("Fail connect to server");
                 }
             }
         });

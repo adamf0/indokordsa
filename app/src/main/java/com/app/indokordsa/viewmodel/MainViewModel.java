@@ -1,6 +1,5 @@
 package com.app.indokordsa.viewmodel;
 
-import android.annotation.SuppressLint;
 import androidx.lifecycle.ViewModel;
 import com.app.indokordsa.R;
 import com.app.indokordsa.view.model.Fitur;

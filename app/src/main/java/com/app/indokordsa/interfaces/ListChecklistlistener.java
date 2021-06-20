@@ -1,7 +1,6 @@
 package com.app.indokordsa.interfaces;
 
 import com.app.indokordsa.view.model.CheckList;
-import com.app.indokordsa.view.model.Fitur;
 
 public interface ListChecklistlistener {
     void onSelect(CheckList checkList);

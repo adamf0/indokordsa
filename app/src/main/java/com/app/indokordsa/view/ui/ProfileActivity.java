@@ -2,17 +2,11 @@ package com.app.indokordsa.view.ui;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.provider.MediaStore;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.method.LinkMovementMethod;
-import android.text.style.ForegroundColorSpan;
-import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 
@@ -22,7 +16,7 @@ import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.app.indokordsa.R;
-import com.app.indokordsa.Util;
+import com.app.indokordsa.etc.Util;
 import com.app.indokordsa.databinding.ActivityProfileBinding;
 import com.app.indokordsa.helper.PermissionHelper;
 import com.app.indokordsa.helper.RealPathUtil;
@@ -37,7 +31,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;

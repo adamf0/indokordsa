@@ -1,6 +1,5 @@
 package com.app.indokordsa.view.adapter;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,7 +14,6 @@ import com.app.indokordsa.helper.SessionManager;
 import com.app.indokordsa.interfaces.ViewPagerListener;
 import com.app.indokordsa.record.db.DB;
 import com.app.indokordsa.view.model.CheckList;
-import com.app.indokordsa.view.model.JawabanKuesioner;
 import com.app.indokordsa.view.model.KuesionerResult;
 
 import java.text.ParseException;

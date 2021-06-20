@@ -283,7 +283,7 @@
                                 android:layout_height="wrap_content"
                                 android:ems="10"
                                 android:inputType="textPersonName"
-                                android:onTextChanged="@{action.onOtherChanged}"
+                                android:onTextChanged="@{action::onOtherChanged}"
                                 android:text="@{jawaban_kuesioner.other}"
                                 android:visibility="visible" />
                         </LinearLayout>
@@ -305,7 +305,7 @@
                             android:layout_height="wrap_content"
                             android:ems="10"
                             android:inputType="textPersonName"
-                            android:onTextChanged="@{action.onRemarksChanged}"
+                            android:onTextChanged="@{action::onRemarksChanged}"
                             android:text="@{jawaban_kuesioner.remarks}"
                             android:visibility="visible"
                             app:layout_constraintEnd_toEndOf="parent"

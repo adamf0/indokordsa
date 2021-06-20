@@ -1,6 +1,5 @@
 package com.app.indokordsa.viewmodel;
 
-import android.annotation.SuppressLint;
 import android.util.Log;
 
 import androidx.lifecycle.ViewModel;
@@ -61,7 +60,8 @@ public class LoginViewModel extends ViewModel {
                     if (call.isCanceled()) {
                         loginlistener.onFailAuth("Request was aborted");
                     } else {
-                        loginlistener.onFailAuth(t.getMessage());
+//                        loginlistener.onFailAuth(t.getMessage());
+                        loginlistener.onFailAuth("Fail connect to server");
                     }
                 }
             });

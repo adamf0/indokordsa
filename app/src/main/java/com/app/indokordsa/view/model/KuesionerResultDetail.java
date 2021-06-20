@@ -1,16 +1,12 @@
 package com.app.indokordsa.view.model;
 
-import android.graphics.Color;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.text.TextUtils;
 
 import androidx.databinding.BaseObservable;
 import androidx.databinding.Bindable;
 
 import com.app.indokordsa.BR;
-import com.app.indokordsa.R;
-import com.app.indokordsa.Util;
 
 import java.util.ArrayList;
 

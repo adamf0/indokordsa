@@ -1,6 +1,5 @@
 package com.app.indokordsa.view.adapter;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,7 +14,6 @@ import com.app.indokordsa.view.model.CheckList;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 
 public class ListChecklistAdapter extends RecyclerView.Adapter<ListChecklistAdapter.ListChecklistViewHolder> {

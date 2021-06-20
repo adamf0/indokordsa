@@ -3,14 +3,12 @@ package com.app.indokordsa.view.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
-import android.widget.Toast;
 
 import androidx.databinding.BaseObservable;
 import androidx.databinding.Bindable;
 
 import com.app.indokordsa.BR;
-import com.app.indokordsa.Util;
-import com.google.android.material.snackbar.Snackbar;
+import com.app.indokordsa.etc.Util;
 
 public class Todo extends BaseObservable implements Parcelable {
     private String id;

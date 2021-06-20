@@ -44,8 +44,8 @@ import java.util.Set;
 
 import cn.pedant.SweetAlert.SweetAlertDialog;
 
-import static com.app.indokordsa.Util.intersection;
-import static com.app.indokordsa.Util.isNetworkAvailable;
+import static com.app.indokordsa.etc.Util.intersection;
+import static com.app.indokordsa.etc.Util.isNetworkAvailable;
 
 @SuppressLint("SimpleDateFormat")
 public class CheckListActivity extends AppCompatActivity implements Checklistlistener {

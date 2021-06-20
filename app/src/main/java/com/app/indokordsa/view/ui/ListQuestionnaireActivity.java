@@ -47,9 +47,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static com.app.indokordsa.Util.intersectionv2;
-import static com.app.indokordsa.Util.intersectionv3;
-import static com.app.indokordsa.Util.isNetworkAvailable;
+import static com.app.indokordsa.etc.Util.intersectionv2;
+import static com.app.indokordsa.etc.Util.intersectionv3;
+import static com.app.indokordsa.etc.Util.isNetworkAvailable;
 
 @SuppressLint({"LongLogTag","SimpleDateFormat"})
 public class ListQuestionnaireActivity extends AppCompatActivity implements ListQuestionnairelistener {
@@ -297,7 +297,7 @@ public class ListQuestionnaireActivity extends AppCompatActivity implements List
     }
     void AddUpdateKuesionerResult(String id,String id_user,String id_shift, String status, String alasan, String sync, String created_at, String updated_at, String deleted_at,boolean isRecall){
         String message = "";
-        if(db.countKuesionerResultByIdUser(id_user,StartDate,EndDate)<1){
+        if(db.countKuesionerResultById(id)<1){
             if(db.save_kuesioner_result(
                     id,
                     id_user,
@@ -325,7 +325,7 @@ public class ListQuestionnaireActivity extends AppCompatActivity implements List
                     id_shift,
                     String.valueOf(status),
                     alasan,
-                    String.valueOf(tmp.getSync_()),
+                    String.valueOf(tmp==null? "0":tmp.getSync_()),
                     created_at,
                     updated_at,
                     deleted_at

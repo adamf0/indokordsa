@@ -61,7 +61,8 @@ public class TodoViewModel extends ViewModel {
                 if (call.isCanceled()) {
                     listener.onError("Request was aborted");
                 } else {
-                    listener.onError(t.getMessage());
+//                    listener.onError(t.getMessage());
+                    listener.onError("Fail connect to server");
                 }
             }
         });
@@ -104,7 +105,8 @@ public class TodoViewModel extends ViewModel {
                     listener.onError("Request was aborted");
 
                 } else {
-                    listener.onError(t.getMessage());
+//                    listener.onError(t.getMessage());
+                    listener.onError("Fail connect to server");
                 }
             }
         });

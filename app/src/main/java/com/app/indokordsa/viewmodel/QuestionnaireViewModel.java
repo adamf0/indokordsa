@@ -1,6 +1,5 @@
 package com.app.indokordsa.viewmodel;
 
-import android.annotation.SuppressLint;
 import android.util.Log;
 
 import androidx.lifecycle.ViewModel;
@@ -13,8 +12,6 @@ import com.app.indokordsa.record.api.AppConfig;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.util.HashMap;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -65,7 +62,8 @@ public class QuestionnaireViewModel extends ViewModel {
                 if (call.isCanceled()) {
                     listener.onError("Request was aborted");
                 } else {
-                    listener.onError(t.getMessage());
+//                    listener.onError(t.getMessage());
+                    listener.onError("Fail connect to server");
                 }
             }
         });
