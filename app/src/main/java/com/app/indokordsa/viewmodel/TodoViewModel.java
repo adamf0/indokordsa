@@ -67,9 +67,9 @@ public class TodoViewModel extends ViewModel {
             }
         });
     }
-    public void save_todolist(String id_todolist, String id_user, String tanggal, String id_area, String id_group, String id_shift, String time, String remarks, String action, String id_status, String id_pic, boolean isUpdate){
+    public void save_todolist(String id_todolist, String id_user, String tanggal, String id_area, String id_group, String id_shift, String time, String remarks, String action, String id_status, String id_pic, String abnormal, boolean isUpdate){
         ApiRoute getResponse = AppConfig.getRetrofit(0).create(ApiRoute.class);
-        Call<String> call = getResponse.save_todolist((!isUpdate? "api/save_todolist":"api/update_todolist"), id_todolist, id_user, tanggal, id_area, id_group, id_shift, time, remarks, action, id_status, id_pic);
+        Call<String> call = getResponse.save_todolist((!isUpdate? "api/save_todolist":"api/update_todolist"), id_todolist, id_user, tanggal, id_area, id_group, id_shift, time, remarks, action, id_status, id_pic,abnormal);
         Log.i("app-log [Todolist]", "request to " + call.request().url().toString());
 
         call.enqueue(new Callback<String>() {

@@ -22,6 +22,7 @@ public class Todo extends BaseObservable implements Parcelable {
     private String action;
     private TodoStatus status;
     private TodoPIC pic;
+    private String abnormal;
     private String message;
 
     Todo(){
@@ -37,7 +38,8 @@ public class Todo extends BaseObservable implements Parcelable {
             String remarks,
             String action,
             TodoStatus status,
-            TodoPIC pic
+            TodoPIC pic,
+            String abnormal
     )
     {
         setId(id);
@@ -51,6 +53,7 @@ public class Todo extends BaseObservable implements Parcelable {
         setAction(action);
         setStatus(status);
         setPic(pic);
+        setAbnormal(abnormal);
         setMessage("");
     }
 
@@ -66,6 +69,7 @@ public class Todo extends BaseObservable implements Parcelable {
         action = in.readString();
         status = in.readParcelable(TodoShift.class.getClassLoader());
         pic = in.readParcelable(TodoPIC.class.getClassLoader());
+        abnormal = in.readString();
     }
 
     public static final Creator<Todo> CREATOR = new Creator<Todo>() {
@@ -213,6 +217,7 @@ public class Todo extends BaseObservable implements Parcelable {
         dest.writeString(action);
         dest.writeParcelable(status, flags);
         dest.writeParcelable(pic, flags);
+        dest.writeString(abnormal);
     }
 
     public boolean isValidation() {
@@ -234,6 +239,10 @@ public class Todo extends BaseObservable implements Parcelable {
         }
         else if (TextUtils.isEmpty(getTime())) {
             setMessage("Time cannot be empty");
+            return false;
+        }
+        else if (TextUtils.isEmpty(getAbnormal())) {
+            setMessage("Abnormal condition cannot be empty");
             return false;
         }
         else if (TextUtils.isEmpty(getAction())) {
@@ -261,5 +270,15 @@ public class Todo extends BaseObservable implements Parcelable {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    @Bindable
+    public String getAbnormal() {
+        return abnormal;
+    }
+
+    public void setAbnormal(String abnormal) {
+        this.abnormal = abnormal;
+        this.notifyPropertyChanged(BR.abnormal);
     }
 }

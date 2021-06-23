@@ -101,7 +101,8 @@ public interface ApiRoute {
             @Field("remarks") String remarks,
             @Field("action") String action,
             @Field("id_status") String id_status,
-            @Field("id_pic") String id_pic
+            @Field("id_pic") String id_pic,
+            @Field("abnormal") String abnormal
     );
 
     @POST

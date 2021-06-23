@@ -80,7 +80,7 @@ public class TodolistActivity extends AppCompatActivity implements Todolistliste
                 todo = init();
             }
             else{
-                todo = new Todo(_todo.getId(), _todo.getId_user(), _todo.getTanggal(), _todo.getArea(), _todo.getGroup(), _todo.getShift(), _todo.getTime(), _todo.getRemarks(), _todo.getAction(), _todo.getStatus(), _todo.getPic());
+                todo = new Todo(_todo.getId(), _todo.getId_user(), _todo.getTanggal(), _todo.getArea(), _todo.getGroup(), _todo.getShift(), _todo.getTime(), _todo.getRemarks(), _todo.getAction(), _todo.getStatus(), _todo.getPic(),_todo.getAbnormal());
             }
             binding.setModel(todo);
             binding.edtTanggalTodo.setText(todo.getTanggalFormat());
@@ -95,7 +95,7 @@ public class TodolistActivity extends AppCompatActivity implements Todolistliste
     }
 
     Todo init(){
-        return new Todo("", "", "", null, null, null, "", "", "", null, null);
+        return new Todo("", "", "", null, null, null, "", "", "", null, null,"");
     }
 
     public void pick_tgl(){
@@ -133,7 +133,7 @@ public class TodolistActivity extends AppCompatActivity implements Todolistliste
             binding.scrollTodo.setVisibility(View.GONE);
             binding.layoutHeaderTodo.setVisibility(View.GONE);
             binding.loader.layoutLoading.setVisibility(View.VISIBLE);
-            vmodel.save_todolist( (!isUpdate? "":todo.getId()), data_session.get(SessionManager.KEY_ID_USER), todo.getTanggal(), String.valueOf(todo.getArea().getId()), String.valueOf(todo.getGroup().getId()), String.valueOf(todo.getShift().getId()), String.valueOf(todo.getTime()), String.valueOf(todo.getRemarks()), String.valueOf(todo.getAction()), String.valueOf(todo.getStatus().getId()), String.valueOf(todo.getPic().getId()), isUpdate);
+            vmodel.save_todolist( (!isUpdate? "":todo.getId()), data_session.get(SessionManager.KEY_ID_USER), todo.getTanggal(), String.valueOf(todo.getArea().getId()), String.valueOf(todo.getGroup().getId()), String.valueOf(todo.getShift().getId()), String.valueOf(todo.getTime()), String.valueOf(todo.getRemarks()), String.valueOf(todo.getAction()), String.valueOf(todo.getStatus().getId()), String.valueOf(todo.getPic().getId()), todo.getAbnormal(), isUpdate);
         }
     }
 

@@ -73,13 +73,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="20dp"
-                android:layout_marginRight="20dp"
                 android:background="@drawable/button_red"
                 android:fontFamily="@font/helvetica_neue_condensed_bold"
-                android:paddingLeft="11dp"
-                android:paddingTop="7dp"
-                android:paddingRight="12dp"
-                android:paddingBottom="6dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
                 android:text="Done"
                 android:textColor="#fff"
                 android:textFontWeight="700"
@@ -89,8 +86,8 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/btn_exit_todo"
                 tools:ignore="UnusedAttribute"
-                android:paddingStart="11dp"
-                android:paddingEnd="12dp" />
+                android:paddingStart="18dp"
+                android:paddingEnd="18dp" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -251,10 +248,13 @@
                     android:id="@+id/textView46"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="21dp"
+                    android:layout_marginEnd="21dp"
                     android:text="Rematks"
-                    app:layout_constraintEnd_toEndOf="@+id/lb_nama_profile"
-                    app:layout_constraintStart_toStartOf="@+id/lb_nama_profile"
-                    app:layout_constraintTop_toBottomOf="@+id/edt_time_todo" />
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/drop_pic_todo" />
 
                 <EditText
                     android:id="@+id/edt_remarks_todo"
@@ -269,18 +269,23 @@
                     android:id="@+id/textView48"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="21dp"
+                    android:layout_marginEnd="21dp"
                     android:text="Action"
-                    app:layout_constraintEnd_toEndOf="@+id/lb_nama_profile"
-                    app:layout_constraintStart_toStartOf="@+id/lb_nama_profile"
-                    app:layout_constraintTop_toBottomOf="@+id/edt_remarks_todo" />
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/editTextTextPersonName" />
 
                 <TextView
                     android:id="@+id/textView50"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="21dp"
+                    android:layout_marginEnd="21dp"
                     android:text="Status"
-                    app:layout_constraintEnd_toEndOf="@+id/textView48"
-                    app:layout_constraintStart_toStartOf="@+id/textView48"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="1.0"
+                    app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/edt_action_todo" />
 
                 <Spinner
@@ -296,9 +301,12 @@
                     android:id="@+id/textView52"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="21dp"
+                    android:layout_marginEnd="21dp"
                     android:text="PIC"
-                    app:layout_constraintEnd_toEndOf="@+id/textView50"
-                    app:layout_constraintStart_toStartOf="@+id/textView50"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/drop_status_todo" />
 
                 <Spinner
@@ -309,6 +317,27 @@
                     app:layout_constraintEnd_toEndOf="@+id/textView52"
                     app:layout_constraintStart_toStartOf="@+id/textView52"
                     app:layout_constraintTop_toBottomOf="@+id/textView52" />
+
+                <TextView
+                    android:id="@+id/textView65"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="21dp"
+                    android:layout_marginEnd="21dp"
+                    android:text="Abnormal Condition"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/edt_time_todo" />
+
+                <EditText
+                    android:id="@+id/editTextTextPersonName"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="@={model.abnormal}"
+                    app:layout_constraintEnd_toEndOf="@+id/textView65"
+                    app:layout_constraintStart_toStartOf="@+id/textView65"
+                    app:layout_constraintTop_toBottomOf="@+id/textView65" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
         </ScrollView>

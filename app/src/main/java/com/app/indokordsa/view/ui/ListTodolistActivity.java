@@ -206,6 +206,9 @@ public class ListTodolistActivity extends AppCompatActivity implements ListTodol
                         Log.i("app-log [list_todo]",pic.getString("nama"));
                     }
 
+                    String abnormal = obj.getString("abnormal");
+                    Log.i("app-log [list_todo]",abnormal);
+
                     list_todo.add(new Todo(
                             id,
                             id_user,
@@ -217,7 +220,8 @@ public class ListTodolistActivity extends AppCompatActivity implements ListTodol
                             remarks,
                             action,
                             Status,
-                            PIC
+                            PIC,
+                            abnormal
                     ));
 
                     binding.rvListTodolist.setLayoutManager(new LinearLayoutManager(this));
